@@ -1,9 +1,17 @@
+import 'dart:io';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart';
 import 'weather_package.dart';
 import 'dart:math';
 
+String baseUrlMetaWeather = 'www.metaweather.com';
+String baseApiCallLocationSearch = '/api/location/search';
+
 class WeatherCubit extends Cubit<WeatherPackage> {
+  final Client httpClient = Client();
+
   WeatherCubit()
       : super(WeatherPackage(
             locationName: '[Ex: San Diego, CA]',
@@ -14,6 +22,10 @@ class WeatherCubit extends Cubit<WeatherPackage> {
             isFahrenheit: true));
 
   void getWeather(String location) {
+    // Find the location and corresponding location id
+    Future<int> locId = getLocId(location);
+    // Find the weather info using the location id
+
     emit(WeatherPackage(
         locationName: location,
         updateTime: getNowTime(),
@@ -21,6 +33,17 @@ class WeatherCubit extends Cubit<WeatherPackage> {
         highTemp: randNum(true),
         lowTemp: randNum(false),
         isFahrenheit: state.isFahrenheit));
+  }
+
+  Future<int> getLocId(String location) async {
+    // Created using https://www.metaweather.com/api/
+    Uri locationRequest = Uri.https(baseUrlMetaWeather,
+        baseApiCallLocationSearch, <String, String>{'query': location});
+    Response locationResponse = await httpClient.get(locationRequest);
+    // Ensure a real location
+
+    print(locationResponse.body);
+    return 0;
   }
 
   void toggleUnits() {

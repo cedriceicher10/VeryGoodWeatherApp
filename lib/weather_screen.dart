@@ -56,6 +56,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
                   const SizedBox(height: spacing * 4),
                   weatherContainer(
                       weather, weatherContainerWidth, weatherContainerHeight),
+                  meatWeatherConsideration(
+                      'Weather provided by MetaWeather.com'),
                   const SizedBox(height: spacing / 2),
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                     toggleUnitsButton(bottomButtonWidth, bottomButtonHeight),
@@ -215,11 +217,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
       text = 'L: ' + text;
     }
     return FormattedText(
-        text: text,
-        size: s_fontSizeMedLarge,
-        color: Colors.black,
-        font: s_font_IBMPlexSans,
-        weight: FontWeight.bold);
+      text: text,
+      size: s_fontSizeMedLarge,
+      color: Colors.black,
+      font: s_font_IBMPlexSans,
+    );
   }
 
   Widget toggleUnitsButton(double buttonWidth, double buttonHeight) {
@@ -257,7 +259,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
             currentFocus.unfocus();
           }
           // Get weather for current city
-          context.read<WeatherCubit>().getWeather('Sydney');
+          context.read<WeatherCubit>().getWeather('London');
         },
         style: ElevatedButton.styleFrom(
             primary: Colors.black, fixedSize: Size(buttonWidth, buttonHeight)),
@@ -273,26 +275,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
           bottomButtonText('Refresh')
         ]));
   }
-
-  // REFERENCE
-  // body: BlocBuilder<CounterCubit, int>(
-  //       builder: (context, count) => Center(child: Text('$count')),
-  //     ),
-  //     floatingActionButton: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.end,
-  //       mainAxisAlignment: MainAxisAlignment.end,
-  //       children: <Widget>[
-  //         FloatingActionButton(
-  //           child: const Icon(Icons.add),
-  //           onPressed: () => context.read<CounterCubit>().increment(),
-  //         ),
-  //         const SizedBox(height: 4),
-  //         FloatingActionButton(
-  //           child: const Icon(Icons.remove),
-  //           onPressed: () => context.read<CounterCubit>().decrement(),
-  //         ),
-  //       ],
-  //     ),
 
   Widget weatherScreenTitle(String text) {
     return FormattedText(
@@ -317,6 +299,15 @@ class _WeatherScreenState extends State<WeatherScreen> {
         text: text,
         size: s_fontSizeSmaller,
         color: Colors.white,
+        font: s_font_BonaNova,
+        weight: FontWeight.bold);
+  }
+
+  Widget meatWeatherConsideration(String text) {
+    return FormattedText(
+        text: text,
+        size: s_fontSizeExtraSmall,
+        color: Colors.black,
         font: s_font_BonaNova,
         weight: FontWeight.bold);
   }
