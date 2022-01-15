@@ -18,6 +18,7 @@ const double s_fontSizeLarge = 32;
 const double s_fontSizeMedLarge = 26;
 const double s_fontSizeMedium = 20;
 const double s_fontSizeSmall = 16;
+const double s_fontSizeSmaller = 14;
 const double s_fontSizeExtraSmall = 12;
 
 // Colors
