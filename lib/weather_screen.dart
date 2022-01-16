@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:verygoodweatherapp/styles.dart';
 import 'package:verygoodweatherapp/weather_package.dart';
+import 'package:weather_icons/weather_icons.dart';
 import 'formatted_text.dart';
 import 'weather_cubit.dart';
 
@@ -57,7 +58,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                   const SizedBox(height: spacing * 4),
                   weatherContainer(
                       weather, weatherContainerWidth, weatherContainerHeight),
-                  meatWeatherConsideration(
+                  meatWeatherConsiderationText(
                       'Weather provided by MetaWeather.com'),
                   const SizedBox(height: spacing / 2),
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -159,19 +160,133 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   Widget weatherDisplay(WeatherPackage weather) {
     return Column(children: [
-      weatherTitle('Weather in ${weather.locationName}'),
-      updateTime('Updated at ${weather.updateTime}'),
+      weatherTitle(weather.locationName),
+      updateTimeText('Updated at ${weather.updateTime}'),
       const SizedBox(height: 10),
-      currentTemp(weather.currentTemp.toStringAsFixed(0), weather.isFahrenheit),
+      currentTempText(
+          weather.currentTemp.toStringAsFixed(0), weather.isFahrenheit),
       const SizedBox(height: 5),
+      hiLoTempText(weather.highTemp.toStringAsFixed(0),
+          weather.lowTemp.toStringAsFixed(0), weather.isFahrenheit),
+      const SizedBox(height: 5),
+      weatherStateText(weather.weatherState),
+      const SizedBox(height: 20),
       Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        hiLoTemp(
-            weather.highTemp.toStringAsFixed(0), true, weather.isFahrenheit),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            weatherMetricText('${weather.windSpeed.toStringAsFixed(0)} mph', 1),
+            weatherMetricText('${weather.windDirection}', 2),
+            weatherMetricText(
+                '${weather.airPressure.toStringAsFixed(0)} mbar', 3)
+          ],
+        ),
         const SizedBox(width: 20),
-        hiLoTemp(
-            weather.lowTemp.toStringAsFixed(0), false, weather.isFahrenheit)
+        Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            weatherMetricText('${weather.humidity}%', 4),
+            weatherMetricText('${weather.visibility.toStringAsFixed(0)} mi', 5),
+            weatherMetricText('${weather.predictability}%', 6)
+          ],
+        ),
       ])
     ]);
+  }
+
+  Widget weatherMetricText(String text, int mode) {
+    double iconSize = 14;
+    Color iconColor = Colors.black;
+    Icon metricIcon = Icon(
+      WeatherIcons.day_sunny,
+      color: iconColor,
+      size: iconSize,
+    );
+    switch (mode) {
+      // Wind Speed
+      case 1:
+        {
+          metricIcon = Icon(
+            WeatherIcons.direction_up_right,
+            color: iconColor,
+            size: iconSize,
+          );
+        }
+        break;
+      // Wind Direction
+      case 2:
+        {
+          metricIcon = Icon(
+            WeatherIcons.wind_deg_225,
+            color: iconColor,
+            size: iconSize,
+          );
+        }
+        break;
+      // Air Pressure
+      case 3:
+        {
+          metricIcon = Icon(
+            WeatherIcons.barometer,
+            color: iconColor,
+            size: iconSize,
+          );
+        }
+        break;
+      // Humidity
+      case 4:
+        {
+          metricIcon = Icon(
+            WeatherIcons.humidity,
+            color: iconColor,
+            size: iconSize,
+          );
+        }
+        break;
+      // Visibility
+      case 5:
+        {
+          metricIcon = Icon(
+            Icons.visibility,
+            color: iconColor,
+            size: iconSize,
+          );
+        }
+        break;
+      // Predictability
+      case 6:
+        {
+          metricIcon = Icon(
+            Icons.check,
+            color: iconColor,
+            size: iconSize,
+          );
+        }
+        break;
+    }
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        metricIcon,
+        const SizedBox(width: 10),
+        FormattedText(
+            text: text,
+            size: s_fontSizeExtraSmall,
+            color: Colors.black,
+            font: s_font_IBMPlexSans)
+      ],
+    );
+  }
+
+  Widget weatherStateText(String text) {
+    return FormattedText(
+        text: text,
+        size: s_fontSizeMedLarge,
+        color: Colors.black,
+        font: s_font_IBMPlexSans,
+        weight: FontWeight.bold);
   }
 
   Widget weatherTitle(String text) {
@@ -179,19 +294,19 @@ class _WeatherScreenState extends State<WeatherScreen> {
         text: text,
         size: s_fontSizeMedium,
         color: Colors.black,
-        font: s_font_IBMPlexSans);
-  }
-
-  Widget updateTime(String text) {
-    return FormattedText(
-        text: text,
-        size: s_fontSizeExtraSmall,
-        color: Colors.black,
         font: s_font_IBMPlexSans,
         weight: FontWeight.bold);
   }
 
-  Widget currentTemp(String text, bool isFahrenheit) {
+  Widget updateTimeText(String text) {
+    return FormattedText(
+        text: text,
+        size: s_fontSizeExtraSmall,
+        color: Colors.black,
+        font: s_font_IBMPlexSans);
+  }
+
+  Widget currentTempText(String text, bool isFahrenheit) {
     if (isFahrenheit) {
       text = text + ' °F';
     } else {
@@ -205,20 +320,16 @@ class _WeatherScreenState extends State<WeatherScreen> {
         weight: FontWeight.bold);
   }
 
-  Widget hiLoTemp(String text, bool isHigh, bool isFahrenheit) {
+  Widget hiLoTempText(String highTemp, String lowTemp, bool isFahrenheit) {
+    String text = '';
     if (isFahrenheit) {
-      text = text + ' °F';
+      text = '$highTemp °F   |   $lowTemp °F';
     } else {
-      text = text + ' °C';
-    }
-    if (isHigh) {
-      text = 'H: ' + text;
-    } else {
-      text = 'L: ' + text;
+      text = '$highTemp °C   |   $lowTemp °C';
     }
     return FormattedText(
       text: text,
-      size: s_fontSizeMedLarge,
+      size: s_fontSizeMedium,
       color: Colors.black,
       font: s_font_IBMPlexSans,
     );
@@ -304,7 +415,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         weight: FontWeight.bold);
   }
 
-  Widget meatWeatherConsideration(String text) {
+  Widget meatWeatherConsiderationText(String text) {
     return FormattedText(
         text: text,
         size: s_fontSizeExtraSmall,
