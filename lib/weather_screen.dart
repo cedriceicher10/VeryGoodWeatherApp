@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:verygoodweatherapp/styles.dart';
 import 'package:verygoodweatherapp/weather_package.dart';
 import 'package:weather_icons/weather_icons.dart';
+import 'package:location/location.dart';
 import 'formatted_text.dart';
 import 'weather_cubit.dart';
 
@@ -27,6 +28,10 @@ class WeatherScreen extends StatefulWidget {
 class _WeatherScreenState extends State<WeatherScreen> {
   final TextEditingController _text = TextEditingController();
   int _locId = -1; // Saved globally to allow url_launcher to access
+  Location location = Location();
+  double _userLat = 0;
+  double _userLon = 0;
+  Color _textColor = Colors.black;
 
   @override
   Widget build(BuildContext context) {
@@ -46,26 +51,30 @@ class _WeatherScreenState extends State<WeatherScreen> {
             resizeToAvoidBottomInset: false,
             body: BlocBuilder<WeatherCubit, WeatherPackage>(
                 builder: (context, weather) {
-              return Center(
-                child: Column(children: [
-                  SizedBox(height: spacing),
-                  SizedBox(width: textFieldWidth, child: searchBar()),
-                  SizedBox(height: spacing),
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    myLocationButton(),
-                    SizedBox(width: spacing),
-                    searchButton()
-                  ]),
-                  SizedBox(height: spacing * 2),
-                  weatherContainer(weather),
-                  Expanded(
-                    child: Align(
-                      alignment: FractionalOffset.bottomCenter,
-                      child: signatureText('An App by Cedric Eicher'),
-                    ),
-                  )
-                ]),
-              );
+              return Container(
+                  decoration: backgroundColor(weather.weatherState),
+                  child: Center(
+                    child: Column(children: [
+                      SizedBox(height: spacing),
+                      SizedBox(width: textFieldWidth, child: searchBar()),
+                      SizedBox(height: spacing),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            myLocationButton(),
+                            SizedBox(width: spacing),
+                            searchButton()
+                          ]),
+                      SizedBox(height: spacing * 2),
+                      weatherContainer(weather),
+                      Expanded(
+                        child: Align(
+                          alignment: FractionalOffset.bottomCenter,
+                          child: signatureText('An App by Cedric Eicher'),
+                        ),
+                      )
+                    ]),
+                  ));
             })));
   }
 
@@ -83,13 +92,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
         // Get weather for current city
         context.read<WeatherCubit>().getWeather(_text.value.text);
       },
-      decoration: const InputDecoration(
+      style: TextStyle(color: _textColor),
+      decoration: InputDecoration(
         hintText: 'Type any big city name',
         enabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.black),
+          borderSide: BorderSide(color: _textColor),
         ),
         focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.black),
+          borderSide: BorderSide(color: _textColor),
         ),
       ),
     );
@@ -103,10 +113,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
           if (!currentFocus.hasPrimaryFocus) {
             currentFocus.unfocus();
           }
-          // Navigator.pushAndRemoveUntil(
-          //     context,
-          //     MaterialPageRoute(builder: (context) => const StartScreen()),
-          //     (Route<dynamic> route) => false);
+          // Get location
+          await getLocation();
+          String latLonQuery = "$_userLat,$_userLon";
+          // Get weather at that location
+          // TO DO:
+          // Figure out cubit query first
+          //context.read<WeatherCubit>().getWeatherFromLatLon(latLonQuery);
         },
         style: ElevatedButton.styleFrom(
             primary: Colors.black,
@@ -163,7 +176,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           width: weatherContainerWidth,
           height: weatherContainerHeight,
           padding: EdgeInsets.all(spacing),
-          decoration: BoxDecoration(border: Border.all(color: Colors.black)),
+          //decoration: BoxDecoration(border: Border.all(color: Colors.black)),
           child: weatherDisplay(weather));
     }
   }
@@ -213,7 +226,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
       Expanded(
         child: Align(
           alignment: FractionalOffset.bottomCenter,
-          child: meatWeatherConsiderationText(
+          child: metaWeatherConsiderationText(
               'View this weather on MetaWeather.com'),
         ),
       ),
@@ -230,7 +243,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         FormattedText(
             text: text,
             size: s_fontSizeExtraSmall,
-            color: Colors.black,
+            color: _textColor,
             font: s_font_IBMPlexSans)
       ],
     );
@@ -240,7 +253,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     return FormattedText(
         text: text,
         size: s_fontSizeMedLarge,
-        color: Colors.black,
+        color: _textColor,
         font: s_font_IBMPlexSans,
         weight: FontWeight.bold);
   }
@@ -249,7 +262,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     return FormattedText(
         text: text,
         size: s_fontSizeMedLarge,
-        color: Colors.black,
+        color: _textColor,
         font: s_font_IBMPlexSans,
         weight: FontWeight.bold);
   }
@@ -258,7 +271,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     return FormattedText(
         text: text,
         size: s_fontSizeExtraSmall,
-        color: Colors.black,
+        color: _textColor,
         font: s_font_IBMPlexSans);
   }
 
@@ -278,7 +291,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           FormattedText(
               text: text,
               size: s_fontSizeExtraLarge * 1.5,
-              color: Colors.black,
+              color: _textColor,
               font: s_font_IBMPlexSans,
               weight: FontWeight.bold)
         ]);
@@ -294,7 +307,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     return FormattedText(
       text: text,
       size: s_fontSizeMedium,
-      color: Colors.black,
+      color: _textColor,
       font: s_font_IBMPlexSans,
     );
   }
@@ -380,11 +393,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
         weight: FontWeight.bold);
   }
 
-  Widget meatWeatherConsiderationText(String text) {
+  Widget metaWeatherConsiderationText(String text) {
     return RichText(
       text: TextSpan(
-          style: const TextStyle(
-              color: Colors.black,
+          style: TextStyle(
+              color: _textColor,
               fontFamily: s_font_BonaNova,
               fontSize: s_fontSizeExtraSmall,
               fontWeight: FontWeight.bold),
@@ -405,8 +418,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
   Widget signatureText(String text) {
     return RichText(
       text: TextSpan(
-          style: const TextStyle(
-              color: Colors.black,
+          style: TextStyle(
+              color: _textColor,
               fontFamily: s_font_IBMPlexSans,
               fontSize: s_fontSizeExtraSmall,
               fontWeight: FontWeight.bold),
@@ -421,7 +434,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   Widget notFoundText() {
     String text =
-        'The city you chose could not be found or does not have weather at this time. Please try again.\n(Tip: Try big cities!)';
+        'The location you chose could not be found or does not have weather at this time. Please try again.\n(Tip: Try big cities!)';
     return SizedBox(
         width: weatherContainerWidth * 0.9,
         child: FormattedText(
@@ -431,6 +444,127 @@ class _WeatherScreenState extends State<WeatherScreen> {
             font: s_font_IBMPlexSans,
             weight: FontWeight.bold,
             align: TextAlign.center));
+  }
+
+  Future<void> getLocation() async {
+    // Adapted from: https://pub.dev/packages/location
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
+    LocationData _locationData;
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        Icons.assignment_return;
+      }
+    }
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+    _locationData = await location.getLocation();
+    _userLat = _locationData.latitude!;
+    _userLon = _locationData.longitude!;
+  }
+
+  BoxDecoration backgroundColor(String weatherState) {
+    // Default colors
+    Color colorTop = Colors.blue;
+    Color colorBottom = Colors.white;
+    switch (weatherState) {
+      // Snow
+      case 'Snow':
+        {
+          colorTop = Colors.white;
+          colorBottom = Colors.grey;
+          _textColor = Colors.black;
+        }
+        break;
+      // Sleet
+      case 'Sleet':
+        {
+          colorTop = Colors.black;
+          colorBottom = Colors.white;
+          _textColor = Colors.white;
+        }
+        break;
+      // Hail
+      case 'Hail':
+        {
+          colorTop = Colors.black;
+          colorBottom = Colors.lightBlue;
+          _textColor = Colors.white;
+        }
+        break;
+      // Thunderstorm
+      case 'Thunder':
+        {
+          colorTop = Colors.black;
+          colorBottom = Colors.grey;
+          _textColor = Colors.white;
+        }
+        break;
+      // Heavy Rain
+      case 'Heavy Rain':
+        {
+          colorTop = Colors.blue;
+          colorBottom = Colors.blueGrey;
+          _textColor = Colors.black;
+        }
+        break;
+      // Light Rain
+      case 'Light Rain':
+        {
+          colorTop = Colors.blue;
+          colorBottom = Colors.grey;
+          _textColor = Colors.black;
+        }
+        break;
+      // Showers
+      case 'Showers':
+        {
+          colorTop = Colors.blueGrey;
+          colorBottom = Colors.lightBlue;
+          _textColor = Colors.black;
+        }
+        break;
+      // Heavy Cloud
+      case 'Heavy Clouds':
+        {
+          colorTop = Colors.black;
+          colorBottom = Colors.grey;
+          _textColor = Colors.white;
+        }
+        break;
+      // Light Cloud
+      case 'Light Clouds':
+        {
+          colorTop = Colors.grey;
+          colorBottom = Colors.yellow;
+          _textColor = Colors.black;
+        }
+        break;
+      // Clear
+      case 'Clear':
+        {
+          colorTop = Colors.yellow;
+          colorBottom = Colors.blue;
+          _textColor = Colors.black;
+        }
+        break;
+    }
+    return BoxDecoration(
+        gradient: LinearGradient(
+      begin: Alignment.topRight,
+      end: Alignment.bottomLeft,
+      colors: [
+        colorTop,
+        colorBottom,
+      ],
+    ));
   }
 
   Icon getWeatherStateIcon(String weatherState) {
@@ -447,7 +581,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         {
           weatherStateIcon = Icon(
             WeatherIcons.snow,
-            color: iconColor,
+            color: Colors.white,
             size: iconSize,
           );
         }
@@ -457,7 +591,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         {
           weatherStateIcon = Icon(
             WeatherIcons.sleet,
-            color: iconColor,
+            color: Colors.grey,
             size: iconSize,
           );
         }
@@ -467,17 +601,17 @@ class _WeatherScreenState extends State<WeatherScreen> {
         {
           weatherStateIcon = Icon(
             WeatherIcons.hail,
-            color: iconColor,
+            color: Colors.grey,
             size: iconSize,
           );
         }
         break;
       // Thunderstorm
-      case 'Thunderstorm':
+      case 'Thunder':
         {
           weatherStateIcon = Icon(
             WeatherIcons.thunderstorm,
-            color: iconColor,
+            color: Colors.yellow,
             size: iconSize,
           );
         }
@@ -487,7 +621,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         {
           weatherStateIcon = Icon(
             WeatherIcons.rain,
-            color: iconColor,
+            color: const Color(s_darkBlue),
             size: iconSize,
           );
         }
@@ -497,7 +631,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         {
           weatherStateIcon = Icon(
             WeatherIcons.raindrops,
-            color: iconColor,
+            color: const Color(s_darkBlue),
             size: iconSize,
           );
         }
@@ -507,27 +641,27 @@ class _WeatherScreenState extends State<WeatherScreen> {
         {
           weatherStateIcon = Icon(
             WeatherIcons.showers,
-            color: iconColor,
+            color: const Color(s_darkBlue),
             size: iconSize,
           );
         }
         break;
       // Heavy Cloud
-      case 'Heavy Cloud':
+      case 'Heavy Clouds':
         {
           weatherStateIcon = Icon(
             WeatherIcons.cloudy,
-            color: iconColor,
+            color: const Color(s_raisinBlack),
             size: iconSize,
           );
         }
         break;
       // Light Cloud
-      case 'Light Cloud':
+      case 'Light Clouds':
         {
           weatherStateIcon = Icon(
             WeatherIcons.cloud,
-            color: iconColor,
+            color: Colors.white,
             size: iconSize,
           );
         }
@@ -537,7 +671,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         {
           weatherStateIcon = Icon(
             WeatherIcons.day_sunny,
-            color: iconColor,
+            color: Colors.yellow,
             size: iconSize,
           );
         }
@@ -548,7 +682,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   Icon getMetricIcon(int mode) {
     double iconSize = 14;
-    Color iconColor = Colors.black;
+    Color iconColor = _textColor;
     Icon metricIcon = Icon(
       WeatherIcons.day_sunny,
       color: iconColor,

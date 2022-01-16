@@ -30,19 +30,41 @@ class WeatherCubit extends Cubit<WeatherPackage> {
             isStart: true, // Trigger for initial screen (no city yet)
             isNotFound: false));
 
+  void getWeatherFromLatLon(String latLon) async {
+    // Created using https://www.metaweather.com/api/
+    // Find the location and corresponding location id
+    int locId = await getLocId(latLon, true);
+    // Find the weather info using the location id
+
+    // TO DO:
+    // Need to see if ?query=lattlong works for getting locId
+    // Need to see if lattlong and locId is sufficient to get weather
+
+    //WeatherPackage newWeather = await getWeatherInfo(latLon, locId);
+    //emit(newWeather);
+  }
+
   void getWeather(String location) async {
     // Created using https://www.metaweather.com/api/
     // Find the location and corresponding location id
-    int locId = await getLocId(location);
+    int locId = await getLocId(location, false);
     // Find the weather info using the location id
     WeatherPackage newWeather = await getWeatherInfo(location, locId);
     emit(newWeather);
   }
 
-  Future<int> getLocId(String location) async {
-    // Query for a location search to MetaWeather
-    Uri locationSearchRequest = Uri.https(baseUrlMetaWeather,
-        baseApiCallLocationSearch, <String, String>{'query': location});
+  Future<int> getLocId(String location, bool isLatLon) async {
+    Uri locationSearchRequest;
+    //Query for a location search to MetaWeather
+    if (isLatLon) {
+      // Lat Lon
+      locationSearchRequest = Uri.https(baseUrlMetaWeather,
+          baseApiCallLocationSearch, <String, String>{'lattlong': location});
+    } else {
+      // City name
+      locationSearchRequest = Uri.https(baseUrlMetaWeather,
+          baseApiCallLocationSearch, <String, String>{'query': location});
+    }
     Response locationSearchResponse =
         await httpClient.get(locationSearchRequest);
     // Ensure return doesn't have an error status code
@@ -93,7 +115,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
 
   WeatherPackage weatherResponseJsonConverter(
       String location, List weatherResponseJson, int locId) {
-    return WeatherPackage(
+    WeatherPackage weatherPackage = WeatherPackage(
         locationName: location,
         locationId: locId,
         updateTime: getNowTime(),
@@ -111,6 +133,11 @@ class WeatherCubit extends Cubit<WeatherPackage> {
         visibility: weatherResponseJson[0]['visibility'],
         isStart: false,
         isNotFound: false); // mi
+    if ((weatherPackage.weatherState == 'Heavy Cloud') ||
+        (weatherPackage.weatherState == 'Light Cloud')) {
+      weatherPackage.weatherState = weatherPackage.weatherState + 's';
+    }
+    return weatherPackage;
   }
 
   void toggleUnits() {
