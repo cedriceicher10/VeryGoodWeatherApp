@@ -1,5 +1,6 @@
 class WeatherPackage {
   String locationName;
+  int locationId;
   String updateTime;
   double currentTemp;
   double highTemp;
@@ -12,9 +13,12 @@ class WeatherPackage {
   int humidity;
   int predictability;
   double visibility;
+  bool isStart;
+  bool isNotFound;
 
   WeatherPackage(
       {required this.locationName,
+      required this.locationId,
       required this.updateTime,
       required this.currentTemp,
       required this.highTemp,
@@ -26,5 +30,7 @@ class WeatherPackage {
       required this.airPressure,
       required this.humidity,
       required this.predictability,
-      required this.visibility});
+      required this.visibility,
+      required this.isStart,
+      required this.isNotFound});
 }
