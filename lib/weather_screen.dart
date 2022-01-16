@@ -56,7 +56,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     SizedBox(width: spacing),
                     searchButton()
                   ]),
-                  SizedBox(height: spacing),
+                  SizedBox(height: spacing * 2),
                   weatherContainer(weather),
                   Expanded(
                     child: Align(
@@ -72,6 +72,17 @@ class _WeatherScreenState extends State<WeatherScreen> {
   Widget searchBar() {
     return TextField(
       controller: _text,
+      textInputAction: TextInputAction.search,
+      // This allows the user to press Enter/Search on the keyboard to trigger
+      onSubmitted: (value) {
+        // Remove keyboard
+        FocusScopeNode currentFocus = FocusScope.of(context);
+        if (!currentFocus.hasPrimaryFocus) {
+          currentFocus.unfocus();
+        }
+        // Get weather for current city
+        context.read<WeatherCubit>().getWeather(_text.value.text);
+      },
       decoration: const InputDecoration(
         hintText: 'Type any big city name',
         enabledBorder: UnderlineInputBorder(
@@ -160,7 +171,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
   Widget weatherDisplay(WeatherPackage weather) {
     _locId = weather.locationId;
     return Column(children: [
-      SizedBox(height: spacing * 3),
       weatherTitle(weather.locationName),
       updateTimeText('Updated at ${weather.updateTime}'),
       SizedBox(height: spacing),
