@@ -41,6 +41,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
               backgroundColor: Colors.black,
               centerTitle: true,
             ),
+            resizeToAvoidBottomInset: false,
             body: BlocBuilder<WeatherCubit, WeatherPackage>(
                 builder: (context, weather) {
               return Center(
@@ -62,7 +63,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                     toggleUnitsButton(bottomButtonWidth, bottomButtonHeight),
                     const SizedBox(width: spacing),
-                    refreshButton(bottomButtonWidth, bottomButtonHeight)
+                    refreshButton(
+                        weather, bottomButtonWidth, bottomButtonHeight)
                   ]),
                   Expanded(
                     child: Align(
@@ -79,7 +81,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     return TextField(
       controller: _text,
       decoration: const InputDecoration(
-        hintText: 'Type any city name',
+        hintText: 'Type any big city name',
         enabledBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: Colors.black),
         ),
@@ -126,10 +128,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
           if (!currentFocus.hasPrimaryFocus) {
             currentFocus.unfocus();
           }
-          // Navigator.pushAndRemoveUntil(
-          //     context,
-          //     MaterialPageRoute(builder: (context) => const StartScreen()),
-          //     (Route<dynamic> route) => false);
+          // Get weather for current city
+          context.read<WeatherCubit>().getWeather(_text.value.text);
         },
         style: ElevatedButton.styleFrom(
             primary: Colors.black, fixedSize: Size(buttonWidth, buttonHeight)),
@@ -250,7 +250,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
         ]));
   }
 
-  Widget refreshButton(double buttonWidth, double buttonHeight) {
+  Widget refreshButton(
+      WeatherPackage weather, double buttonWidth, double buttonHeight) {
     return ElevatedButton(
         onPressed: () async {
           // Remove keyboard
@@ -259,7 +260,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
             currentFocus.unfocus();
           }
           // Get weather for current city
-          context.read<WeatherCubit>().getWeather('San Diego');
+          context.read<WeatherCubit>().getWeather(weather.locationName);
         },
         style: ElevatedButton.styleFrom(
             primary: Colors.black, fixedSize: Size(buttonWidth, buttonHeight)),
