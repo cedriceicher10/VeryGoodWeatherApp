@@ -1,49 +1,104 @@
 import 'dart:io';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart';
 import 'weather_package.dart';
 import 'dart:math';
+import 'dart:convert';
 
 String baseUrlMetaWeather = 'www.metaweather.com';
 String baseApiCallLocationSearch = '/api/location/search';
+String baseApiCallLocation = '/api/location/';
 
 class WeatherCubit extends Cubit<WeatherPackage> {
   final Client httpClient = Client();
 
   WeatherCubit()
       : super(WeatherPackage(
-            locationName: '[Ex: San Diego, CA]',
+            locationName: '[Ex: San Diego]',
             updateTime: '1:22 PM',
             currentTemp: 78,
             highTemp: 81,
             lowTemp: 64,
-            isFahrenheit: true));
+            isFahrenheit: true,
+            weatherState: 'Clear',
+            windSpeed: 8,
+            windDirection: 'SW',
+            airPressure: 8,
+            humidity: 72,
+            predictability: 75,
+            visibility: 10));
 
-  void getWeather(String location) {
+  void getWeather(String location) async {
+    // Created using https://www.metaweather.com/api/
     // Find the location and corresponding location id
-    Future<int> locId = getLocId(location);
+    int locId = await getLocId(location);
     // Find the weather info using the location id
-
-    emit(WeatherPackage(
-        locationName: location,
-        updateTime: getNowTime(),
-        currentTemp: (randNum(true) + randNum(false)) / 2,
-        highTemp: randNum(true),
-        lowTemp: randNum(false),
-        isFahrenheit: state.isFahrenheit));
+    WeatherPackage newWeather = await getWeatherInfo(location, locId);
+    emit(newWeather);
   }
 
   Future<int> getLocId(String location) async {
-    // Created using https://www.metaweather.com/api/
-    Uri locationRequest = Uri.https(baseUrlMetaWeather,
+    // Query for a location search to MetaWeather
+    Uri locationSearchRequest = Uri.https(baseUrlMetaWeather,
         baseApiCallLocationSearch, <String, String>{'query': location});
-    Response locationResponse = await httpClient.get(locationRequest);
-    // Ensure a real location
+    Response locationSearchResponse =
+        await httpClient.get(locationSearchRequest);
+    // Ensure return doesn't have an error status code
+    // (typically only happens if passing an empty input)
+    if (locationSearchResponse.statusCode != 200) {
+      throw ('Location search response code != 200');
+    }
+    // Ensure return has an actual location and location id
+    List locationSearchResponseJson = jsonDecode(
+      locationSearchResponse.body,
+    ) as List;
+    if (locationSearchResponseJson.isEmpty) {
+      throw ('Location search response code is empty');
+    }
+    // Extract location id
+    return locationSearchResponseJson[0]['woeid'];
+  }
 
-    print(locationResponse.body);
-    return 0;
+  Future<WeatherPackage> getWeatherInfo(String location, int locId) async {
+    // Query for weather with a locId to MetaWeather
+    Uri weatherRequest =
+        Uri.https(baseUrlMetaWeather, baseApiCallLocation + '$locId');
+    Response weatherResponse = await httpClient.get(weatherRequest);
+    // Ensure return doesn't have an error status code
+    if (weatherResponse.statusCode != 200) {
+      throw ('Weather search response code != 200');
+    }
+    // Ensure return has actual weather
+    List weatherResponseJson = jsonDecode(
+      weatherResponse.body,
+    )['consolidated_weather'] as List;
+    if (weatherResponseJson.isEmpty) {
+      throw ('Weather search response is empty');
+    }
+    // Convert to WeatherPackage object
+    WeatherPackage weatherInfo =
+        weatherResponseJsonConverter(location, weatherResponseJson);
+    return weatherInfo;
+  }
+
+  WeatherPackage weatherResponseJsonConverter(
+      String location, List weatherResponseJson) {
+    return WeatherPackage(
+        locationName: location,
+        updateTime: getNowTime(),
+        currentTemp: celToFar(weatherResponseJson[0]['the_temp']), // C to F
+        highTemp: celToFar(weatherResponseJson[0]['max_temp']), // C to F
+        lowTemp: celToFar(weatherResponseJson[0]['min_temp']), // C to F
+        isFahrenheit: true,
+        weatherState: weatherResponseJson[0]['weather_state_name'],
+        windSpeed: weatherResponseJson[0]['wind_speed'], // mph
+        windDirection: weatherResponseJson[0]['wind_direction_compass'],
+        airPressure: weatherResponseJson[0]['air_pressure'], // mbar
+        humidity: weatherResponseJson[0]['humidity'], // %
+        predictability: weatherResponseJson[0]
+            ['predictability'], // % of agreeing weather reports
+        visibility: weatherResponseJson[0]['visibility']); // mi
   }
 
   void toggleUnits() {
@@ -54,7 +109,14 @@ class WeatherCubit extends Cubit<WeatherPackage> {
           currentTemp: farToCel(state.currentTemp),
           highTemp: farToCel(state.highTemp),
           lowTemp: farToCel(state.lowTemp),
-          isFahrenheit: false));
+          isFahrenheit: false,
+          weatherState: state.weatherState,
+          windSpeed: state.windSpeed,
+          windDirection: state.windDirection,
+          airPressure: state.airPressure,
+          humidity: state.humidity,
+          predictability: state.predictability,
+          visibility: state.visibility));
     } else {
       emit(WeatherPackage(
           locationName: state.locationName,
@@ -62,7 +124,14 @@ class WeatherCubit extends Cubit<WeatherPackage> {
           currentTemp: celToFar(state.currentTemp),
           highTemp: celToFar(state.highTemp),
           lowTemp: celToFar(state.lowTemp),
-          isFahrenheit: true));
+          isFahrenheit: true,
+          weatherState: state.weatherState,
+          windSpeed: state.windSpeed,
+          windDirection: state.windDirection,
+          airPressure: state.airPressure,
+          humidity: state.humidity,
+          predictability: state.predictability,
+          visibility: state.visibility));
     }
   }
 
@@ -74,20 +143,9 @@ class WeatherCubit extends Cubit<WeatherPackage> {
     return (temp * (9 / 5)) + 32;
   }
 
-  double randNum(bool highNum) {
-    double temp = -1;
-    Random random = Random();
-    if (highNum) {
-      temp = random.nextInt(100) + 70; // 70 - 100
-    } else {
-      temp = random.nextInt(70) + 0; // 0 - 70
-    }
-    return temp;
-  }
-
   String getNowTime() {
     DateTime now = DateTime.now();
-    String formattedDate = DateFormat('kk:mm').format(now);
+    String formattedDate = DateFormat('h:mma').format(now);
     return formattedDate;
   }
 

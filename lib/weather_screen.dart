@@ -79,7 +79,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     return TextField(
       controller: _text,
       decoration: const InputDecoration(
-        hintText: 'Ex: San Diego, CA',
+        hintText: 'Type any city name',
         enabledBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: Colors.black),
         ),
@@ -259,7 +259,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
             currentFocus.unfocus();
           }
           // Get weather for current city
-          context.read<WeatherCubit>().getWeather('London');
+          context.read<WeatherCubit>().getWeather('San Diego');
         },
         style: ElevatedButton.styleFrom(
             primary: Colors.black, fixedSize: Size(buttonWidth, buttonHeight)),
