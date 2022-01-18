@@ -89,7 +89,10 @@ class WeatherCubit extends Cubit<WeatherPackage> {
   }
 
   WeatherPackage weatherResponseJsonConverter(
-      String location, List weatherResponseJson, int locId) {
+      // Conver from the MetaWeather JSON package to WeatherPackage object
+      String location,
+      List weatherResponseJson,
+      int locId) {
     WeatherPackage weatherPackage = WeatherPackage(
         locationName: locationNameVisuallyPleasing,
         locationId: locId,
@@ -116,6 +119,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
   }
 
   void toggleUnits() {
+    // F to C
     if (state.isFahrenheit) {
       emit(WeatherPackage(
           locationName: state.locationName,
@@ -135,6 +139,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
           isStart: state.isStart,
           isNotFound: state.isNotFound));
     } else {
+      // C to F
       emit(WeatherPackage(
           locationName: state.locationName,
           locationId: state.locationId,
@@ -156,6 +161,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
   }
 
   WeatherPackage sendBackBadPackage() {
+    // Bad package is for when location/weather isn't found
     return WeatherPackage(
         locationName: state.locationName,
         locationId: state.locationId,

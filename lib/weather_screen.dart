@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'formatted_text.dart';
 import 'weather_cubit.dart';
 
+// Global sizes for easy manipulation and tinkering
 double textFieldWidth = 325;
 double topButtonWidth = 158;
 double topButtonHeight = 40;
@@ -27,11 +28,16 @@ class WeatherScreen extends StatefulWidget {
 }
 
 class _WeatherScreenState extends State<WeatherScreen> {
+  // The text in the TextField
   final TextEditingController _text = TextEditingController();
-  int _locId = -1; // Saved globally to allow url_launcher to access
+  // Saved globally to allow url_launcher to access
+  int _locId = -1;
+  // Location Services
   Location location = Location();
+  // To enable lat, lon API calls
   double _userLat = 0;
   double _userLon = 0;
+  // Global text color of the UI
   Color _textColor = Colors.black;
 
   @override
@@ -68,11 +74,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
                             searchButton()
                           ]),
                       SizedBox(height: spacing * 2),
+                      // Fade upon reloads to alert user something is happening
                       AnimatedSwitcher(
                           duration: const Duration(milliseconds: 200),
                           child: Container(
                               key: UniqueKey(),
                               child: weatherContainer(weather))),
+                      // Push to the bottom
                       Expanded(
                         child: Align(
                           alignment: FractionalOffset.bottomCenter,
@@ -88,7 +96,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     return TextField(
       controller: _text,
       textInputAction: TextInputAction.search,
-      // This allows the user to press Enter/Search on the keyboard to trigger
+      //This allows the user to press Enter/Search on the keyboard to trigger
       onSubmitted: (value) {
         // Remove keyboard
         FocusScopeNode currentFocus = FocusScope.of(context);
@@ -123,7 +131,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           // Get location
           await getLocation();
           String latLonQuery = "$_userLat,$_userLon";
-          // Get weather at that location
+          // Get weather at that lat, lon location
           context.read<WeatherCubit>().getWeather(latLonQuery);
         },
         style: ElevatedButton.styleFrom(
@@ -150,7 +158,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           if (!currentFocus.hasPrimaryFocus) {
             currentFocus.unfocus();
           }
-          // Get weather for current city
+          // Get weather for the text entered
           context.read<WeatherCubit>().getWeather(_text.value.text);
         },
         style: ElevatedButton.styleFrom(
@@ -174,14 +182,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
       // Empty container before city has been chosen
       return Container();
     } else if (weather.isNotFound) {
-      // Error finding search location or weather
+      // Error message after not finding search location or weather
       return notFoundText();
     } else {
+      // Weather found succesfully
       return Container(
           width: weatherContainerWidth,
           height: weatherContainerHeight,
           padding: EdgeInsets.all(spacing),
-          //decoration: BoxDecoration(border: Border.all(color: Colors.black)),
           child: weatherDisplay(weather));
     }
   }
@@ -228,6 +236,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         SizedBox(width: spacing),
         refreshButton(weather)
       ]),
+      // Force to bottom
       Expanded(
         child: Align(
           alignment: FractionalOffset.bottomCenter,
@@ -539,9 +548,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
       // Heavy Cloud
       case 'Heavy Clouds':
         {
-          colorTop = Colors.black;
-          colorBottom = Colors.grey;
-          _textColor = Colors.white;
+          colorTop = const Color(s_darkGrey);
+          colorBottom = Colors.white;
+          _textColor = Colors.black;
         }
         break;
       // Light Cloud

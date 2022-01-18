@@ -34,6 +34,7 @@ class WeatherPackage {
       required this.isStart,
       required this.isNotFound});
 
+  // Initialize is intended for use in WeatherCubit on initalization
   WeatherPackage.initialize()
       : locationName = '',
         locationId = -1,

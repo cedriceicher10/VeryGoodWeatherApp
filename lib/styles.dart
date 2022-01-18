@@ -44,6 +44,7 @@ const int s_goldenrod = 0xC59849;
 const int s_blackBlue = 0xFF00171F;
 const int s_darkSalmon = 0xFFDD9787;
 const int s_darkBlue = 0xFF00008B;
+const int s_darkGrey = 0xFF404040;
 
 // Color Swatch
 const MaterialColor s_whiteSwatch = const MaterialColor(
