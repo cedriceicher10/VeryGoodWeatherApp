@@ -6,6 +6,7 @@ import 'package:verygoodweatherapp/styles.dart';
 import 'package:verygoodweatherapp/weather_package.dart';
 import 'package:weather_icons/weather_icons.dart';
 import 'package:location/location.dart';
+import 'package:intl/intl.dart';
 import 'formatted_text.dart';
 import 'weather_cubit.dart';
 
@@ -67,7 +68,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
                             searchButton()
                           ]),
                       SizedBox(height: spacing * 2),
-                      weatherContainer(weather),
+                      AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 200),
+                          child: Container(
+                              key: UniqueKey(),
+                              child: weatherContainer(weather))),
                       Expanded(
                         child: Align(
                           alignment: FractionalOffset.bottomCenter,
@@ -95,7 +100,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
       },
       style: TextStyle(color: _textColor),
       decoration: InputDecoration(
-        hintText: 'Type any big city name',
+        hintText: 'Type any big city name or coordinates',
+        hintStyle: TextStyle(color: _textColor),
         enabledBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: _textColor),
         ),
@@ -750,5 +756,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
         break;
     }
     return metricIcon;
+  }
+
+  String getNowTime() {
+    DateTime now = DateTime.now();
+    String formattedDate = DateFormat('h:mma').format(now);
+    return formattedDate;
   }
 }

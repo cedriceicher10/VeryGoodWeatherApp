@@ -13,33 +13,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
   // Visually pleasing implies capital first letter, lowercase subsequent letters
   String locationNameVisuallyPleasing = '';
 
-  WeatherCubit()
-      : super(WeatherPackage(
-            locationName: '',
-            locationId: -1,
-            updateTime: '',
-            currentTemp: -1,
-            highTemp: -1,
-            lowTemp: -1,
-            isFahrenheit: false,
-            weatherState: '',
-            windSpeed: -1,
-            windDirection: '',
-            airPressure: -1,
-            humidity: -1,
-            predictability: -1,
-            visibility: -1,
-            isStart: true, // Trigger for initial screen (no city yet)
-            isNotFound: false));
-
-  void getWeatherFromLatLon(String latLon) async {
-    // Created using https://www.metaweather.com/api/
-    // Find the location and corresponding location id
-    int locId = await getLocId(latLon, true);
-    // Find the weather info using the location id
-    WeatherPackage newWeather = await getWeatherInfo(latLon, locId);
-    emit(newWeather);
-  }
+  WeatherCubit() : super(WeatherPackage.initialize());
 
   void getWeather(String location) async {
     // Determine if a city name or lat/lon coordinates

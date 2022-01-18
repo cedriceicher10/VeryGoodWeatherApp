@@ -33,4 +33,22 @@ class WeatherPackage {
       required this.visibility,
       required this.isStart,
       required this.isNotFound});
+
+  WeatherPackage.initialize()
+      : locationName = '',
+        locationId = -1,
+        updateTime = '',
+        currentTemp = -1,
+        highTemp = -1,
+        lowTemp = -1,
+        isFahrenheit = false,
+        weatherState = '',
+        windSpeed = -1,
+        windDirection = '',
+        airPressure = -1,
+        humidity = -1,
+        predictability = -1,
+        visibility = -1,
+        isStart = true, // Trigger for initial screen (no city yet)
+        isNotFound = false;
 }
