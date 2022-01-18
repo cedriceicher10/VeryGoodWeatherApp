@@ -35,6 +35,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // The GestureDetector allows taps by the user to dismiss the keyboard
     return GestureDetector(
         onTap: () {
           FocusScopeNode currentFocus = FocusScope.of(context);
@@ -117,9 +118,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           await getLocation();
           String latLonQuery = "$_userLat,$_userLon";
           // Get weather at that location
-          // TO DO:
-          // Figure out cubit query first
-          //context.read<WeatherCubit>().getWeatherFromLatLon(latLonQuery);
+          context.read<WeatherCubit>().getWeather(latLonQuery);
         },
         style: ElevatedButton.styleFrom(
             primary: Colors.black,
@@ -434,13 +433,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   Widget notFoundText() {
     String text =
-        'The location you chose could not be found or does not have weather at this time. Please try again.\n(Tip: Try big cities!)';
+        'The location you chose could not be found or does not have weather at this time. \nPlease try again.\n\nTip:\nTry big cities (e.g. San Diego) or even \ncoordinates with the format \n33.8121, -117.9190. \n\nAnd be sure to check your spelling!';
     return SizedBox(
-        width: weatherContainerWidth * 0.9,
+        width: weatherContainerWidth,
         child: FormattedText(
             text: text,
-            size: s_fontSizeSmall,
-            color: Colors.red,
+            size: s_fontSizeSmaller,
+            color: Colors.yellow,
             font: s_font_IBMPlexSans,
             weight: FontWeight.bold,
             align: TextAlign.center));

@@ -10,6 +10,8 @@ String baseApiCallLocation = '/api/location/';
 
 class WeatherCubit extends Cubit<WeatherPackage> {
   final Client httpClient = Client();
+  // Visually pleasing implies capital first letter, lowercase subsequent letters
+  String locationNameVisuallyPleasing = '';
 
   WeatherCubit()
       : super(WeatherPackage(
@@ -35,19 +37,16 @@ class WeatherCubit extends Cubit<WeatherPackage> {
     // Find the location and corresponding location id
     int locId = await getLocId(latLon, true);
     // Find the weather info using the location id
-
-    // TO DO:
-    // Need to see if ?query=lattlong works for getting locId
-    // Need to see if lattlong and locId is sufficient to get weather
-
-    //WeatherPackage newWeather = await getWeatherInfo(latLon, locId);
-    //emit(newWeather);
+    WeatherPackage newWeather = await getWeatherInfo(latLon, locId);
+    emit(newWeather);
   }
 
   void getWeather(String location) async {
+    // Determine if a city name or lat/lon coordinates
+    bool locationContainsNumerals = location.contains(RegExp(r'[0-9]'));
     // Created using https://www.metaweather.com/api/
     // Find the location and corresponding location id
-    int locId = await getLocId(location, false);
+    int locId = await getLocId(location, locationContainsNumerals);
     // Find the weather info using the location id
     WeatherPackage newWeather = await getWeatherInfo(location, locId);
     emit(newWeather);
@@ -81,6 +80,8 @@ class WeatherCubit extends Cubit<WeatherPackage> {
       //throw ('Location search response code is empty');
       return -1;
     }
+    // Save location name (visually pleasing)
+    locationNameVisuallyPleasing = locationSearchResponseJson[0]['title'];
     // Extract location id
     return locationSearchResponseJson[0]['woeid'];
   }
@@ -116,7 +117,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
   WeatherPackage weatherResponseJsonConverter(
       String location, List weatherResponseJson, int locId) {
     WeatherPackage weatherPackage = WeatherPackage(
-        locationName: location,
+        locationName: locationNameVisuallyPleasing,
         locationId: locId,
         updateTime: getNowTime(),
         currentTemp: celToFar(weatherResponseJson[0]['the_temp']), // C to F
