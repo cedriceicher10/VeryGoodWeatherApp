@@ -459,7 +459,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         child: FormattedText(
             text: text,
             size: fontSizeSmaller,
-            color: const Color(darkYellow),
+            color: Colors.red,
             font: fontIBMPlexSans,
             weight: FontWeight.bold,
             align: TextAlign.center));
