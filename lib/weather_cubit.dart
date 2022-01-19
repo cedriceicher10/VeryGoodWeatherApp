@@ -89,7 +89,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
   }
 
   WeatherPackage weatherResponseJsonConverter(
-      // Conver from the MetaWeather JSON package to WeatherPackage object
+      // Convert from the MetaWeather JSON package to WeatherPackage object
       String location,
       List weatherResponseJson,
       int locId) {

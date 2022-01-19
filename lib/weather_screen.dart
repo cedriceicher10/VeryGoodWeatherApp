@@ -2,12 +2,13 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:verygoodweatherapp/styles.dart';
+import 'package:verygoodweatherapp/utils/styles.dart';
 import 'package:verygoodweatherapp/weather_package.dart';
 import 'package:weather_icons/weather_icons.dart';
 import 'package:location/location.dart';
 import 'package:intl/intl.dart';
-import 'formatted_text.dart';
+import 'utils/formatted_text.dart';
+import 'utils/styles.dart';
 import 'weather_cubit.dart';
 
 // Global sizes for easy manipulation and tinkering
@@ -39,6 +40,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
   double _userLon = 0;
   // Global text color of the UI
   Color _textColor = Colors.black;
+  // Loading progress indicator
+  bool _loading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -256,9 +259,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
         SizedBox(width: spacing),
         FormattedText(
             text: text,
-            size: s_fontSizeExtraSmall,
+            size: fontSizeExtraSmall,
             color: _textColor,
-            font: s_font_IBMPlexSans)
+            font: fontIBMPlexSans)
       ],
     );
   }
@@ -266,27 +269,27 @@ class _WeatherScreenState extends State<WeatherScreen> {
   Widget weatherStateText(String text) {
     return FormattedText(
         text: text,
-        size: s_fontSizeMedLarge,
+        size: fontSizeMedLarge,
         color: _textColor,
-        font: s_font_IBMPlexSans,
+        font: fontIBMPlexSans,
         weight: FontWeight.bold);
   }
 
   Widget weatherTitle(String text) {
     return FormattedText(
         text: text,
-        size: s_fontSizeMedLarge,
+        size: fontSizeMedLarge,
         color: _textColor,
-        font: s_font_IBMPlexSans,
+        font: fontIBMPlexSans,
         weight: FontWeight.bold);
   }
 
   Widget updateTimeText(String text) {
     return FormattedText(
         text: text,
-        size: s_fontSizeExtraSmall,
+        size: fontSizeExtraSmall,
         color: _textColor,
-        font: s_font_IBMPlexSans);
+        font: fontIBMPlexSans);
   }
 
   Widget currentTempText(String text, bool isFahrenheit, String weatherState) {
@@ -304,9 +307,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
           SizedBox(width: spacing * 2.5),
           FormattedText(
               text: text,
-              size: s_fontSizeExtraLarge * 1.5,
+              size: fontSizeExtraLarge * 1.5,
               color: _textColor,
-              font: s_font_IBMPlexSans,
+              font: fontIBMPlexSans,
               weight: FontWeight.bold)
         ]);
   }
@@ -320,9 +323,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
     }
     return FormattedText(
       text: text,
-      size: s_fontSizeMedium,
+      size: fontSizeMedium,
       color: _textColor,
-      font: s_font_IBMPlexSans,
+      font: fontIBMPlexSans,
     );
   }
 
@@ -383,27 +386,27 @@ class _WeatherScreenState extends State<WeatherScreen> {
   Widget weatherScreenTitle(String text) {
     return FormattedText(
         text: text,
-        size: s_fontSizeMedLarge,
+        size: fontSizeMedLarge,
         color: Colors.white,
-        font: s_font_BonaNova,
+        font: fontBonaNova,
         weight: FontWeight.bold);
   }
 
   Widget topButtonText(String text) {
     return FormattedText(
         text: text,
-        size: s_fontSizeSmall,
+        size: fontSizeSmall,
         color: Colors.white,
-        font: s_font_BonaNova,
+        font: fontBonaNova,
         weight: FontWeight.bold);
   }
 
   Widget bottomButtonText(String text) {
     return FormattedText(
         text: text,
-        size: s_fontSizeSmaller,
+        size: fontSizeSmaller,
         color: Colors.white,
-        font: s_font_BonaNova,
+        font: fontBonaNova,
         weight: FontWeight.bold);
   }
 
@@ -412,8 +415,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
       text: TextSpan(
           style: TextStyle(
               color: _textColor,
-              fontFamily: s_font_BonaNova,
-              fontSize: s_fontSizeExtraSmall,
+              fontFamily: fontBonaNova,
+              fontSize: fontSizeExtraSmall,
               fontWeight: FontWeight.bold),
           text: text,
           recognizer: TapGestureRecognizer()
@@ -434,8 +437,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
       text: TextSpan(
           style: TextStyle(
               color: _textColor,
-              fontFamily: s_font_IBMPlexSans,
-              fontSize: s_fontSizeExtraSmall,
+              fontFamily: fontIBMPlexSans,
+              fontSize: fontSizeExtraSmall,
               fontWeight: FontWeight.bold),
           text: text,
           recognizer: TapGestureRecognizer()
@@ -453,9 +456,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
         width: weatherContainerWidth,
         child: FormattedText(
             text: text,
-            size: s_fontSizeSmaller,
-            color: Colors.yellow,
-            font: s_font_IBMPlexSans,
+            size: fontSizeSmaller,
+            color: const Color(darkYellow),
+            font: fontIBMPlexSans,
             weight: FontWeight.bold,
             align: TextAlign.center));
   }
@@ -548,7 +551,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
       // Heavy Cloud
       case 'Heavy Clouds':
         {
-          colorTop = const Color(s_darkGrey);
+          colorTop = const Color(darkGrey);
           colorBottom = Colors.white;
           _textColor = Colors.black;
         }
@@ -635,7 +638,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         {
           weatherStateIcon = Icon(
             WeatherIcons.rain,
-            color: const Color(s_darkBlue),
+            color: const Color(darkBlue),
             size: iconSize,
           );
         }
@@ -645,7 +648,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         {
           weatherStateIcon = Icon(
             WeatherIcons.raindrops,
-            color: const Color(s_darkBlue),
+            color: const Color(darkBlue),
             size: iconSize,
           );
         }
@@ -655,7 +658,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         {
           weatherStateIcon = Icon(
             WeatherIcons.showers,
-            color: const Color(s_darkBlue),
+            color: const Color(darkBlue),
             size: iconSize,
           );
         }
@@ -665,7 +668,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         {
           weatherStateIcon = Icon(
             WeatherIcons.cloudy,
-            color: const Color(s_raisinBlack),
+            color: const Color(raisinBlack),
             size: iconSize,
           );
         }

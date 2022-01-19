@@ -52,4 +52,8 @@ class WeatherPackage {
         visibility = -1,
         isStart = true, // Trigger for initial screen (no city yet)
         isNotFound = false;
+
+  String toOutputString(WeatherPackage weatherPackage) {
+    return '${weatherPackage.locationName}, ${weatherPackage.locationId}, ${weatherPackage.updateTime}, ${weatherPackage.currentTemp}, ${weatherPackage.highTemp}, ${weatherPackage.lowTemp}, ${weatherPackage.isFahrenheit}, ${weatherPackage.weatherState}, ${weatherPackage.windSpeed}, ${weatherPackage.windDirection}, ${weatherPackage.airPressure}, ${weatherPackage.humidity}, ${weatherPackage.visibility}, ${weatherPackage.predictability}, ${weatherPackage.isStart}, ${weatherPackage.isNotFound}';
+  }
 }
