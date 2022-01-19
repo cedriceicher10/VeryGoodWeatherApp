@@ -93,6 +93,10 @@ class _WeatherScreenState extends State<WeatherScreen> {
             })));
   }
 
+  // ===========================================================================
+  // MAIN UI ELEMENTS (BUTTONS, WEATHER DISPLAY, SEARCH BAR)
+  // ===========================================================================
+
   Widget searchBar() {
     return TextField(
       controller: _text,
@@ -248,6 +252,64 @@ class _WeatherScreenState extends State<WeatherScreen> {
     ]);
   }
 
+  Widget toggleUnitsButton() {
+    return ElevatedButton(
+        onPressed: () async {
+          // Remove keyboard
+          FocusScopeNode currentFocus = FocusScope.of(context);
+          if (!currentFocus.hasPrimaryFocus) {
+            currentFocus.unfocus();
+          }
+          // Toggle units
+          context.read<WeatherCubit>().toggleUnits();
+        },
+        style: ElevatedButton.styleFrom(
+            primary: Colors.black,
+            fixedSize: Size(bottomButtonWidth, bottomButtonHeight)),
+        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          const Icon(
+            Icons.switch_right_sharp,
+            color: Colors.green,
+            size: 16,
+          ),
+          const SizedBox(
+            width: 8,
+          ),
+          bottomButtonText('Toggle °F/°C')
+        ]));
+  }
+
+  Widget refreshButton(WeatherPackage weather) {
+    return ElevatedButton(
+        onPressed: () async {
+          // Remove keyboard
+          FocusScopeNode currentFocus = FocusScope.of(context);
+          if (!currentFocus.hasPrimaryFocus) {
+            currentFocus.unfocus();
+          }
+          // Get weather for current city
+          context.read<WeatherCubit>().getWeather(weather.locationName);
+        },
+        style: ElevatedButton.styleFrom(
+            primary: Colors.black,
+            fixedSize: Size(bottomButtonWidth, bottomButtonHeight)),
+        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          const Icon(
+            Icons.refresh_sharp,
+            color: Colors.yellow,
+            size: 16,
+          ),
+          const SizedBox(
+            width: 8,
+          ),
+          bottomButtonText('Refresh')
+        ]));
+  }
+
+  // ===========================================================================
+  // FORMATTED TEXT
+  // ===========================================================================
+
   Widget weatherMetricText(String text, int mode) {
     Icon metricIcon = getMetricIcon(mode);
     return Row(
@@ -327,60 +389,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
     );
   }
 
-  Widget toggleUnitsButton() {
-    return ElevatedButton(
-        onPressed: () async {
-          // Remove keyboard
-          FocusScopeNode currentFocus = FocusScope.of(context);
-          if (!currentFocus.hasPrimaryFocus) {
-            currentFocus.unfocus();
-          }
-          // Toggle units
-          context.read<WeatherCubit>().toggleUnits();
-        },
-        style: ElevatedButton.styleFrom(
-            primary: Colors.black,
-            fixedSize: Size(bottomButtonWidth, bottomButtonHeight)),
-        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          const Icon(
-            Icons.switch_right_sharp,
-            color: Colors.green,
-            size: 16,
-          ),
-          const SizedBox(
-            width: 8,
-          ),
-          bottomButtonText('Toggle °F/°C')
-        ]));
-  }
-
-  Widget refreshButton(WeatherPackage weather) {
-    return ElevatedButton(
-        onPressed: () async {
-          // Remove keyboard
-          FocusScopeNode currentFocus = FocusScope.of(context);
-          if (!currentFocus.hasPrimaryFocus) {
-            currentFocus.unfocus();
-          }
-          // Get weather for current city
-          context.read<WeatherCubit>().getWeather(weather.locationName);
-        },
-        style: ElevatedButton.styleFrom(
-            primary: Colors.black,
-            fixedSize: Size(bottomButtonWidth, bottomButtonHeight)),
-        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          const Icon(
-            Icons.refresh_sharp,
-            color: Colors.yellow,
-            size: 16,
-          ),
-          const SizedBox(
-            width: 8,
-          ),
-          bottomButtonText('Refresh')
-        ]));
-  }
-
   Widget weatherScreenTitle(String text) {
     return FormattedText(
         text: text,
@@ -426,10 +434,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
     );
   }
 
-  int getLocationId() {
-    return _locId;
-  }
-
   Widget signatureText(String text) {
     return RichText(
       text: TextSpan(
@@ -461,29 +465,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
             align: TextAlign.center));
   }
 
-  Future<void> getLocation() async {
-    // Adapted from: https://pub.dev/packages/location
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
-    LocationData _locationData;
-    _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        Icons.assignment_return;
-      }
-    }
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-        return;
-      }
-    }
-    _locationData = await location.getLocation();
-    _userLat = _locationData.latitude!;
-    _userLon = _locationData.longitude!;
-  }
+  // ===========================================================================
+  // DISPLAY SWITCHING (BACKGROUND, TEXT COLOR)
+  // ===========================================================================
 
   BoxDecoration backgroundColor(String weatherState) {
     // Default colors
@@ -766,6 +750,38 @@ class _WeatherScreenState extends State<WeatherScreen> {
         break;
     }
     return metricIcon;
+  }
+
+  // ===========================================================================
+  // FUNCTIONS
+  // ===========================================================================
+
+  Future<void> getLocation() async {
+    // Adapted from: https://pub.dev/packages/location
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
+    LocationData _locationData;
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        Icons.assignment_return;
+      }
+    }
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+    _locationData = await location.getLocation();
+    _userLat = _locationData.latitude!;
+    _userLon = _locationData.longitude!;
+  }
+
+  int getLocationId() {
+    return _locId;
   }
 
   String getNowTime() {
