@@ -1,15 +1,15 @@
+import 'package:intl/intl.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:verygoodweatherapp/utils/styles.dart';
-import 'package:verygoodweatherapp/weather_package.dart';
-import 'package:weather_icons/weather_icons.dart';
 import 'package:location/location.dart';
-import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:verygoodweatherapp/utils/styles.dart';
+import 'package:verygoodweatherapp/models/weather_package.dart';
+import 'package:weather_icons/weather_icons.dart';
+import 'weather_cubit.dart';
 import 'utils/formatted_text.dart';
 import 'utils/styles.dart';
-import 'weather_cubit.dart';
 
 // Global sizes for easy manipulation and tinkering
 double textFieldWidth = 325;
@@ -40,8 +40,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
   double _userLon = 0;
   // Global text color of the UI
   Color _textColor = Colors.black;
-  // Loading progress indicator
-  bool _loading = false;
 
   @override
   Widget build(BuildContext context) {

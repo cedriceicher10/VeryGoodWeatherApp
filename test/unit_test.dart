@@ -1,13 +1,9 @@
-import 'package:verygoodweatherapp/main.dart';
-import 'package:test/test.dart';
-import 'package:verygoodweatherapp/weather_cubit.dart';
-import 'package:verygoodweatherapp/weather_package.dart';
-import 'package:verygoodweatherapp/weather_screen.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
-
-late WeatherPackage badPackage;
+import 'package:mocktail/mocktail.dart';
+import 'package:test/test.dart';
+import 'package:verygoodweatherapp/weather_cubit.dart';
+import 'package:verygoodweatherapp/models/weather_package.dart';
 
 class MockHttpClient extends Mock implements Client {}
 
@@ -15,26 +11,7 @@ class MockResponse extends Mock implements Response {}
 
 class FakeUri extends Fake implements Uri {}
 
-late List<dynamic> jsonPackage = jsonPackage = [
-  {
-    "id": 6165757281959936,
-    "weather_state_name": "Heavy Cloud",
-    "weather_state_abbr": "hc",
-    "wind_direction_compass": "WNW",
-    "created": "2022-01-19T03:59:01.652322Z",
-    "applicable_date": "2022-01-19",
-    "min_temp": 20.0,
-    "max_temp": 20.0,
-    "the_temp": 20.0,
-    "wind_speed": 20.0,
-    "wind_direction": 20.0,
-    "air_pressure": 20.0,
-    "humidity": 20,
-    "visibility": 20.0,
-    "predictability": 71
-  },
-];
-late WeatherPackage weatherPackageFromJson;
+late WeatherPackage badPackage;
 
 void main() {
   setUpAll(() {
@@ -118,58 +95,28 @@ void main() {
           WeatherCubit weather = WeatherCubit();
           MockResponse response = MockResponse();
           when(() => response.statusCode).thenReturn(100);
-          when(() => Client().get(any())).thenAnswer((_) async => response);
+          when(() => MockHttpClient().get(any()))
+              .thenAnswer((_) async => response);
           expect(
-            () async =>
-                (await weather.getWeatherInfo('mock-query', 0)).isNotFound,
+            (await weather.getWeatherInfo('mock-query', 0)).isNotFound,
             equals(true),
           );
         });
-        // test(
-        //     'getWeatherInfo correctly returns a bad weather package with isNotFound true when weather is empty []',
-        //     () async {
-        //   WeatherCubit weather = WeatherCubit();
-        //   MockResponse response = MockResponse();
-        //   when(() => response.statusCode).thenReturn(200);
-        //   when(() => response.body).thenReturn('[]');
-        //   when(() => Client().get(any())).thenAnswer((_) async => response);
-        //   expect(
-        //     (await weather.getWeatherInfo('mock-query', 0)).isNotFound,
-        //     equals(true),
-        //   );
-        // });
+        test(
+            'getWeatherInfo correctly returns a bad weather package with isNotFound true when weather is empty []',
+            () async {
+          WeatherCubit weather = WeatherCubit();
+          MockResponse response = MockResponse();
+          when(() => response.statusCode).thenReturn(200);
+          when(() => response.body).thenReturn('[]');
+          when(() => MockHttpClient().get(any()))
+              .thenAnswer((_) async => response);
+          expect(
+            (await weather.getWeatherInfo('mock-query', 0)).isNotFound,
+            equals(true),
+          );
+        });
       });
-      // group('weatherResponseJsonConverter', () {
-      //   setUp(() {
-      //     weatherPackageFromJson = WeatherPackage(
-      //         locationName: 'London',
-      //         locationId: 44418,
-      //         updateTime: getNowTime(),
-      //         currentTemp: (20 * (9 / 5)) + 32,
-      //         highTemp: (20 * (9 / 5)) + 32,
-      //         lowTemp: (20 * (9 / 5)) + 32,
-      //         isFahrenheit: true,
-      //         weatherState: 'Heavy Cloud',
-      //         windSpeed: 20,
-      //         windDirection: 'WNW',
-      //         airPressure: 20,
-      //         humidity: 20,
-      //         predictability: 20,
-      //         visibility: 20,
-      //         isStart: false,
-      //         isNotFound: false);
-      //   });
-      //   test(
-      //       'weatherResponseJsonConverter correctly converts a JSON object to a WeatherPackage object',
-      //       () async {
-      //     WeatherCubit weather = WeatherCubit();
-      //     expect(
-      //         (weather.weatherResponseJsonConverter(
-      //                 'London', jsonPackage, 44418))
-      //             .toOutputString,
-      //         equals(weatherPackageFromJson.toOutputString));
-      //   });
-      // });
       group('farToCel', () {
         test('farToCel correctly converts F to C', () async {
           WeatherCubit weather = WeatherCubit();

@@ -1,7 +1,7 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart';
-import 'weather_package.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'models/weather_package.dart';
 import 'dart:convert';
 
 String baseUrlMetaWeather = 'www.metaweather.com';
