@@ -44,7 +44,7 @@ class WeatherPackage {
         currentTemp = -1,
         highTemp = -1,
         lowTemp = -1,
-        isFahrenheit = false,
+        isFahrenheit = true,
         weatherState = '',
         windSpeed = -1,
         windDirection = '',

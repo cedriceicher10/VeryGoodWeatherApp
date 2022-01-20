@@ -97,10 +97,10 @@ class WeatherCubit extends Cubit<WeatherPackage> {
         locationName: locationNameVisuallyPleasing,
         locationId: locId,
         updateTime: getNowTime(),
-        currentTemp: celToFar(weatherResponseJson[0]['the_temp']), // C to F
-        highTemp: celToFar(weatherResponseJson[0]['max_temp']), // C to F
-        lowTemp: celToFar(weatherResponseJson[0]['min_temp']), // C to F
-        isFahrenheit: true,
+        currentTemp: weatherResponseJson[0]['the_temp'], // C
+        highTemp: weatherResponseJson[0]['max_temp'], // C
+        lowTemp: weatherResponseJson[0]['min_temp'], // C
+        isFahrenheit: state.isFahrenheit,
         weatherState: weatherResponseJson[0]['weather_state_name'],
         windSpeed: weatherResponseJson[0]['wind_speed'], // mph
         windDirection: weatherResponseJson[0]['wind_direction_compass'],
@@ -114,6 +114,12 @@ class WeatherCubit extends Cubit<WeatherPackage> {
     if ((weatherPackage.weatherState == 'Heavy Cloud') ||
         (weatherPackage.weatherState == 'Light Cloud')) {
       weatherPackage.weatherState = weatherPackage.weatherState + 's';
+    }
+    if (weatherPackage.isFahrenheit) {
+      weatherPackage.currentTemp = celToFar(weatherPackage.currentTemp);
+      weatherPackage.highTemp = celToFar(weatherPackage.highTemp);
+      weatherPackage.lowTemp = celToFar(weatherPackage.lowTemp);
+      weatherPackage.isFahrenheit = true;
     }
     return weatherPackage;
   }
