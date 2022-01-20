@@ -1,7 +1,9 @@
 # VeryGoodWeatherApp by Cedric Eicher
 A very good weather app.
 
-<img src="https://user-images.githubusercontent.com/49181258/150280873-dbd91059-519c-440b-bcc9-66315f12a79c.png" alt="New York [F]" width="300"/>   <img src="https://user-images.githubusercontent.com/49181258/150280904-a21ada1c-cb98-4abc-9097-b6b041d68c7e.png" alt="Palm Springs [F]" width="300"/>   <img src="https://user-images.githubusercontent.com/49181258/150280921-44687ae3-b3b4-4578-a9f3-870d0a1fd4e0.png" alt="Berlin [F]" width="300"/>
+<img src="https://user-images.githubusercontent.com/49181258/150280873-dbd91059-519c-440b-bcc9-66315f12a79c.png" alt="New York [F]" width="300"/>   <img src="https://user-images.githubusercontent.com/49181258/150280904-a21ada1c-cb98-4abc-9097-b6b041d68c7e.png" alt="Palm Springs [F]" width="300"/>   <img src="https://user-images.githubusercontent.com/49181258/150280921-44687ae3-b3b4-4578-a9f3-870d0a1fd4e0.png" alt="Berlin [F]" width="300"/>   <img src="https://user-images.githubusercontent.com/49181258/150281388-d3dbfb3d-e18b-4e66-ac20-51ed32dab8d9.png" alt="Berlin [F]" width="300"/>
+
+
 
 ## How to run this app with an Android Emulator (non-dev)
 0. Clone this repository to your local computer.
