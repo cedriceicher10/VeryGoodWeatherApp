@@ -8,6 +8,7 @@ import 'package:verygoodweatherapp/utils/styles.dart';
 import 'package:verygoodweatherapp/models/weather_package.dart';
 import 'package:weather_icons/weather_icons.dart';
 import 'weather_cubit.dart';
+import 'models/meta_weather.dart';
 import 'utils/formatted_text.dart';
 import 'utils/styles.dart';
 
@@ -218,10 +219,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            weatherMetricText('${weather.windSpeed.toStringAsFixed(0)} mph', 1),
-            weatherMetricText(weather.windDirection, 2),
-            weatherMetricText(
-                '${weather.airPressure.toStringAsFixed(0)} mbar', 3)
+            weatherMetricText('${weather.windSpeed.toStringAsFixed(0)} mph',
+                MetaWeather.windSpeed),
+            weatherMetricText(weather.windDirection, MetaWeather.windDirection),
+            weatherMetricText('${weather.airPressure.toStringAsFixed(0)} mbar',
+                MetaWeather.airPressure)
           ],
         ),
         SizedBox(width: spacing * 2),
@@ -229,9 +231,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            weatherMetricText('${weather.humidity}%', 4),
-            weatherMetricText('${weather.visibility.toStringAsFixed(0)} mi', 5),
-            weatherMetricText('${weather.predictability}%', 6)
+            weatherMetricText('${weather.humidity}%', MetaWeather.humidity),
+            weatherMetricText('${weather.visibility.toStringAsFixed(0)} mi',
+                MetaWeather.visibility),
+            weatherMetricText(
+                '${weather.predictability}%', MetaWeather.predictability)
           ],
         ),
       ]),
@@ -310,7 +314,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
   // FORMATTED TEXT
   // ===========================================================================
 
-  Widget weatherMetricText(String text, int mode) {
+  Widget weatherMetricText(String text, String mode) {
     Icon metricIcon = getMetricIcon(mode);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -474,80 +478,70 @@ class _WeatherScreenState extends State<WeatherScreen> {
     Color colorTop = Colors.blue;
     Color colorBottom = Colors.white;
     switch (weatherState) {
-      // Snow
-      case 'Snow':
+      case MetaWeather.snow:
         {
           colorTop = Colors.white;
           colorBottom = Colors.grey;
           _textColor = Colors.black;
         }
         break;
-      // Sleet
-      case 'Sleet':
+      case MetaWeather.sleet:
         {
           colorTop = Colors.black;
           colorBottom = Colors.white;
           _textColor = Colors.white;
         }
         break;
-      // Hail
-      case 'Hail':
+      case MetaWeather.hail:
         {
           colorTop = Colors.black;
           colorBottom = Colors.lightBlue;
           _textColor = Colors.white;
         }
         break;
-      // Thunderstorm
-      case 'Thunder':
+      case MetaWeather.thunder:
         {
           colorTop = Colors.black;
           colorBottom = Colors.grey;
           _textColor = Colors.white;
         }
         break;
-      // Heavy Rain
-      case 'Heavy Rain':
+      case MetaWeather.heavyRain:
         {
           colorTop = Colors.blue;
           colorBottom = Colors.blueGrey;
           _textColor = Colors.black;
         }
         break;
-      // Light Rain
-      case 'Light Rain':
+      case MetaWeather.lightRain:
         {
           colorTop = Colors.blue;
           colorBottom = Colors.grey;
           _textColor = Colors.black;
         }
         break;
-      // Showers
-      case 'Showers':
+      case MetaWeather.showers:
         {
           colorTop = Colors.blueGrey;
           colorBottom = Colors.lightBlue;
           _textColor = Colors.black;
         }
         break;
-      // Heavy Cloud
-      case 'Heavy Clouds':
+      case MetaWeather.heavyClouds:
         {
           colorTop = const Color(darkGrey);
           colorBottom = Colors.white;
           _textColor = Colors.black;
         }
         break;
-      // Light Cloud
-      case 'Light Clouds':
+      case MetaWeather.lightClouds:
         {
           colorTop = Colors.grey;
           colorBottom = Colors.yellow;
           _textColor = Colors.black;
         }
         break;
-      // Clear
-      case 'Clear':
+      case MetaWeather.clear:
         {
           colorTop = Colors.yellow;
           colorBottom = Colors.blue;
@@ -576,7 +570,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     );
     switch (weatherState) {
       // Snow
-      case 'Snow':
+      case MetaWeather.snow:
         {
           weatherStateIcon = Icon(
             WeatherIcons.snow,
@@ -585,8 +579,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           );
         }
         break;
-      // Sleet
-      case 'Sleet':
+      case MetaWeather.sleet:
         {
           weatherStateIcon = Icon(
             WeatherIcons.sleet,
@@ -595,8 +588,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           );
         }
         break;
-      // Hail
-      case 'Hail':
+      case MetaWeather.hail:
         {
           weatherStateIcon = Icon(
             WeatherIcons.hail,
@@ -605,8 +597,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           );
         }
         break;
-      // Thunderstorm
-      case 'Thunder':
+      case MetaWeather.thunder:
         {
           weatherStateIcon = Icon(
             WeatherIcons.thunderstorm,
@@ -615,8 +606,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           );
         }
         break;
-      // Heavy Rain
-      case 'Heavy Rain':
+      case MetaWeather.heavyRain:
         {
           weatherStateIcon = Icon(
             WeatherIcons.rain,
@@ -625,8 +615,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           );
         }
         break;
-      // Light Rain
-      case 'Light Rain':
+      case MetaWeather.lightRain:
         {
           weatherStateIcon = Icon(
             WeatherIcons.raindrops,
@@ -636,7 +625,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         }
         break;
       // Showers
-      case 'Showers':
+      case MetaWeather.showers:
         {
           weatherStateIcon = Icon(
             WeatherIcons.showers,
@@ -645,8 +634,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           );
         }
         break;
-      // Heavy Cloud
-      case 'Heavy Clouds':
+      case MetaWeather.heavyClouds:
         {
           weatherStateIcon = Icon(
             WeatherIcons.cloudy,
@@ -655,8 +643,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           );
         }
         break;
-      // Light Cloud
-      case 'Light Clouds':
+      case MetaWeather.lightClouds:
         {
           weatherStateIcon = Icon(
             WeatherIcons.cloud,
@@ -665,8 +652,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           );
         }
         break;
-      // Clear
-      case 'Clear':
+      case MetaWeather.clear:
         {
           weatherStateIcon = Icon(
             WeatherIcons.day_sunny,
@@ -679,7 +665,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     return weatherStateIcon;
   }
 
-  Icon getMetricIcon(int mode) {
+  Icon getMetricIcon(String mode) {
     double iconSize = 14;
     Color iconColor = _textColor;
     Icon metricIcon = Icon(
@@ -689,7 +675,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     );
     switch (mode) {
       // Wind Speed
-      case 1:
+      case MetaWeather.windSpeed:
         {
           metricIcon = Icon(
             WeatherIcons.direction_up_right,
@@ -699,7 +685,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         }
         break;
       // Wind Direction
-      case 2:
+      case MetaWeather.windDirection:
         {
           metricIcon = Icon(
             WeatherIcons.wind_deg_225,
@@ -709,7 +695,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         }
         break;
       // Air Pressure
-      case 3:
+      case MetaWeather.airPressure:
         {
           metricIcon = Icon(
             WeatherIcons.barometer,
@@ -719,7 +705,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         }
         break;
       // Humidity
-      case 4:
+      case MetaWeather.humidity:
         {
           metricIcon = Icon(
             WeatherIcons.humidity,
@@ -729,7 +715,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         }
         break;
       // Visibility
-      case 5:
+      case MetaWeather.visibility:
         {
           metricIcon = Icon(
             Icons.visibility,
@@ -739,7 +725,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         }
         break;
       // Predictability
-      case 6:
+      case MetaWeather.predictability:
         {
           metricIcon = Icon(
             Icons.check,

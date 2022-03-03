@@ -1,12 +1,15 @@
 import 'package:intl/intl.dart';
 import 'package:http/http.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'models/meta_weather.dart';
 import 'models/weather_package.dart';
 import 'dart:convert';
 
 String baseUrlMetaWeather = 'www.metaweather.com';
 String baseApiCallLocationSearch = '/api/location/search';
+String apiCallLocationSearch = 'lattlong';
 String baseApiCallLocation = '/api/location/';
+String apiCallLocation = 'query';
 
 class WeatherCubit extends Cubit<WeatherPackage> {
   final Client httpClient = Client();
@@ -31,12 +34,16 @@ class WeatherCubit extends Cubit<WeatherPackage> {
     //Query for a location search to MetaWeather
     if (isLatLon) {
       // Lat Lon
-      locationSearchRequest = Uri.https(baseUrlMetaWeather,
-          baseApiCallLocationSearch, <String, String>{'lattlong': location});
+      locationSearchRequest = Uri.https(
+          baseUrlMetaWeather,
+          baseApiCallLocationSearch,
+          <String, String>{apiCallLocationSearch: location});
     } else {
       // City name
-      locationSearchRequest = Uri.https(baseUrlMetaWeather,
-          baseApiCallLocationSearch, <String, String>{'query': location});
+      locationSearchRequest = Uri.https(
+          baseUrlMetaWeather,
+          baseApiCallLocationSearch,
+          <String, String>{apiCallLocation: location});
     }
     Response locationSearchResponse =
         await httpClient.get(locationSearchRequest);
@@ -55,9 +62,10 @@ class WeatherCubit extends Cubit<WeatherPackage> {
       return -1;
     }
     // Save location name (visually pleasing)
-    locationNameVisuallyPleasing = locationSearchResponseJson[0]['title'];
+    locationNameVisuallyPleasing =
+        locationSearchResponseJson[0][MetaWeather.locationName];
     // Extract location id
-    return locationSearchResponseJson[0]['woeid'];
+    return locationSearchResponseJson[0][MetaWeather.locationId];
   }
 
   Future<WeatherPackage> getWeatherInfo(String location, int locId) async {
@@ -77,7 +85,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
     // Ensure return has actual weather
     List weatherResponseJson = jsonDecode(
       weatherResponse.body,
-    )['consolidated_weather'] as List;
+    )[MetaWeather.allWeather] as List;
     if (weatherResponseJson.isEmpty) {
       //throw ('Weather search response is empty');
       return sendBackBadPackage();
@@ -97,18 +105,18 @@ class WeatherCubit extends Cubit<WeatherPackage> {
         locationName: locationNameVisuallyPleasing,
         locationId: locId,
         updateTime: getNowTime(),
-        currentTemp: weatherResponseJson[0]['the_temp'], // C
-        highTemp: weatherResponseJson[0]['max_temp'], // C
-        lowTemp: weatherResponseJson[0]['min_temp'], // C
+        currentTemp: weatherResponseJson[0][MetaWeather.currentTemp], // C
+        highTemp: weatherResponseJson[0][MetaWeather.highTemp], // C
+        lowTemp: weatherResponseJson[0][MetaWeather.lowTemp], // C
         isFahrenheit: state.isFahrenheit,
-        weatherState: weatherResponseJson[0]['weather_state_name'],
-        windSpeed: weatherResponseJson[0]['wind_speed'], // mph
-        windDirection: weatherResponseJson[0]['wind_direction_compass'],
-        airPressure: weatherResponseJson[0]['air_pressure'], // mbar
-        humidity: weatherResponseJson[0]['humidity'], // %
+        weatherState: weatherResponseJson[0][MetaWeather.weatherState],
+        windSpeed: weatherResponseJson[0][MetaWeather.windSpeed], // mph
+        windDirection: weatherResponseJson[0][MetaWeather.windDirection],
+        airPressure: weatherResponseJson[0][MetaWeather.airPressure], // mbar
+        humidity: weatherResponseJson[0][MetaWeather.humidity], // %
         predictability: weatherResponseJson[0]
-            ['predictability'], // % of agreeing weather reports
-        visibility: weatherResponseJson[0]['visibility'],
+            [MetaWeather.predictability], // % of agreeing weather reports
+        visibility: weatherResponseJson[0][MetaWeather.visibility],
         isStart: false,
         isNotFound: false); // mi
     if ((weatherPackage.weatherState == 'Heavy Cloud') ||
