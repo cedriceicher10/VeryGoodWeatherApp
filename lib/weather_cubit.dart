@@ -1,9 +1,9 @@
+import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'models/meta_weather.dart';
-import 'models/time.dart';
-import 'models/weather_package.dart';
-import 'dart:convert';
+import 'package:verygoodweatherapp/models/meta_weather.dart';
+import 'package:verygoodweatherapp/models/time.dart';
+import 'package:verygoodweatherapp/models/weather_package.dart';
 
 String baseUrlMetaWeather = 'www.metaweather.com';
 String baseApiCallLocationSearch = '/api/location/search';

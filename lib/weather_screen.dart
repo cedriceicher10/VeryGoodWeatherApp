@@ -4,12 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:verygoodweatherapp/utils/styles.dart';
 import 'package:verygoodweatherapp/models/weather_package.dart';
-import 'package:weather_icons/weather_icons.dart';
-import 'weather_cubit.dart';
-import 'models/meta_weather.dart';
-import 'models/user_location.dart';
-import 'utils/formatted_text.dart';
-import 'utils/styles.dart';
+import 'package:verygoodweatherapp/weather_cubit.dart';
+import 'package:verygoodweatherapp/models/meta_weather.dart';
+import 'package:verygoodweatherapp/models/app_theme.dart';
+import 'package:verygoodweatherapp/models/user_location.dart';
+import 'package:verygoodweatherapp/utils/formatted_text.dart';
 
 // Global sizes for easy manipulation and tinkering
 double textFieldWidth = 325;
@@ -33,10 +32,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
   final TextEditingController _text = TextEditingController();
   // Saved globally to allow url_launcher to access
   int _locId = -1;
-  UserLocation userLocation = UserLocation();
 
-  // Global text color of the UI
-  Color _textColor = Colors.black;
+  UserLocation userLocation = UserLocation();
+  AppTheme theme = AppTheme();
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +56,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
             body: BlocBuilder<WeatherCubit, WeatherPackage>(
                 builder: (context, weather) {
               return Container(
-                  decoration: backgroundColor(weather.weatherState),
+                  decoration: theme.getBackgroundFade(weather.weatherState),
                   child: Center(
                     child: Column(children: [
                       SizedBox(height: spacing),
@@ -108,15 +106,15 @@ class _WeatherScreenState extends State<WeatherScreen> {
         // Get weather for current city
         context.read<WeatherCubit>().getWeather(_text.value.text);
       },
-      style: TextStyle(color: _textColor),
+      style: TextStyle(color: theme.textColor),
       decoration: InputDecoration(
         hintText: 'Type any big city name or coordinates',
-        hintStyle: TextStyle(color: _textColor),
+        hintStyle: TextStyle(color: theme.textColor),
         enabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: _textColor),
+          borderSide: BorderSide(color: theme.textColor),
         ),
         focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: _textColor),
+          borderSide: BorderSide(color: theme.textColor),
         ),
       ),
     );
@@ -312,7 +310,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
   // ===========================================================================
 
   Widget weatherMetricText(String text, String mode) {
-    Icon metricIcon = getMetricIcon(mode);
+    Icon metricIcon = theme.getMetricIcon(mode);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -321,7 +319,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         FormattedText(
             text: text,
             size: fontSizeExtraSmall,
-            color: _textColor,
+            color: theme.textColor,
             font: fontIBMPlexSans)
       ],
     );
@@ -331,7 +329,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     return FormattedText(
         text: text,
         size: fontSizeMedLarge,
-        color: _textColor,
+        color: theme.textColor,
         font: fontIBMPlexSans,
         weight: FontWeight.bold);
   }
@@ -340,7 +338,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     return FormattedText(
         text: text,
         size: fontSizeMedLarge,
-        color: _textColor,
+        color: theme.textColor,
         font: fontIBMPlexSans,
         weight: FontWeight.bold);
   }
@@ -349,7 +347,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     return FormattedText(
         text: text,
         size: fontSizeExtraSmall,
-        color: _textColor,
+        color: theme.textColor,
         font: fontIBMPlexSans);
   }
 
@@ -359,7 +357,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     } else {
       text = text + ' °C';
     }
-    Icon weatherStateIcon = getWeatherStateIcon(weatherState);
+    Icon weatherStateIcon = theme.getWeatherStateIcon(weatherState);
     return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -369,7 +367,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           FormattedText(
               text: text,
               size: fontSizeExtraLarge * 1.5,
-              color: _textColor,
+              color: theme.textColor,
               font: fontIBMPlexSans,
               weight: FontWeight.bold)
         ]);
@@ -385,7 +383,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     return FormattedText(
       text: text,
       size: fontSizeMedium,
-      color: _textColor,
+      color: theme.textColor,
       font: fontIBMPlexSans,
     );
   }
@@ -421,7 +419,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     return RichText(
       text: TextSpan(
           style: TextStyle(
-              color: _textColor,
+              color: theme.textColor,
               fontFamily: fontBonaNova,
               fontSize: fontSizeExtraSmall,
               fontWeight: FontWeight.bold),
@@ -439,7 +437,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     return RichText(
       text: TextSpan(
           style: TextStyle(
-              color: _textColor,
+              color: theme.textColor,
               fontFamily: fontIBMPlexSans,
               fontSize: fontSizeExtraSmall,
               fontWeight: FontWeight.bold),
@@ -464,275 +462,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
             font: fontIBMPlexSans,
             weight: FontWeight.bold,
             align: TextAlign.center));
-  }
-
-  // ===========================================================================
-  // DISPLAY SWITCHING (BACKGROUND, TEXT COLOR)
-  // ===========================================================================
-
-  BoxDecoration backgroundColor(String weatherState) {
-    // Default colors
-    Color colorTop = Colors.blue;
-    Color colorBottom = Colors.white;
-    switch (weatherState) {
-      case MetaWeather.snow:
-        {
-          colorTop = Colors.white;
-          colorBottom = Colors.grey;
-          _textColor = Colors.black;
-        }
-        break;
-      case MetaWeather.sleet:
-        {
-          colorTop = Colors.black;
-          colorBottom = Colors.white;
-          _textColor = Colors.white;
-        }
-        break;
-      case MetaWeather.hail:
-        {
-          colorTop = Colors.black;
-          colorBottom = Colors.lightBlue;
-          _textColor = Colors.white;
-        }
-        break;
-      case MetaWeather.thunder:
-        {
-          colorTop = Colors.black;
-          colorBottom = Colors.grey;
-          _textColor = Colors.white;
-        }
-        break;
-      case MetaWeather.heavyRain:
-        {
-          colorTop = Colors.blue;
-          colorBottom = Colors.blueGrey;
-          _textColor = Colors.black;
-        }
-        break;
-      case MetaWeather.lightRain:
-        {
-          colorTop = Colors.blue;
-          colorBottom = Colors.grey;
-          _textColor = Colors.black;
-        }
-        break;
-      case MetaWeather.showers:
-        {
-          colorTop = Colors.blueGrey;
-          colorBottom = Colors.lightBlue;
-          _textColor = Colors.black;
-        }
-        break;
-      case MetaWeather.heavyClouds:
-        {
-          colorTop = const Color(darkGrey);
-          colorBottom = Colors.white;
-          _textColor = Colors.black;
-        }
-        break;
-      case MetaWeather.lightClouds:
-        {
-          colorTop = Colors.grey;
-          colorBottom = Colors.yellow;
-          _textColor = Colors.black;
-        }
-        break;
-      case MetaWeather.clear:
-        {
-          colorTop = Colors.yellow;
-          colorBottom = Colors.blue;
-          _textColor = Colors.black;
-        }
-        break;
-    }
-    return BoxDecoration(
-        gradient: LinearGradient(
-      begin: Alignment.topRight,
-      end: Alignment.bottomLeft,
-      colors: [
-        colorTop,
-        colorBottom,
-      ],
-    ));
-  }
-
-  Icon getWeatherStateIcon(String weatherState) {
-    double iconSize = 65;
-    Color iconColor = Colors.blue;
-    Icon weatherStateIcon = Icon(
-      WeatherIcons.day_sunny,
-      color: iconColor,
-      size: iconSize,
-    );
-    switch (weatherState) {
-      // Snow
-      case MetaWeather.snow:
-        {
-          weatherStateIcon = Icon(
-            WeatherIcons.snow,
-            color: Colors.white,
-            size: iconSize,
-          );
-        }
-        break;
-      case MetaWeather.sleet:
-        {
-          weatherStateIcon = Icon(
-            WeatherIcons.sleet,
-            color: Colors.grey,
-            size: iconSize,
-          );
-        }
-        break;
-      case MetaWeather.hail:
-        {
-          weatherStateIcon = Icon(
-            WeatherIcons.hail,
-            color: Colors.grey,
-            size: iconSize,
-          );
-        }
-        break;
-      case MetaWeather.thunder:
-        {
-          weatherStateIcon = Icon(
-            WeatherIcons.thunderstorm,
-            color: Colors.yellow,
-            size: iconSize,
-          );
-        }
-        break;
-      case MetaWeather.heavyRain:
-        {
-          weatherStateIcon = Icon(
-            WeatherIcons.rain,
-            color: const Color(darkBlue),
-            size: iconSize,
-          );
-        }
-        break;
-      case MetaWeather.lightRain:
-        {
-          weatherStateIcon = Icon(
-            WeatherIcons.raindrops,
-            color: const Color(darkBlue),
-            size: iconSize,
-          );
-        }
-        break;
-      // Showers
-      case MetaWeather.showers:
-        {
-          weatherStateIcon = Icon(
-            WeatherIcons.showers,
-            color: const Color(darkBlue),
-            size: iconSize,
-          );
-        }
-        break;
-      case MetaWeather.heavyClouds:
-        {
-          weatherStateIcon = Icon(
-            WeatherIcons.cloudy,
-            color: const Color(raisinBlack),
-            size: iconSize,
-          );
-        }
-        break;
-      case MetaWeather.lightClouds:
-        {
-          weatherStateIcon = Icon(
-            WeatherIcons.cloud,
-            color: Colors.white,
-            size: iconSize,
-          );
-        }
-        break;
-      case MetaWeather.clear:
-        {
-          weatherStateIcon = Icon(
-            WeatherIcons.day_sunny,
-            color: Colors.yellow,
-            size: iconSize,
-          );
-        }
-        break;
-    }
-    return weatherStateIcon;
-  }
-
-  Icon getMetricIcon(String mode) {
-    double iconSize = 14;
-    Color iconColor = _textColor;
-    Icon metricIcon = Icon(
-      WeatherIcons.day_sunny,
-      color: iconColor,
-      size: iconSize,
-    );
-    switch (mode) {
-      // Wind Speed
-      case MetaWeather.windSpeed:
-        {
-          metricIcon = Icon(
-            WeatherIcons.direction_up_right,
-            color: iconColor,
-            size: iconSize,
-          );
-        }
-        break;
-      // Wind Direction
-      case MetaWeather.windDirection:
-        {
-          metricIcon = Icon(
-            WeatherIcons.wind_deg_225,
-            color: iconColor,
-            size: iconSize,
-          );
-        }
-        break;
-      // Air Pressure
-      case MetaWeather.airPressure:
-        {
-          metricIcon = Icon(
-            WeatherIcons.barometer,
-            color: iconColor,
-            size: iconSize,
-          );
-        }
-        break;
-      // Humidity
-      case MetaWeather.humidity:
-        {
-          metricIcon = Icon(
-            WeatherIcons.humidity,
-            color: iconColor,
-            size: iconSize,
-          );
-        }
-        break;
-      // Visibility
-      case MetaWeather.visibility:
-        {
-          metricIcon = Icon(
-            Icons.visibility,
-            color: iconColor,
-            size: iconSize,
-          );
-        }
-        break;
-      // Predictability
-      case MetaWeather.predictability:
-        {
-          metricIcon = Icon(
-            Icons.check,
-            color: iconColor,
-            size: iconSize,
-          );
-        }
-        break;
-    }
-    return metricIcon;
   }
 
   // ===========================================================================
