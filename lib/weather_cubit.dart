@@ -1,7 +1,7 @@
-import 'package:intl/intl.dart';
 import 'package:http/http.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'models/meta_weather.dart';
+import 'models/time.dart';
 import 'models/weather_package.dart';
 import 'dart:convert';
 
@@ -10,6 +10,8 @@ String baseApiCallLocationSearch = '/api/location/search';
 String apiCallLocationSearch = 'lattlong';
 String baseApiCallLocation = '/api/location/';
 String apiCallLocation = 'query';
+
+Time time = Time();
 
 class WeatherCubit extends Cubit<WeatherPackage> {
   final Client httpClient = Client();
@@ -104,7 +106,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
     WeatherPackage weatherPackage = WeatherPackage(
         locationName: locationNameVisuallyPleasing,
         locationId: locId,
-        updateTime: getNowTime(),
+        updateTime: time.getTimeNow(),
         currentTemp: weatherResponseJson[0][MetaWeather.currentTemp], // C
         highTemp: weatherResponseJson[0][MetaWeather.highTemp], // C
         lowTemp: weatherResponseJson[0][MetaWeather.lowTemp], // C
@@ -201,11 +203,5 @@ class WeatherCubit extends Cubit<WeatherPackage> {
 
   double celToFar(double temp) {
     return (temp * (9 / 5)) + 32;
-  }
-
-  String getNowTime() {
-    DateTime now = DateTime.now();
-    String formattedDate = DateFormat('h:mma').format(now);
-    return formattedDate;
   }
 }

@@ -1,4 +1,3 @@
-import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -768,11 +767,5 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   int getLocationId() {
     return _locId;
-  }
-
-  String getNowTime() {
-    DateTime now = DateTime.now();
-    String formattedDate = DateFormat('h:mma').format(now);
-    return formattedDate;
   }
 }
