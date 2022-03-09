@@ -1,13 +1,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:location/location.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:verygoodweatherapp/utils/styles.dart';
 import 'package:verygoodweatherapp/models/weather_package.dart';
 import 'package:weather_icons/weather_icons.dart';
 import 'weather_cubit.dart';
 import 'models/meta_weather.dart';
+import 'models/user_location.dart';
 import 'utils/formatted_text.dart';
 import 'utils/styles.dart';
 
@@ -33,11 +33,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
   final TextEditingController _text = TextEditingController();
   // Saved globally to allow url_launcher to access
   int _locId = -1;
-  // Location Services
-  Location location = Location();
-  // To enable lat, lon API calls
-  double _userLat = 0;
-  double _userLon = 0;
+  UserLocation userLocation = UserLocation();
+
   // Global text color of the UI
   Color _textColor = Colors.black;
 
@@ -134,8 +131,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
             currentFocus.unfocus();
           }
           // Get location
-          await getLocation();
-          String latLonQuery = "$_userLat,$_userLon";
+          await userLocation.getLocation();
+          String latLonQuery =
+              "${userLocation.userLat},${userLocation.userLon}";
           // Get weather at that lat, lon location
           context.read<WeatherCubit>().getWeather(latLonQuery);
         },
@@ -740,31 +738,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
   // ===========================================================================
   // FUNCTIONS
   // ===========================================================================
-
-  Future<void> getLocation() async {
-    // Adapted from: https://pub.dev/packages/location
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
-    LocationData _locationData;
-    _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        Icons.assignment_return;
-      }
-    }
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-        return;
-      }
-    }
-    _locationData = await location.getLocation();
-    _userLat = _locationData.latitude!;
-    _userLon = _locationData.longitude!;
-  }
-
   int getLocationId() {
     return _locId;
   }
