@@ -11,8 +11,9 @@ import 'package:verygoodweatherapp/models/meta_weather.dart';
 import 'package:verygoodweatherapp/models/user_location.dart';
 import 'package:verygoodweatherapp/utils/formatted_text.dart';
 
-// Global sizes for easy manipulation and tinkering
+// App sizing and themeing
 late AppSizing appSize;
+late AppTheme theme;
 
 class WeatherScreen extends StatefulWidget {
   const WeatherScreen({Key? key}) : super(key: key);
@@ -24,12 +25,12 @@ class WeatherScreen extends StatefulWidget {
 class _WeatherScreenState extends State<WeatherScreen> {
   final TextEditingController _text = TextEditingController();
   UserLocation userLocation = UserLocation();
-  AppTheme theme = AppTheme();
   int _locId = -1;
 
   @override
   Widget build(BuildContext context) {
     appSize = AppSizing(context);
+    theme = AppTheme(context);
     // The GestureDetector allows taps by the user to dismiss the keyboard
     return GestureDetector(
         onTap: () {
@@ -62,7 +63,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                             SizedBox(width: appSize.spacing),
                             searchButton()
                           ]),
-                      SizedBox(height: appSize.spacing * 2),
+                      SizedBox(height: appSize.spacing),
                       // Fade upon reloads to alert user something is happening
                       AnimatedSwitcher(
                           duration: const Duration(milliseconds: 200),
@@ -190,53 +191,57 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   Widget weatherDisplay(WeatherPackage weather) {
     _locId = weather.locationId;
-    return SingleChildScrollView(
-        child: Column(children: [
-      weatherTitle(weather.locationName),
-      updateTimeText('Updated at ${weather.updateTime}'),
-      SizedBox(height: appSize.spacing),
-      currentTempText(weather.currentTemp.toStringAsFixed(0),
-          weather.isFahrenheit, weather.weatherState),
-      SizedBox(height: appSize.spacing / 2),
-      hiLoTempText(weather.highTemp.toStringAsFixed(0),
-          weather.lowTemp.toStringAsFixed(0), weather.isFahrenheit),
-      SizedBox(height: appSize.spacing / 2),
-      weatherStateText(weather.weatherState),
-      SizedBox(height: appSize.spacing * 2),
-      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            weatherMetricText('${weather.windSpeed.toStringAsFixed(0)} mph',
-                MetaWeather.windSpeed),
-            weatherMetricText(weather.windDirection, MetaWeather.windDirection),
-            weatherMetricText('${weather.airPressure.toStringAsFixed(0)} mbar',
-                MetaWeather.airPressure)
-          ],
-        ),
-        SizedBox(width: appSize.spacing * 2),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            weatherMetricText('${weather.humidity}%', MetaWeather.humidity),
-            weatherMetricText('${weather.visibility.toStringAsFixed(0)} mi',
-                MetaWeather.visibility),
-            weatherMetricText(
-                '${weather.predictability}%', MetaWeather.predictability)
-          ],
-        ),
-      ]),
-      SizedBox(height: appSize.spacing),
-      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        toggleUnitsButton(),
-        SizedBox(width: appSize.spacing),
-        refreshButton(weather)
-      ]),
-      SizedBox(height: appSize.spacing),
-      metaWeatherConsiderationText('View this weather on MetaWeather.com')
-    ]));
+    return Scrollbar(
+        showTrackOnHover: true,
+        child: SingleChildScrollView(
+            child: Column(children: [
+          weatherTitle(weather.locationName),
+          updateTimeText('Updated at ${weather.updateTime}'),
+          SizedBox(height: appSize.spacing),
+          currentTempText(weather.currentTemp.toStringAsFixed(0),
+              weather.isFahrenheit, weather.weatherState),
+          SizedBox(height: appSize.spacing / 2),
+          hiLoTempText(weather.highTemp.toStringAsFixed(0),
+              weather.lowTemp.toStringAsFixed(0), weather.isFahrenheit),
+          SizedBox(height: appSize.spacing / 2),
+          weatherStateText(weather.weatherState),
+          SizedBox(height: appSize.spacing),
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                weatherMetricText('${weather.windSpeed.toStringAsFixed(0)} mph',
+                    MetaWeather.windSpeed),
+                weatherMetricText(
+                    weather.windDirection, MetaWeather.windDirection),
+                weatherMetricText(
+                    '${weather.airPressure.toStringAsFixed(0)} mbar',
+                    MetaWeather.airPressure)
+              ],
+            ),
+            SizedBox(width: appSize.spacing * 2),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                weatherMetricText('${weather.humidity}%', MetaWeather.humidity),
+                weatherMetricText('${weather.visibility.toStringAsFixed(0)} mi',
+                    MetaWeather.visibility),
+                weatherMetricText(
+                    '${weather.predictability}%', MetaWeather.predictability)
+              ],
+            ),
+          ]),
+          SizedBox(height: appSize.spacing),
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            toggleUnitsButton(),
+            SizedBox(width: appSize.spacing),
+            refreshButton(weather)
+          ]),
+          SizedBox(height: appSize.spacing),
+          metaWeatherConsiderationText('View this weather on MetaWeather.com')
+        ])));
   }
 
   Widget toggleUnitsButton() {
@@ -308,7 +313,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         SizedBox(width: appSize.spacing),
         FormattedText(
             text: text,
-            size: fontSizeExtraSmall,
+            size: appSize.fontSizeExtraSmall,
             color: theme.textColor,
             font: fontIBMPlexSans)
       ],
@@ -318,7 +323,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
   Widget weatherStateText(String text) {
     return FormattedText(
         text: text,
-        size: fontSizeMedLarge,
+        size: appSize.fontSizeMedLarge,
         color: theme.textColor,
         font: fontIBMPlexSans,
         weight: FontWeight.bold);
@@ -327,7 +332,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
   Widget weatherTitle(String text) {
     return FormattedText(
         text: text,
-        size: fontSizeMedLarge,
+        size: appSize.fontSizeMedLarge,
         color: theme.textColor,
         font: fontIBMPlexSans,
         weight: FontWeight.bold);
@@ -336,7 +341,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
   Widget updateTimeText(String text) {
     return FormattedText(
         text: text,
-        size: fontSizeExtraSmall,
+        size: appSize.fontSizeExtraSmall,
         color: theme.textColor,
         font: fontIBMPlexSans);
   }
@@ -356,7 +361,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           SizedBox(width: appSize.spacing * 2.5),
           FormattedText(
               text: text,
-              size: fontSizeExtraLarge * 1.5,
+              size: appSize.fontSizeExtraLarge * 1.5,
               color: theme.textColor,
               font: fontIBMPlexSans,
               weight: FontWeight.bold)
@@ -372,7 +377,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     }
     return FormattedText(
       text: text,
-      size: fontSizeMedium,
+      size: appSize.fontSizeMedium,
       color: theme.textColor,
       font: fontIBMPlexSans,
     );
@@ -381,7 +386,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
   Widget weatherScreenTitle(String text) {
     return FormattedText(
         text: text,
-        size: fontSizeMedLarge,
+        size: appSize.fontSizeMedLarge,
         color: Colors.white,
         font: fontBonaNova,
         weight: FontWeight.bold);
@@ -390,7 +395,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
   Widget topButtonText(String text) {
     return FormattedText(
         text: text,
-        size: fontSizeSmall,
+        size: appSize.fontSizeSmall,
         color: Colors.white,
         font: fontBonaNova,
         weight: FontWeight.bold);
@@ -399,7 +404,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
   Widget bottomButtonText(String text) {
     return FormattedText(
         text: text,
-        size: fontSizeSmaller,
+        size: appSize.fontSizeSmaller,
         color: Colors.white,
         font: fontBonaNova,
         weight: FontWeight.bold);
@@ -411,7 +416,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           style: TextStyle(
               color: theme.textColor,
               fontFamily: fontBonaNova,
-              fontSize: fontSizeExtraSmall,
+              fontSize: appSize.fontSizeExtraSmall,
               fontWeight: FontWeight.bold),
           text: text,
           recognizer: TapGestureRecognizer()
@@ -429,7 +434,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           style: TextStyle(
               color: theme.textColor,
               fontFamily: fontIBMPlexSans,
-              fontSize: fontSizeExtraSmall,
+              fontSize: appSize.fontSizeExtraSmall,
               fontWeight: FontWeight.bold),
           text: text,
           recognizer: TapGestureRecognizer()
@@ -447,7 +452,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         width: appSize.weatherContainerWidth,
         child: FormattedText(
             text: text,
-            size: fontSizeSmaller,
+            size: appSize.fontSizeSmaller,
             color: Colors.red,
             font: fontIBMPlexSans,
             weight: FontWeight.bold,

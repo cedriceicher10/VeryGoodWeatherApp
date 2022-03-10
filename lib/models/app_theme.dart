@@ -4,9 +4,12 @@ import 'package:verygoodweatherapp/models/meta_weather.dart';
 import 'package:verygoodweatherapp/utils/styles.dart';
 
 class AppTheme {
+  BuildContext context;
   Color colorFadeTop = Colors.blue;
   Color colorFadeBottom = Colors.white;
   Color textColor = Colors.black;
+
+  AppTheme(this.context);
 
   BoxDecoration getBackgroundFade(String weatherState) {
     switch (weatherState) {
@@ -94,6 +97,12 @@ class AppTheme {
 
   Icon getWeatherStateIcon(String weatherState) {
     double iconSize = 65;
+    double reductionFactor = 0.65;
+    if ((MediaQuery.of(context).size.width *
+            MediaQuery.of(context).size.height) <
+        550 * 350) {
+      iconSize = iconSize * reductionFactor;
+    }
     Color iconColor = Colors.blue;
     Icon weatherStateIcon = Icon(
       WeatherIcons.day_sunny,

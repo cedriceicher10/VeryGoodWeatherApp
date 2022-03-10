@@ -24,18 +24,16 @@ class FormattedText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
         padding: const EdgeInsets.all(1),
-        child: FittedBox(
-            fit: BoxFit.fitWidth,
-            child: Text(
-              text,
-              textAlign: align,
-              style: TextStyle(
-                fontSize: size,
-                fontFamily: font,
-                fontWeight: weight,
-                fontStyle: style,
-                color: color,
-              ),
-            )));
+        child: Text(
+          text,
+          textAlign: align,
+          style: TextStyle(
+            fontSize: size,
+            fontFamily: font,
+            fontWeight: weight,
+            fontStyle: style,
+            color: color,
+          ),
+        ));
   }
 }

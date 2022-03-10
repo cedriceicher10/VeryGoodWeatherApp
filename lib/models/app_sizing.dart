@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:verygoodweatherapp/utils/styles.dart' as styles;
 
 class AppSizing {
   BuildContext context;
@@ -10,6 +11,13 @@ class AppSizing {
   double spacing = 0; // 10
   double weatherContainerWidth = 0; // 325
   double weatherContainerHeight = 0; // 405
+  double fontSizeExtraSmall = 0;
+  double fontSizeSmaller = 0;
+  double fontSizeSmall = 0;
+  double fontSizeMedium = 0;
+  double fontSizeMedLarge = 0;
+  double fontSizeLarge = 0;
+  double fontSizeExtraLarge = 0;
 
   AppSizing(this.context) {
     textFieldWidth = getTextFieldWidth();
@@ -20,8 +28,16 @@ class AppSizing {
     spacing = getSpacing();
     weatherContainerWidth = getWeatherContainerWidth();
     weatherContainerHeight = getWeatherContainerHeight();
+    fontSizeExtraSmall = getFontSizeExtraSmall();
+    fontSizeSmaller = getFontSizeSmaller();
+    fontSizeSmall = getFontSizeSmall();
+    fontSizeMedium = getFontSizeMedium();
+    fontSizeMedLarge = getFontSizeMedLarge();
+    fontSizeLarge = getFontSizeLarge();
+    fontSizeExtraLarge = getFontSizeExtraLarge();
   }
 
+  // Container sizes
   double getTextFieldWidth() {
     return MediaQuery.of(context).size.width * 0.85; // 325
   }
@@ -51,6 +67,72 @@ class AppSizing {
   }
 
   double getWeatherContainerHeight() {
-    return MediaQuery.of(context).size.height * 0.60; // 405
+    return MediaQuery.of(context).size.height * 0.55; // 405
+  }
+
+  // Text sizes
+  double reductionFactor = 0.65;
+
+  double getFontSizeExtraSmall() {
+    if ((MediaQuery.of(context).size.width *
+            MediaQuery.of(context).size.height) <
+        550 * 350) {
+      return styles.fontSizeExtraSmall * reductionFactor;
+    }
+    return styles.fontSizeExtraSmall;
+  }
+
+  double getFontSizeSmaller() {
+    if ((MediaQuery.of(context).size.width *
+            MediaQuery.of(context).size.height) <
+        550 * 350) {
+      return styles.fontSizeSmaller * reductionFactor;
+    }
+    return styles.fontSizeSmaller;
+  }
+
+  double getFontSizeSmall() {
+    if ((MediaQuery.of(context).size.width *
+            MediaQuery.of(context).size.height) <
+        550 * 350) {
+      return styles.fontSizeSmall * reductionFactor;
+    }
+    return styles.fontSizeSmall;
+  }
+
+  double getFontSizeMedium() {
+    if ((MediaQuery.of(context).size.width *
+            MediaQuery.of(context).size.height) <
+        550 * 350) {
+      return styles.fontSizeMedium * reductionFactor;
+    }
+    return styles.fontSizeMedium;
+  }
+
+  double getFontSizeMedLarge() {
+    if ((MediaQuery.of(context).size.width *
+            MediaQuery.of(context).size.height) <
+        550 * 350) {
+      return styles.fontSizeMedLarge * reductionFactor;
+    }
+    return styles.fontSizeMedLarge;
+  }
+
+  double getFontSizeLarge() {
+    if ((MediaQuery.of(context).size.width *
+            MediaQuery.of(context).size.height) <
+        550 * 350) {
+      return styles.fontSizeLarge * reductionFactor;
+    }
+    return styles.fontSizeLarge;
+  }
+
+  double getFontSizeExtraLarge() {
+    if ((MediaQuery.of(context).size.width *
+            MediaQuery.of(context).size.height) <
+        550 * 350) {
+      return styles.fontSizeExtraLarge * reductionFactor;
+    }
+    return styles.fontSizeExtraLarge;
   }
 }
