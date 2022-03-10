@@ -5,20 +5,14 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:verygoodweatherapp/utils/styles.dart';
 import 'package:verygoodweatherapp/models/weather_package.dart';
 import 'package:verygoodweatherapp/weather_cubit.dart';
-import 'package:verygoodweatherapp/models/meta_weather.dart';
+import 'package:verygoodweatherapp/models/app_sizing.dart';
 import 'package:verygoodweatherapp/models/app_theme.dart';
+import 'package:verygoodweatherapp/models/meta_weather.dart';
 import 'package:verygoodweatherapp/models/user_location.dart';
 import 'package:verygoodweatherapp/utils/formatted_text.dart';
 
 // Global sizes for easy manipulation and tinkering
-double textFieldWidth = 325;
-double topButtonWidth = 158;
-double topButtonHeight = 40;
-double bottomButtonWidth = 138;
-double bottomButtonHeight = 30;
-double spacing = 10;
-double weatherContainerWidth = 325;
-double weatherContainerHeight = 405;
+late AppSizing appSize;
 
 class WeatherScreen extends StatefulWidget {
   const WeatherScreen({Key? key}) : super(key: key);
@@ -28,16 +22,14 @@ class WeatherScreen extends StatefulWidget {
 }
 
 class _WeatherScreenState extends State<WeatherScreen> {
-  // The text in the TextField
   final TextEditingController _text = TextEditingController();
-  // Saved globally to allow url_launcher to access
-  int _locId = -1;
-
   UserLocation userLocation = UserLocation();
   AppTheme theme = AppTheme();
+  int _locId = -1;
 
   @override
   Widget build(BuildContext context) {
+    appSize = AppSizing(context);
     // The GestureDetector allows taps by the user to dismiss the keyboard
     return GestureDetector(
         onTap: () {
@@ -59,17 +51,18 @@ class _WeatherScreenState extends State<WeatherScreen> {
                   decoration: theme.getBackgroundFade(weather.weatherState),
                   child: Center(
                     child: Column(children: [
-                      SizedBox(height: spacing),
-                      SizedBox(width: textFieldWidth, child: searchBar()),
-                      SizedBox(height: spacing),
+                      SizedBox(height: appSize.spacing),
+                      SizedBox(
+                          width: appSize.textFieldWidth, child: searchBar()),
+                      SizedBox(height: appSize.spacing),
                       Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             myLocationButton(),
-                            SizedBox(width: spacing),
+                            SizedBox(width: appSize.spacing),
                             searchButton()
                           ]),
-                      SizedBox(height: spacing * 2),
+                      SizedBox(height: appSize.spacing * 2),
                       // Fade upon reloads to alert user something is happening
                       AnimatedSwitcher(
                           duration: const Duration(milliseconds: 200),
@@ -137,7 +130,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         },
         style: ElevatedButton.styleFrom(
             primary: Colors.black,
-            fixedSize: Size(topButtonWidth, topButtonHeight)),
+            fixedSize: Size(appSize.topButtonWidth, appSize.topButtonHeight)),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           const Icon(
             Icons.my_location_sharp,
@@ -164,7 +157,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         },
         style: ElevatedButton.styleFrom(
             primary: Colors.black,
-            fixedSize: Size(topButtonWidth, topButtonHeight)),
+            fixedSize: Size(appSize.topButtonWidth, appSize.topButtonHeight)),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           const Icon(
             Icons.search,
@@ -188,27 +181,28 @@ class _WeatherScreenState extends State<WeatherScreen> {
     } else {
       // Weather found succesfully
       return Container(
-          width: weatherContainerWidth,
-          height: weatherContainerHeight,
-          padding: EdgeInsets.all(spacing),
+          width: appSize.weatherContainerWidth,
+          height: appSize.weatherContainerHeight,
+          padding: EdgeInsets.all(appSize.spacing),
           child: weatherDisplay(weather));
     }
   }
 
   Widget weatherDisplay(WeatherPackage weather) {
     _locId = weather.locationId;
-    return Column(children: [
+    return SingleChildScrollView(
+        child: Column(children: [
       weatherTitle(weather.locationName),
       updateTimeText('Updated at ${weather.updateTime}'),
-      SizedBox(height: spacing),
+      SizedBox(height: appSize.spacing),
       currentTempText(weather.currentTemp.toStringAsFixed(0),
           weather.isFahrenheit, weather.weatherState),
-      SizedBox(height: spacing / 2),
+      SizedBox(height: appSize.spacing / 2),
       hiLoTempText(weather.highTemp.toStringAsFixed(0),
           weather.lowTemp.toStringAsFixed(0), weather.isFahrenheit),
-      SizedBox(height: spacing / 2),
+      SizedBox(height: appSize.spacing / 2),
       weatherStateText(weather.weatherState),
-      SizedBox(height: spacing * 2),
+      SizedBox(height: appSize.spacing * 2),
       Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -221,7 +215,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 MetaWeather.airPressure)
           ],
         ),
-        SizedBox(width: spacing * 2),
+        SizedBox(width: appSize.spacing * 2),
         Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,21 +228,15 @@ class _WeatherScreenState extends State<WeatherScreen> {
           ],
         ),
       ]),
-      SizedBox(height: spacing),
+      SizedBox(height: appSize.spacing),
       Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         toggleUnitsButton(),
-        SizedBox(width: spacing),
+        SizedBox(width: appSize.spacing),
         refreshButton(weather)
       ]),
-      // Force to bottom
-      Expanded(
-        child: Align(
-          alignment: FractionalOffset.bottomCenter,
-          child: metaWeatherConsiderationText(
-              'View this weather on MetaWeather.com'),
-        ),
-      ),
-    ]);
+      SizedBox(height: appSize.spacing),
+      metaWeatherConsiderationText('View this weather on MetaWeather.com')
+    ]));
   }
 
   Widget toggleUnitsButton() {
@@ -264,7 +252,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
         },
         style: ElevatedButton.styleFrom(
             primary: Colors.black,
-            fixedSize: Size(bottomButtonWidth, bottomButtonHeight)),
+            fixedSize:
+                Size(appSize.bottomButtonWidth, appSize.bottomButtonHeight)),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           const Icon(
             Icons.switch_right_sharp,
@@ -291,7 +280,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
         },
         style: ElevatedButton.styleFrom(
             primary: Colors.black,
-            fixedSize: Size(bottomButtonWidth, bottomButtonHeight)),
+            fixedSize:
+                Size(appSize.bottomButtonWidth, appSize.bottomButtonHeight)),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           const Icon(
             Icons.refresh_sharp,
@@ -315,7 +305,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         metricIcon,
-        SizedBox(width: spacing),
+        SizedBox(width: appSize.spacing),
         FormattedText(
             text: text,
             size: fontSizeExtraSmall,
@@ -363,7 +353,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           weatherStateIcon,
-          SizedBox(width: spacing * 2.5),
+          SizedBox(width: appSize.spacing * 2.5),
           FormattedText(
               text: text,
               size: fontSizeExtraLarge * 1.5,
@@ -454,7 +444,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     String text =
         'The location you chose could not be found or does not have weather at this time. \nPlease try again.\n\nTip:\nTry big cities (e.g. San Diego) or even \ncoordinates with the format \n33.8121, -117.9190. \n\nAnd be sure to check your spelling!';
     return SizedBox(
-        width: weatherContainerWidth,
+        width: appSize.weatherContainerWidth,
         child: FormattedText(
             text: text,
             size: fontSizeSmaller,
