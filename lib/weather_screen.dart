@@ -70,6 +70,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           child: Container(
                               key: UniqueKey(),
                               child: weatherContainer(weather))),
+                      SizedBox(height: _appSize.spacing),
+                      toggleAndRefreshButtons(weather.isStart, weather),
                       // Push to the bottom
                       Expanded(
                         child: Align(
@@ -172,6 +174,18 @@ class _WeatherScreenState extends State<WeatherScreen> {
         ]));
   }
 
+  Widget toggleAndRefreshButtons(bool isStart, WeatherPackage weather) {
+    if (isStart) {
+      return Container();
+    } else {
+      return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        toggleUnitsButton(),
+        SizedBox(width: _appSize.spacing),
+        refreshButton(weather)
+      ]);
+    }
+  }
+
   Widget weatherContainer(WeatherPackage weather) {
     if (weather.isStart) {
       // Empty container before city has been chosen
@@ -183,7 +197,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
       // Weather found succesfully
       return Container(
           width: _appSize.weatherContainerWidth,
-          height: _appSize.weatherContainerHeight,
+          //height: _appSize.weatherContainerHeight, // Doesn't need to be restricted
           padding: EdgeInsets.all(_appSize.spacing),
           child: weatherDisplay(weather));
     }
@@ -232,12 +246,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     '${weather.predictability}%', MetaWeather.predictability)
               ],
             ),
-          ]),
-          SizedBox(height: _appSize.spacing),
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            toggleUnitsButton(),
-            SizedBox(width: _appSize.spacing),
-            refreshButton(weather)
           ]),
           SizedBox(height: _appSize.spacing),
           metaWeatherConsiderationText('View this weather on MetaWeather.com')
