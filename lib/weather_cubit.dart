@@ -5,13 +5,13 @@ import 'package:verygoodweatherapp/models/meta_weather.dart';
 import 'package:verygoodweatherapp/models/time.dart';
 import 'package:verygoodweatherapp/models/weather_package.dart';
 
-String baseUrlMetaWeather = 'www.metaweather.com';
-String baseApiCallLocationSearch = '/api/location/search';
-String apiCallLocationSearch = 'lattlong';
-String baseApiCallLocation = '/api/location/';
-String apiCallLocation = 'query';
+String _baseUrlMetaWeather = 'www.metaweather.com';
+String _baseApiCallLocationSearch = '/api/location/search';
+String _apiCallLocationSearch = 'lattlong';
+String _baseApiCallLocation = '/api/location/';
+String _apiCallLocation = 'query';
 
-Time time = Time();
+Time _time = Time();
 
 class WeatherCubit extends Cubit<WeatherPackage> {
   final Client httpClient = Client();
@@ -37,15 +37,15 @@ class WeatherCubit extends Cubit<WeatherPackage> {
     if (isLatLon) {
       // Lat Lon
       locationSearchRequest = Uri.https(
-          baseUrlMetaWeather,
-          baseApiCallLocationSearch,
-          <String, String>{apiCallLocationSearch: location});
+          _baseUrlMetaWeather,
+          _baseApiCallLocationSearch,
+          <String, String>{_apiCallLocationSearch: location});
     } else {
       // City name
       locationSearchRequest = Uri.https(
-          baseUrlMetaWeather,
-          baseApiCallLocationSearch,
-          <String, String>{apiCallLocation: location});
+          _baseUrlMetaWeather,
+          _baseApiCallLocationSearch,
+          <String, String>{_apiCallLocation: location});
     }
     Response locationSearchResponse =
         await httpClient.get(locationSearchRequest);
@@ -77,7 +77,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
     }
     // Query for weather with a locId to MetaWeather
     Uri weatherRequest =
-        Uri.https(baseUrlMetaWeather, baseApiCallLocation + '$locId');
+        Uri.https(_baseUrlMetaWeather, _baseApiCallLocation + '$locId');
     Response weatherResponse = await httpClient.get(weatherRequest);
     // Ensure return doesn't have an error status code
     if (weatherResponse.statusCode != 200) {
@@ -106,7 +106,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
     WeatherPackage weatherPackage = WeatherPackage(
         locationName: locationNameVisuallyPleasing,
         locationId: locId,
-        updateTime: time.getTimeNow(),
+        updateTime: _time.getTimeNow(),
         currentTemp: weatherResponseJson[0][MetaWeather.currentTemp], // C
         highTemp: weatherResponseJson[0][MetaWeather.highTemp], // C
         lowTemp: weatherResponseJson[0][MetaWeather.lowTemp], // C
