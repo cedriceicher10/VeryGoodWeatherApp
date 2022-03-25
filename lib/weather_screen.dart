@@ -41,7 +41,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         },
         child: Scaffold(
             appBar: AppBar(
-              title: weatherScreenTitle('Very Good Weather App'),
+              title: weatherScreenTitle('Simple Weather'),
               backgroundColor: Colors.black,
               centerTitle: true,
             ),
