@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:verygoodweatherapp/weather_cubit.dart';
-import 'package:verygoodweatherapp/weather_screen.dart';
+import 'package:verygoodweatherapp/splash_screen.dart';
 
 void main() => runApp(const WeatherApp());
 
@@ -10,11 +8,6 @@ class WeatherApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: BlocProvider(
-        create: (_) => WeatherCubit(),
-        child: const WeatherScreen(),
-      ),
-    );
+    return const MaterialApp(home: SplashScreen());
   }
 }
