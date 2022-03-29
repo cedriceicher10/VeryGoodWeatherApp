@@ -48,6 +48,10 @@ class _WeatherScreenState extends State<WeatherScreen> {
             resizeToAvoidBottomInset: false,
             body: BlocBuilder<WeatherCubit, WeatherPackage>(
                 builder: (context, weather) {
+              if (weather.isStart) {
+                // User location on start
+                getUserWeatherOnStart();
+              }
               return Container(
                   decoration: _theme.getBackgroundFade(weather.weatherState),
                   child: Center(
@@ -87,6 +91,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
   // ===========================================================================
   // MAIN UI ELEMENTS (BUTTONS, WEATHER DISPLAY, SEARCH BAR)
   // ===========================================================================
+
+  getUserWeatherOnStart() async {
+    // Get location
+    await _userLocation.getLocation();
+    String latLonQuery = "${_userLocation.userLat},${_userLocation.userLon}";
+    // Get weather at that lat, lon location
+    context.read<WeatherCubit>().getWeather(latLonQuery);
+  }
 
   Widget searchBar() {
     return TextField(
