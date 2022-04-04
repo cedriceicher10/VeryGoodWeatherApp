@@ -3,6 +3,25 @@ import 'package:weather_icons/weather_icons.dart';
 import 'package:verygoodweatherapp/models/meta_weather.dart';
 import 'package:verygoodweatherapp/utils/styles.dart';
 
+// For testing
+// Turn isTest to true
+// Toggle index of testWeatherState
+// Hot restart each time
+bool isTest = false;
+List<String> testWeatherStateArray = [
+  'Snow',
+  'Sleet',
+  'Hail',
+  'Thunder',
+  'Heavy Rain',
+  'Light Rain',
+  'Showers',
+  'Heavy Clouds',
+  'Light Clouds',
+  'Clear'
+];
+String testWeatherState = testWeatherStateArray[0];
+
 class AppTheme {
   BuildContext context;
   Color colorFadeTop = Colors.blue;
@@ -12,6 +31,9 @@ class AppTheme {
   AppTheme(this.context);
 
   BoxDecoration getBackgroundFade(String weatherState) {
+    if (isTest) {
+      weatherState = testWeatherState;
+    }
     switch (weatherState) {
       case MetaWeather.snow:
         {
@@ -96,6 +118,9 @@ class AppTheme {
   }
 
   Icon getWeatherStateIcon(String weatherState) {
+    if (isTest) {
+      weatherState = testWeatherState;
+    }
     double iconSize = 65;
     double reductionFactor = 0.65;
     if ((MediaQuery.of(context).size.width *

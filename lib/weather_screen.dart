@@ -473,7 +473,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         child: FormattedText(
             text: text,
             size: _appSize.fontSizeSmaller,
-            color: Colors.red,
+            color: _theme.textColor,
             font: fontIBMPlexSans,
             weight: FontWeight.bold,
             align: TextAlign.center));
