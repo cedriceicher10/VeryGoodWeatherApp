@@ -288,7 +288,7 @@ class AppTheme {
       case MetaWeather.predictability:
         {
           metricIcon = Icon(
-            Icons.check,
+            Icons.query_stats,
             color: iconColor,
             size: iconSize,
           );
