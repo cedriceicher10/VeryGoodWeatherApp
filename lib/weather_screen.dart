@@ -1,3 +1,4 @@
+import 'package:geocoding/geocoding.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -105,14 +106,25 @@ class _WeatherScreenState extends State<WeatherScreen> {
       controller: _text,
       textInputAction: TextInputAction.search,
       //This allows the user to press Enter/Search on the keyboard to trigger
-      onSubmitted: (value) {
+      onSubmitted: (value) async {
         // Remove keyboard
         FocusScopeNode currentFocus = FocusScope.of(context);
         if (!currentFocus.hasPrimaryFocus) {
           currentFocus.unfocus();
         }
+        // Geocode to get lat/lon to allow for 'nearest available' weather
+        String latLonQuery;
+        try {
+          List<Location> latLonFromAddress =
+              await locationFromAddress(_text.value.text);
+          latLonQuery = latLonFromAddress[0].latitude.toString() +
+              ', ' +
+              latLonFromAddress[0].longitude.toString();
+        } on NoResultFoundException {
+          latLonQuery = '';
+        }
         // Get weather for current city
-        context.read<WeatherCubit>().getWeather(_text.value.text);
+        context.read<WeatherCubit>().getWeather(latLonQuery);
       },
       style: TextStyle(color: _theme.textColor),
       decoration: InputDecoration(
@@ -167,8 +179,19 @@ class _WeatherScreenState extends State<WeatherScreen> {
           if (!currentFocus.hasPrimaryFocus) {
             currentFocus.unfocus();
           }
+          // Geocode to get lat/lon to allow for 'nearest available' weather
+          String latLonQuery;
+          try {
+            List<Location> latLonFromAddress =
+                await locationFromAddress(_text.value.text);
+            latLonQuery = latLonFromAddress[0].latitude.toString() +
+                ', ' +
+                latLonFromAddress[0].longitude.toString();
+          } on NoResultFoundException {
+            latLonQuery = '';
+          }
           // Get weather for the text entered
-          context.read<WeatherCubit>().getWeather(_text.value.text);
+          context.read<WeatherCubit>().getWeather(latLonQuery);
         },
         style: ElevatedButton.styleFrom(
             primary: Colors.black,
@@ -467,7 +490,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   Widget notFoundText() {
     String text =
-        'The location you chose could not be found or does not have weather at this time. \nPlease try again.\n\nTip:\nTry big cities (e.g. San Diego) or even \ncoordinates with the format \n33.8121, -117.9190. \n\nAnd be sure to check your spelling!';
+        'Simple Weather attempst to return the nearest weather location.\n\n The location you chose could not be found or does not have weather data at this time. \nPlease try again.\n\nTip:\nTry big cities (e.g. San Diego, CA) or even \ncoordinates with the format \n33.8121, -117.9190. \n\nAnd be sure to check your spelling!';
     return SizedBox(
         width: _appSize.weatherContainerWidth,
         child: FormattedText(

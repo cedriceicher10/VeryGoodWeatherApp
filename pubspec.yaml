@@ -38,6 +38,7 @@ dependencies:
   test:
   mocktail: ^0.2.0
   animated_splash_screen: ^1.2.0
+  geocoding: ^2.0.4
 
 
   # The following adds the Cupertino Icons font to your application.
