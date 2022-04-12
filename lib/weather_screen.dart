@@ -262,11 +262,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                weatherMetricText('${weather.windSpeed.toStringAsFixed(0)} mph',
+                weatherMetricText(
+                    'Windspeed: ',
+                    '${weather.windSpeed.toStringAsFixed(0)} mph',
                     MetaWeather.windSpeed),
+                weatherMetricText('Wind Direction:', weather.windDirection,
+                    MetaWeather.windDirection),
                 weatherMetricText(
-                    weather.windDirection, MetaWeather.windDirection),
-                weatherMetricText(
+                    'Air Pressure:',
                     '${weather.airPressure.toStringAsFixed(0)} mbar',
                     MetaWeather.airPressure)
               ],
@@ -276,11 +279,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                weatherMetricText('${weather.humidity}%', MetaWeather.humidity),
-                weatherMetricText('${weather.visibility.toStringAsFixed(0)} mi',
-                    MetaWeather.visibility),
                 weatherMetricText(
-                    '${weather.predictability}%', MetaWeather.predictability)
+                    'Humidity:', '${weather.humidity}%', MetaWeather.humidity),
+                weatherMetricText(
+                    'Visibility:',
+                    '${weather.visibility.toStringAsFixed(0)} mi',
+                    MetaWeather.visibility),
+                weatherMetricText('Accuracy:', '${weather.predictability}%',
+                    MetaWeather.predictability)
               ],
             ),
           ]),
@@ -351,17 +357,23 @@ class _WeatherScreenState extends State<WeatherScreen> {
   // FORMATTED TEXT
   // ===========================================================================
 
-  Widget weatherMetricText(String text, String mode) {
+  Widget weatherMetricText(String metricName, String metric, String mode) {
     Icon metricIcon = _theme.getMetricIcon(mode);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         metricIcon,
-        SizedBox(width: _appSize.spacing),
+        SizedBox(width: _appSize.spacing / 2),
         FormattedText(
-            text: text,
+            text: metricName,
             size: _appSize.fontSizeExtraSmall,
             color: _theme.textColor,
+            font: fontIBMPlexSans),
+        FormattedText(
+            text: metric,
+            size: _appSize.fontSizeExtraSmall,
+            color: _theme.textColor,
+            weight: FontWeight.bold,
             font: fontIBMPlexSans)
       ],
     );
