@@ -10,6 +10,7 @@ String _baseApiCallLocationSearch = '/api/location/search';
 String _apiCallLocationSearch = 'lattlong';
 String _baseApiCallLocation = '/api/location/';
 String _apiCallLocation = 'query';
+WeatherPackage oldWeather = WeatherPackage.initialize();
 
 Time _time = Time();
 
@@ -20,7 +21,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
 
   WeatherCubit() : super(WeatherPackage.initialize());
 
-  void getWeather(String location) async {
+  void getWeather(String location, WeatherPackage lastWeather) async {
     // Determine if a city name or lat/lon coordinates
     bool locationContainsNumerals = location.contains(RegExp(r'[0-9]'));
     // Created using https://www.metaweather.com/api/
@@ -28,7 +29,21 @@ class WeatherCubit extends Cubit<WeatherPackage> {
     int locId = await getLocId(location, locationContainsNumerals);
     // Find the weather info using the location id
     WeatherPackage newWeather = await getWeatherInfo(location, locId);
-    emit(newWeather);
+    // Only trigger refresh if new weather is found
+    bool validateNewWeather = validate(lastWeather, newWeather);
+    if ((validateNewWeather) || (newWeather.isNotFound)) {
+      emit(newWeather);
+    }
+  }
+
+  bool validate(WeatherPackage lastWeather, WeatherPackage newWeather) {
+    // If the temps/locations are the same, don't refresh the screen
+    if ((lastWeather.currentTemp == newWeather.currentTemp) &&
+        (lastWeather.locationId == newWeather.locationId)) {
+      return false;
+    }
+    lastWeather = newWeather;
+    return true;
   }
 
   Future<int> getLocId(String location, bool isLatLon) async {

@@ -15,6 +15,7 @@ import 'package:verygoodweatherapp/utils/formatted_text.dart';
 // App sizing and themeing
 late AppSizing _appSize;
 late AppTheme _theme;
+late WeatherPackage lastWeather;
 
 class WeatherScreen extends StatefulWidget {
   const WeatherScreen({Key? key}) : super(key: key);
@@ -49,6 +50,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
             resizeToAvoidBottomInset: false,
             body: BlocBuilder<WeatherCubit, WeatherPackage>(
                 builder: (context, weather) {
+              lastWeather = weather;
               if (weather.isStart) {
                 // User location on start
                 getUserWeatherOnStart();
@@ -98,7 +100,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     await _userLocation.getLocation();
     String latLonQuery = "${_userLocation.userLat},${_userLocation.userLon}";
     // Get weather at that lat, lon location
-    context.read<WeatherCubit>().getWeather(latLonQuery);
+    context.read<WeatherCubit>().getWeather(latLonQuery, lastWeather);
   }
 
   Widget searchBar() {
@@ -120,11 +122,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
           latLonQuery = latLonFromAddress[0].latitude.toString() +
               ', ' +
               latLonFromAddress[0].longitude.toString();
-        } on NoResultFoundException {
+        } catch (exception) {
           latLonQuery = '';
         }
         // Get weather for current city
-        context.read<WeatherCubit>().getWeather(latLonQuery);
+        context.read<WeatherCubit>().getWeather(latLonQuery, lastWeather);
       },
       style: TextStyle(color: _theme.textColor),
       decoration: InputDecoration(
@@ -153,7 +155,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           String latLonQuery =
               "${_userLocation.userLat},${_userLocation.userLon}";
           // Get weather at that lat, lon location
-          context.read<WeatherCubit>().getWeather(latLonQuery);
+          context.read<WeatherCubit>().getWeather(latLonQuery, lastWeather);
         },
         style: ElevatedButton.styleFrom(
             primary: Colors.black,
@@ -187,11 +189,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
             latLonQuery = latLonFromAddress[0].latitude.toString() +
                 ', ' +
                 latLonFromAddress[0].longitude.toString();
-          } on NoResultFoundException {
+          } catch (exception) {
             latLonQuery = '';
           }
           // Get weather for the text entered
-          context.read<WeatherCubit>().getWeather(latLonQuery);
+          context.read<WeatherCubit>().getWeather(latLonQuery, lastWeather);
         },
         style: ElevatedButton.styleFrom(
             primary: Colors.black,
@@ -324,7 +326,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
             currentFocus.unfocus();
           }
           // Get weather for current city
-          context.read<WeatherCubit>().getWeather(weather.locationName);
+          context
+              .read<WeatherCubit>()
+              .getWeather(weather.locationName, lastWeather);
         },
         style: ElevatedButton.styleFrom(
             primary: Colors.black,
