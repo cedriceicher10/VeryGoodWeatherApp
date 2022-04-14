@@ -291,7 +291,16 @@ class _WeatherScreenState extends State<WeatherScreen> {
             ),
           ]),
           SizedBox(height: _appSize.spacing),
-          metaWeatherConsiderationText('View this weather on MetaWeather.com')
+          metaWeatherConsiderationText('View this weather on MetaWeather.com'),
+          SizedBox(height: _appSize.spacing),
+          Container(
+              height: _appSize.nextDaysWeatherContainerHeight,
+              decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.black,
+                  ),
+                  borderRadius: const BorderRadius.all(Radius.circular(10))),
+              child: Container())
         ])));
   }
 

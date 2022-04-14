@@ -135,15 +135,36 @@ class WeatherCubit extends Cubit<WeatherPackage> {
             [MetaWeather.predictability], // % of agreeing weather reports
         visibility: weatherResponseJson[0][MetaWeather.visibility],
         isStart: false,
-        isNotFound: false); // mi
+        isNotFound: false,
+        futureWeatherHis: [
+          weatherResponseJson[1][MetaWeather.highTemp],
+          weatherResponseJson[2][MetaWeather.highTemp],
+          weatherResponseJson[3][MetaWeather.highTemp],
+          weatherResponseJson[4][MetaWeather.highTemp],
+          weatherResponseJson[5][MetaWeather.highTemp]
+        ],
+        futureWeatherLos: [
+          weatherResponseJson[1][MetaWeather.lowTemp],
+          weatherResponseJson[2][MetaWeather.lowTemp],
+          weatherResponseJson[3][MetaWeather.lowTemp],
+          weatherResponseJson[4][MetaWeather.lowTemp],
+          weatherResponseJson[5][MetaWeather.lowTemp]
+        ],
+        futureWeatherStates: [
+          weatherResponseJson[1][MetaWeather.weatherState],
+          weatherResponseJson[2][MetaWeather.weatherState],
+          weatherResponseJson[3][MetaWeather.weatherState],
+          weatherResponseJson[4][MetaWeather.weatherState],
+          weatherResponseJson[5][MetaWeather.weatherState]
+        ]); // mi
     if ((weatherPackage.weatherState == 'Heavy Cloud') ||
         (weatherPackage.weatherState == 'Light Cloud')) {
       weatherPackage.weatherState = weatherPackage.weatherState + 's';
     }
     if (weatherPackage.isFahrenheit) {
-      weatherPackage.currentTemp = celToFar(weatherPackage.currentTemp);
-      weatherPackage.highTemp = celToFar(weatherPackage.highTemp);
-      weatherPackage.lowTemp = celToFar(weatherPackage.lowTemp);
+      weatherPackage.currentTemp = celToFarDouble(weatherPackage.currentTemp);
+      weatherPackage.highTemp = celToFarDouble(weatherPackage.highTemp);
+      weatherPackage.lowTemp = celToFarDouble(weatherPackage.lowTemp);
       weatherPackage.isFahrenheit = true;
     }
     return weatherPackage;
@@ -156,9 +177,9 @@ class WeatherCubit extends Cubit<WeatherPackage> {
           locationName: state.locationName,
           locationId: state.locationId,
           updateTime: state.updateTime,
-          currentTemp: farToCel(state.currentTemp),
-          highTemp: farToCel(state.highTemp),
-          lowTemp: farToCel(state.lowTemp),
+          currentTemp: farToCelDouble(state.currentTemp),
+          highTemp: farToCelDouble(state.highTemp),
+          lowTemp: farToCelDouble(state.lowTemp),
           isFahrenheit: false,
           weatherState: state.weatherState,
           windSpeed: state.windSpeed,
@@ -168,16 +189,19 @@ class WeatherCubit extends Cubit<WeatherPackage> {
           predictability: state.predictability,
           visibility: state.visibility,
           isStart: state.isStart,
-          isNotFound: state.isNotFound));
+          isNotFound: state.isNotFound,
+          futureWeatherHis: farToCelList(state.futureWeatherHis),
+          futureWeatherLos: farToCelList(state.futureWeatherLos),
+          futureWeatherStates: state.futureWeatherStates));
     } else {
       // C to F
       emit(WeatherPackage(
           locationName: state.locationName,
           locationId: state.locationId,
           updateTime: state.updateTime,
-          currentTemp: celToFar(state.currentTemp),
-          highTemp: celToFar(state.highTemp),
-          lowTemp: celToFar(state.lowTemp),
+          currentTemp: celToFarDouble(state.currentTemp),
+          highTemp: celToFarDouble(state.highTemp),
+          lowTemp: celToFarDouble(state.lowTemp),
           isFahrenheit: true,
           weatherState: state.weatherState,
           windSpeed: state.windSpeed,
@@ -187,7 +211,10 @@ class WeatherCubit extends Cubit<WeatherPackage> {
           predictability: state.predictability,
           visibility: state.visibility,
           isStart: state.isStart,
-          isNotFound: state.isNotFound));
+          isNotFound: state.isNotFound,
+          futureWeatherHis: farToCelList(state.futureWeatherHis),
+          futureWeatherLos: farToCelList(state.futureWeatherLos),
+          futureWeatherStates: state.futureWeatherStates));
     }
   }
 
@@ -209,14 +236,31 @@ class WeatherCubit extends Cubit<WeatherPackage> {
         predictability: state.predictability,
         visibility: state.visibility,
         isStart: false,
-        isNotFound: true);
+        isNotFound: true,
+        futureWeatherHis: state.futureWeatherHis,
+        futureWeatherLos: state.futureWeatherLos,
+        futureWeatherStates: state.futureWeatherStates);
   }
 
-  double farToCel(double temp) {
+  double farToCelDouble(double temp) {
     return (temp - 32) * (5 / 9);
   }
 
-  double celToFar(double temp) {
+  double celToFarDouble(double temp) {
     return (temp * (9 / 5)) + 32;
+  }
+
+  List<double> farToCelList(List<double> temps) {
+    for (var i = 0; i < temps.length; i++) {
+      temps[i] = (temps[i] - 32) * (5 / 9);
+    }
+    return temps;
+  }
+
+  List<double> celToFarList(List<double> temps) {
+    for (var i = 0; i < temps.length; i++) {
+      temps[i] = (temps[i] * (9 / 5)) + 32;
+    }
+    return temps;
   }
 }

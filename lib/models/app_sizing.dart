@@ -11,6 +11,7 @@ class AppSizing {
   double spacing = 0; // 10
   double weatherContainerWidth = 0; // 325
   double weatherContainerHeight = 0; // 405
+  double nextDaysWeatherContainerHeight = 0;
   double fontSizeExtraSmall = 0;
   double fontSizeSmaller = 0;
   double fontSizeSmall = 0;
@@ -28,6 +29,7 @@ class AppSizing {
     spacing = getSpacing();
     weatherContainerWidth = getWeatherContainerWidth();
     weatherContainerHeight = getWeatherContainerHeight();
+    nextDaysWeatherContainerHeight = getNextDaysWeatherContainerHeight();
     fontSizeExtraSmall = getFontSizeExtraSmall();
     fontSizeSmaller = getFontSizeSmaller();
     fontSizeSmall = getFontSizeSmall();
@@ -68,6 +70,10 @@ class AppSizing {
 
   double getWeatherContainerHeight() {
     return MediaQuery.of(context).size.height * 0.55; // 405
+  }
+
+  double getNextDaysWeatherContainerHeight() {
+    return MediaQuery.of(context).size.height * 0.15;
   }
 
   // Text sizes

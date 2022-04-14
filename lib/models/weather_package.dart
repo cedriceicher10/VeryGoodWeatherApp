@@ -17,6 +17,9 @@ class WeatherPackage {
   double visibility;
   bool isStart;
   bool isNotFound;
+  List<double> futureWeatherHis;
+  List<double> futureWeatherLos;
+  List<String> futureWeatherStates;
 
   WeatherPackage(
       {required this.locationName,
@@ -34,7 +37,10 @@ class WeatherPackage {
       required this.predictability,
       required this.visibility,
       required this.isStart,
-      required this.isNotFound});
+      required this.isNotFound,
+      required this.futureWeatherHis,
+      required this.futureWeatherLos,
+      required this.futureWeatherStates});
 
   // Initialize is intended for use in WeatherCubit on initalization
   WeatherPackage.initialize()
@@ -53,7 +59,10 @@ class WeatherPackage {
         predictability = -1,
         visibility = -1,
         isStart = true, // Trigger for initial screen (no city yet)
-        isNotFound = false;
+        isNotFound = false,
+        futureWeatherHis = List<double>.filled(5, 0),
+        futureWeatherLos = List<double>.filled(5, 0),
+        futureWeatherStates = List<String>.filled(5, '');
 
   // Output for comparison or debugging
   String toOutputString(WeatherPackage weatherPackage) {
