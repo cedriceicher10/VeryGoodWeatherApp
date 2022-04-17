@@ -22,6 +22,8 @@ List<String> testWeatherStateArray = [
 ];
 String testWeatherState = testWeatherStateArray[0];
 
+enum WEATHER_DISPLAY { mainTemp, futureTemp }
+
 class AppTheme {
   BuildContext context;
   Color colorFadeTop = Colors.blue;
@@ -117,11 +119,17 @@ class AppTheme {
     ));
   }
 
-  Icon getWeatherStateIcon(String weatherState) {
+  Icon getWeatherStateIcon(
+      String weatherState, WEATHER_DISPLAY weatherDisplay) {
     if (isTest) {
       weatherState = testWeatherState;
     }
-    double iconSize = 65;
+    double iconSize = 20;
+    if (weatherDisplay == WEATHER_DISPLAY.mainTemp) {
+      iconSize = 65;
+    } else {
+      iconSize = 35;
+    }
     double reductionFactor = 0.65;
     if ((MediaQuery.of(context).size.width *
             MediaQuery.of(context).size.height) <
@@ -135,7 +143,6 @@ class AppTheme {
       size: iconSize,
     );
     switch (weatherState) {
-      // Snow
       case MetaWeather.snow:
         {
           weatherStateIcon = Icon(

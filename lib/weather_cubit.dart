@@ -161,10 +161,23 @@ class WeatherCubit extends Cubit<WeatherPackage> {
         (weatherPackage.weatherState == 'Light Cloud')) {
       weatherPackage.weatherState = weatherPackage.weatherState + 's';
     }
+    for (int index = 0; index < 5; ++index) {
+      if ((weatherPackage.futureWeatherStates[index] == 'Heavy Cloud') ||
+          (weatherPackage.futureWeatherStates[index] == 'Light Cloud')) {
+        weatherPackage.futureWeatherStates[index] =
+            weatherPackage.futureWeatherStates[index] + 's';
+      }
+    }
     if (weatherPackage.isFahrenheit) {
       weatherPackage.currentTemp = celToFarDouble(weatherPackage.currentTemp);
       weatherPackage.highTemp = celToFarDouble(weatherPackage.highTemp);
       weatherPackage.lowTemp = celToFarDouble(weatherPackage.lowTemp);
+      for (int index = 0; index < 5; ++index) {
+        weatherPackage.futureWeatherHis[index] =
+            celToFarDouble(weatherPackage.futureWeatherHis[index]);
+        weatherPackage.futureWeatherLos[index] =
+            celToFarDouble(weatherPackage.futureWeatherLos[index]);
+      }
       weatherPackage.isFahrenheit = true;
     }
     return weatherPackage;

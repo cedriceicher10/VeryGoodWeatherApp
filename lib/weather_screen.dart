@@ -9,8 +9,11 @@ import 'package:verygoodweatherapp/weather_cubit.dart';
 import 'package:verygoodweatherapp/models/app_sizing.dart';
 import 'package:verygoodweatherapp/models/app_theme.dart';
 import 'package:verygoodweatherapp/models/meta_weather.dart';
+import 'package:verygoodweatherapp/models/time.dart';
 import 'package:verygoodweatherapp/models/user_location.dart';
 import 'package:verygoodweatherapp/utils/formatted_text.dart';
+
+Time _time = Time();
 
 // App sizing and themeing
 late AppSizing _appSize;
@@ -291,17 +294,63 @@ class _WeatherScreenState extends State<WeatherScreen> {
             ),
           ]),
           SizedBox(height: _appSize.spacing),
-          metaWeatherConsiderationText('View this weather on MetaWeather.com'),
-          SizedBox(height: _appSize.spacing),
           Container(
               height: _appSize.nextDaysWeatherContainerHeight,
-              decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.black,
-                  ),
-                  borderRadius: const BorderRadius.all(Radius.circular(10))),
-              child: Container())
+              decoration: const BoxDecoration(
+                border: Border(
+                  top: BorderSide(width: 0.5, color: Colors.black),
+                  bottom: BorderSide(width: 0.5, color: Colors.black),
+                ),
+              ),
+              child: futureWeatherList(weather)),
+          SizedBox(height: _appSize.spacing),
+          metaWeatherConsiderationText('View this weather on MetaWeather.com')
         ])));
+  }
+
+  Widget futureWeatherList(WeatherPackage weather) {
+    double widthSpacing = _appSize.spacing / 2;
+    return ListView(scrollDirection: Axis.horizontal, children: [
+      futureWeatherItem(weather, 0),
+      SizedBox(width: widthSpacing),
+      futureWeatherItem(weather, 1),
+      SizedBox(width: widthSpacing),
+      futureWeatherItem(weather, 2),
+      SizedBox(width: widthSpacing),
+      futureWeatherItem(weather, 3),
+      SizedBox(width: widthSpacing),
+      futureWeatherItem(weather, 4),
+    ]);
+  }
+
+  Widget futureWeatherItem(WeatherPackage weather, int index) {
+    List<String> futureWeatherDays = _time.getFutureDays();
+    String hiLoTempText = weather.futureWeatherHis[index].toStringAsFixed(0) +
+        '°  |  ' +
+        weather.futureWeatherLos[index].toStringAsFixed(0) +
+        '°';
+    Icon weatherIcon = _theme.getWeatherStateIcon(
+        weather.futureWeatherStates[index], WEATHER_DISPLAY.futureTemp);
+    return SizedBox(
+        width: _appSize.weatherContainerWidth / 4,
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              FormattedText(
+                  text: futureWeatherDays[index],
+                  size: _appSize.fontSizeSmall,
+                  color: _theme.textColor,
+                  font: fontIBMPlexSans,
+                  weight: FontWeight.bold),
+              weatherIcon,
+              SizedBox(height: _appSize.spacing * 2),
+              FormattedText(
+                  text: hiLoTempText,
+                  size: _appSize.fontSizeExtraSmall,
+                  color: _theme.textColor,
+                  font: fontIBMPlexSans)
+            ]));
   }
 
   Widget toggleUnitsButton() {
@@ -420,7 +469,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
     } else {
       text = text + ' °C';
     }
-    Icon weatherStateIcon = _theme.getWeatherStateIcon(weatherState);
+    Icon weatherStateIcon =
+        _theme.getWeatherStateIcon(weatherState, WEATHER_DISPLAY.mainTemp);
     return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
