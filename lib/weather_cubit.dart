@@ -225,8 +225,8 @@ class WeatherCubit extends Cubit<WeatherPackage> {
           visibility: state.visibility,
           isStart: state.isStart,
           isNotFound: state.isNotFound,
-          futureWeatherHis: farToCelList(state.futureWeatherHis),
-          futureWeatherLos: farToCelList(state.futureWeatherLos),
+          futureWeatherHis: celToFarList(state.futureWeatherHis),
+          futureWeatherLos: celToFarList(state.futureWeatherLos),
           futureWeatherStates: state.futureWeatherStates));
     }
   }
@@ -265,7 +265,9 @@ class WeatherCubit extends Cubit<WeatherPackage> {
 
   List<double> farToCelList(List<double> temps) {
     for (var i = 0; i < temps.length; i++) {
+      print("temp: " + temps[i].toString());
       temps[i] = (temps[i] - 32) * (5 / 9);
+      print("new i: " + temps[i].toString());
     }
     return temps;
   }
