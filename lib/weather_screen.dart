@@ -118,19 +118,29 @@ class _WeatherScreenState extends State<WeatherScreen> {
         if (!currentFocus.hasPrimaryFocus) {
           currentFocus.unfocus();
         }
-        // Geocode to get lat/lon to allow for 'nearest available' weather
-        String latLonQuery;
-        try {
-          List<Location> latLonFromAddress =
-              await locationFromAddress(_text.value.text);
-          latLonQuery = latLonFromAddress[0].latitude.toString() +
-              ', ' +
-              latLonFromAddress[0].longitude.toString();
-        } catch (exception) {
-          latLonQuery = '';
+        if (_text.value.text.isNotEmpty) {
+          // Show snack bar (for refreshes)
+          if (lastWeather.locationName == _text.value.text) {
+            ScaffoldMessenger.of(context).showSnackBar(
+                snackBarFloating('Checked for updated weather...', true));
+          }
+          // Geocode to get lat/lon to allow for 'nearest available' weather
+          String latLonQuery;
+          try {
+            List<Location> latLonFromAddress =
+                await locationFromAddress(_text.value.text);
+            latLonQuery = latLonFromAddress[0].latitude.toString() +
+                ', ' +
+                latLonFromAddress[0].longitude.toString();
+          } catch (exception) {
+            latLonQuery = '';
+          }
+          // Get weather for current city
+          context.read<WeatherCubit>().getWeather(latLonQuery, lastWeather);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+              snackBarFloating('The search bar is empty!', false));
         }
-        // Get weather for current city
-        context.read<WeatherCubit>().getWeather(latLonQuery, lastWeather);
       },
       style: TextStyle(color: _theme.textColor),
       decoration: InputDecoration(
@@ -158,6 +168,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
           await _userLocation.getLocation();
           String latLonQuery =
               "${_userLocation.userLat},${_userLocation.userLon}";
+          // Show snack bar (for refreshes)
+          if (lastWeather.locationName == _text.value.text) {
+            ScaffoldMessenger.of(context).showSnackBar(
+                snackBarFloating('Checked for updated weather...', true));
+          }
           // Get weather at that lat, lon location
           context.read<WeatherCubit>().getWeather(latLonQuery, lastWeather);
         },
@@ -185,19 +200,29 @@ class _WeatherScreenState extends State<WeatherScreen> {
           if (!currentFocus.hasPrimaryFocus) {
             currentFocus.unfocus();
           }
-          // Geocode to get lat/lon to allow for 'nearest available' weather
-          String latLonQuery;
-          try {
-            List<Location> latLonFromAddress =
-                await locationFromAddress(_text.value.text);
-            latLonQuery = latLonFromAddress[0].latitude.toString() +
-                ', ' +
-                latLonFromAddress[0].longitude.toString();
-          } catch (exception) {
-            latLonQuery = '';
+          if (_text.value.text.isNotEmpty) {
+            // Show snack bar (for refreshes)
+            if (lastWeather.locationName == _text.value.text) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  snackBarFloating('Checked for updated weather...', true));
+            }
+            // Geocode to get lat/lon to allow for 'nearest available' weather
+            String latLonQuery;
+            try {
+              List<Location> latLonFromAddress =
+                  await locationFromAddress(_text.value.text);
+              latLonQuery = latLonFromAddress[0].latitude.toString() +
+                  ', ' +
+                  latLonFromAddress[0].longitude.toString();
+            } catch (exception) {
+              latLonQuery = '';
+            }
+            // Get weather for the text entered
+            context.read<WeatherCubit>().getWeather(latLonQuery, lastWeather);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+                snackBarFloating('The search bar is empty!', false));
           }
-          // Get weather for the text entered
-          context.read<WeatherCubit>().getWeather(latLonQuery, lastWeather);
         },
         style: ElevatedButton.styleFrom(
             primary: Colors.black,
@@ -390,6 +415,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
           if (!currentFocus.hasPrimaryFocus) {
             currentFocus.unfocus();
           }
+          // Show snack bar (for refreshes)
+          ScaffoldMessenger.of(context).showSnackBar(
+              snackBarFloating('Checked for updated weather...', true));
           // Get weather for current city
           context
               .read<WeatherCubit>()
@@ -412,9 +440,40 @@ class _WeatherScreenState extends State<WeatherScreen> {
         ]));
   }
 
+  SnackBar snackBarFloating(String text, bool isRefresh) {
+    Color? snackBarColor = Colors.yellow[700]!.withOpacity(0.95);
+    if (!isRefresh) {
+      snackBarColor = Colors.red[500]!.withOpacity(0.9);
+    }
+    return SnackBar(
+      content: snackBarText(text),
+      backgroundColor: snackBarColor,
+      duration: const Duration(seconds: 2),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(36),
+      ),
+      margin: EdgeInsets.only(
+          bottom: MediaQuery.of(context).size.height - 100,
+          right: 30,
+          left: 30),
+    );
+  }
+
   // ===========================================================================
   // FORMATTED TEXT
   // ===========================================================================
+
+  Widget snackBarText(String text) {
+    return FormattedText(
+        text: text,
+        size: _appSize.fontSizeExtraSmall * 1.15,
+        color: Colors.white,
+        font: fontIBMPlexSans,
+        weight: FontWeight.bold,
+        style: FontStyle.italic,
+        align: TextAlign.center);
+  }
 
   Widget weatherMetricText(String metricName, String metric, String mode) {
     Icon metricIcon = _theme.getMetricIcon(mode);

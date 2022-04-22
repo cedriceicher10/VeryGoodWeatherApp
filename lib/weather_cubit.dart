@@ -265,9 +265,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
 
   List<double> farToCelList(List<double> temps) {
     for (var i = 0; i < temps.length; i++) {
-      print("temp: " + temps[i].toString());
       temps[i] = (temps[i] - 32) * (5 / 9);
-      print("new i: " + temps[i].toString());
     }
     return temps;
   }
