@@ -121,7 +121,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
     WeatherPackage weatherPackage = WeatherPackage(
         locationName: locationNameVisuallyPleasing,
         locationId: locId,
-        updateTime: _time.getTimeNow(),
+        updateTime: _time.convertZuluTime(weatherResponseJson[0]['created']),
         currentTemp: weatherResponseJson[0][MetaWeather.currentTemp], // C
         highTemp: weatherResponseJson[0][MetaWeather.highTemp], // C
         lowTemp: weatherResponseJson[0][MetaWeather.lowTemp], // C

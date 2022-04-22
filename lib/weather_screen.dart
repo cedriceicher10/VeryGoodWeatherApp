@@ -59,6 +59,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 getUserWeatherOnStart();
               }
               return Container(
+                  //padding: const EdgeInsets.only(bottom: 30),
                   decoration: _theme.getBackgroundFade(weather.weatherState),
                   child: Center(
                     child: Column(children: [
@@ -250,7 +251,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         child: SingleChildScrollView(
             child: Column(children: [
           weatherTitle(weather.locationName),
-          updateTimeText('Updated at ${weather.updateTime}'),
+          updateTimeText('Weather last updated at ${weather.updateTime}'),
           SizedBox(height: _appSize.spacing),
           currentTempText(weather.currentTemp.toStringAsFixed(0),
               weather.isFahrenheit, weather.weatherState),
@@ -460,7 +461,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
         text: text,
         size: _appSize.fontSizeExtraSmall,
         color: _theme.textColor,
-        font: fontIBMPlexSans);
+        font: fontIBMPlexSans,
+        style: FontStyle.italic);
   }
 
   Widget currentTempText(String text, bool isFahrenheit, String weatherState) {
