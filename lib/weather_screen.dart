@@ -59,7 +59,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 getUserWeatherOnStart();
               }
               return Container(
-                  //padding: const EdgeInsets.only(bottom: 30),
+                  padding: const EdgeInsets.only(bottom: 20),
                   decoration: _theme.getBackgroundFade(weather.weatherState),
                   child: Center(
                     child: Column(children: [
@@ -102,9 +102,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
   getUserWeatherOnStart() async {
     // Get location
     await _userLocation.getLocation();
-    String latLonQuery = "${_userLocation.userLat},${_userLocation.userLon}";
-    // Get weather at that lat, lon location
-    context.read<WeatherCubit>().getWeather(latLonQuery, lastWeather);
+    if (!_userLocation.denied) {
+      String latLonQuery = "${_userLocation.userLat},${_userLocation.userLon}";
+      // Get weather at that lat, lon location
+      context.read<WeatherCubit>().getWeather(latLonQuery, lastWeather);
+    }
   }
 
   Widget searchBar() {
@@ -166,15 +168,17 @@ class _WeatherScreenState extends State<WeatherScreen> {
           }
           // Get location
           await _userLocation.getLocation();
-          String latLonQuery =
-              "${_userLocation.userLat},${_userLocation.userLon}";
-          // Show snack bar (for refreshes)
-          if (lastWeather.locationName == _text.value.text) {
-            ScaffoldMessenger.of(context).showSnackBar(
-                snackBarFloating('Checked for updated weather...', true));
+          if (!_userLocation.denied) {
+            String latLonQuery =
+                "${_userLocation.userLat},${_userLocation.userLon}";
+            // Show snack bar (for refreshes)
+            if (lastWeather.locationName == _text.value.text) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  snackBarFloating('Checked for updated weather...', true));
+            }
+            // Get weather at that lat, lon location
+            context.read<WeatherCubit>().getWeather(latLonQuery, lastWeather);
           }
-          // Get weather at that lat, lon location
-          context.read<WeatherCubit>().getWeather(latLonQuery, lastWeather);
         },
         style: ElevatedButton.styleFrom(
             primary: Colors.black,

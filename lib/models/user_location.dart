@@ -6,6 +6,8 @@ Location location = Location();
 class UserLocation {
   double userLat = 0;
   double userLon = 0;
+  bool denied =
+      true; // Used for lookups to stop infinite "ask for location" loop
 
   Future<void> getLocation() async {
     // Adapted from: https://pub.dev/packages/location
@@ -23,7 +25,10 @@ class UserLocation {
     if (_permissionGranted == PermissionStatus.denied) {
       _permissionGranted = await location.requestPermission();
       if (_permissionGranted != PermissionStatus.granted) {
+        denied = true;
         return;
+      } else {
+        denied = false;
       }
     }
     _locationData = await location.getLocation();
