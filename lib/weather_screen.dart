@@ -55,6 +55,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 builder: (context, weather) {
               lastWeather = weather;
               if (weather.isStart) {
+                WidgetsBinding.instance!.addPostFrameCallback((_) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      snackBarSignature('An App by Cedric Eicher'));
+                });
+
                 // User location on start
                 getUserWeatherOnStart();
               }
@@ -76,20 +81,21 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           ]),
                       SizedBox(height: _appSize.spacing),
                       // Fade upon reloads to alert user something is happening
-                      AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 200),
-                          child: Container(
-                              key: UniqueKey(),
-                              child: weatherContainer(weather))),
-                      SizedBox(height: _appSize.spacing),
-                      toggleAndRefreshButtons(weather.isStart, weather),
-                      // Push to the bottom
                       Expanded(
-                        child: Align(
-                          alignment: FractionalOffset.bottomCenter,
-                          child: signatureText('An App by Cedric Eicher'),
-                        ),
-                      )
+                          child: SingleChildScrollView(
+                              child: Column(children: [
+                        AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 200),
+                            child: Container(
+                                key: UniqueKey(),
+                                child: weatherContainer(weather))),
+                        SizedBox(height: _appSize.spacing),
+                        toggleAndRefreshButtons(weather.isStart, weather),
+                        SizedBox(height: _appSize.spacing),
+                        //scrollForMoreIcon(weather),
+                        // Push signature to the bottom
+                        //signature(weather)
+                      ])))
                     ]),
                   ));
             })));
@@ -444,6 +450,21 @@ class _WeatherScreenState extends State<WeatherScreen> {
         ]));
   }
 
+  Widget scrollForMoreIcon(WeatherPackage weather) {
+    if (weather.isStart) {
+      // Empty container before city has been chosen
+      return Container();
+    } else {
+      double iconSize = 20;
+      Color iconColor = _theme.textColor;
+      return Icon(
+        Icons.arrow_drop_down,
+        color: iconColor,
+        size: iconSize,
+      );
+    }
+  }
+
   SnackBar snackBarFloating(String text, bool isRefresh) {
     Color? snackBarColor = Colors.yellow[700]!.withOpacity(0.95);
     if (!isRefresh) {
@@ -461,6 +482,21 @@ class _WeatherScreenState extends State<WeatherScreen> {
           bottom: MediaQuery.of(context).size.height - 100,
           right: 30,
           left: 30),
+    );
+  }
+
+  SnackBar snackBarSignature(String text) {
+    Color? snackBarColor = Colors.white.withOpacity(0.25);
+    return SnackBar(
+      width: 200,
+      content: signatureText(text),
+      backgroundColor: snackBarColor,
+      duration: const Duration(days: 365),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(36),
+      ),
+      //margin: const EdgeInsets.only(bottom: 20),
     );
   }
 
@@ -611,8 +647,26 @@ class _WeatherScreenState extends State<WeatherScreen> {
     );
   }
 
+  Widget signature(WeatherPackage weather) {
+    double signatureContainerHeight = 0;
+    if (weather.isStart) {
+      signatureContainerHeight = _appSize.signatureBoxHeightStart;
+    } else {
+      signatureContainerHeight = _appSize.signatureBoxHeight;
+    }
+    return SizedBox(
+        height: signatureContainerHeight,
+        child: Expanded(
+          child: Align(
+            alignment: FractionalOffset.bottomCenter,
+            child: signatureText('An App by Cedric Eicher'),
+          ),
+        ));
+  }
+
   Widget signatureText(String text) {
     return RichText(
+      textAlign: TextAlign.center,
       text: TextSpan(
           style: TextStyle(
               color: _theme.textColor,
