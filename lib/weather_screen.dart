@@ -55,11 +55,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 builder: (context, weather) {
               lastWeather = weather;
               if (weather.isStart) {
-                WidgetsBinding.instance!.addPostFrameCallback((_) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      snackBarSignature('An App by Cedric Eicher'));
-                });
-
                 // User location on start
                 getUserWeatherOnStart();
               }
@@ -80,25 +75,28 @@ class _WeatherScreenState extends State<WeatherScreen> {
                             searchButton()
                           ]),
                       SizedBox(height: _appSize.spacing),
-                      // Fade upon reloads to alert user something is happening
-                      Expanded(
-                          child: SingleChildScrollView(
-                              child: Column(children: [
-                        AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 200),
-                            child: Container(
-                                key: UniqueKey(),
-                                child: weatherContainer(weather))),
-                        SizedBox(height: _appSize.spacing),
-                        toggleAndRefreshButtons(weather.isStart, weather),
-                        SizedBox(height: _appSize.spacing),
-                        //scrollForMoreIcon(weather),
-                        // Push signature to the bottom
-                        //signature(weather)
-                      ])))
+                      bottomDisplayContainer(weather),
                     ]),
                   ));
             })));
+  }
+
+  Widget bottomDisplayContainer(WeatherPackage weather) {
+    if (weather.isStart) {
+      return signatureText('An App by Cedric Eicher');
+    }
+    return // Fade upon reloads to alert user something is happening
+        Expanded(
+            child: SingleChildScrollView(
+                child: Column(children: [
+      AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          child: Container(key: UniqueKey(), child: weatherContainer(weather))),
+      SizedBox(height: _appSize.spacing),
+      toggleAndRefreshButtons(weather),
+      SizedBox(height: _appSize.spacing),
+      signatureText('An App by Cedric Eicher')
+    ])));
   }
 
   // ===========================================================================
@@ -216,7 +214,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
               ScaffoldMessenger.of(context).showSnackBar(
                   snackBarFloating('Checked for updated weather...', true));
             }
-            // Geocode to get lat/lon to allow for 'nearest available' weather
+
+            //String latLonQuery = _text.value.text; // hack, remove later
+            //Geocode to get lat/lon to allow for 'nearest available' weather
             String latLonQuery;
             try {
               List<Location> latLonFromAddress =
@@ -250,16 +250,12 @@ class _WeatherScreenState extends State<WeatherScreen> {
         ]));
   }
 
-  Widget toggleAndRefreshButtons(bool isStart, WeatherPackage weather) {
-    if (isStart) {
-      return Container();
-    } else {
-      return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        toggleUnitsButton(),
-        SizedBox(width: _appSize.spacing),
-        refreshButton(weather)
-      ]);
-    }
+  Widget toggleAndRefreshButtons(WeatherPackage weather) {
+    return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+      toggleUnitsButton(),
+      SizedBox(width: _appSize.spacing),
+      refreshButton(weather)
+    ]);
   }
 
   Widget weatherContainer(WeatherPackage weather) {
@@ -485,21 +481,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
     );
   }
 
-  SnackBar snackBarSignature(String text) {
-    Color? snackBarColor = Colors.white.withOpacity(0.25);
-    return SnackBar(
-      width: 200,
-      content: signatureText(text),
-      backgroundColor: snackBarColor,
-      duration: const Duration(days: 365),
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(36),
-      ),
-      //margin: const EdgeInsets.only(bottom: 20),
-    );
-  }
-
   // ===========================================================================
   // FORMATTED TEXT
   // ===========================================================================
@@ -645,23 +626,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
               if (!await launch(url)) throw 'Could not launch $url';
             }),
     );
-  }
-
-  Widget signature(WeatherPackage weather) {
-    double signatureContainerHeight = 0;
-    if (weather.isStart) {
-      signatureContainerHeight = _appSize.signatureBoxHeightStart;
-    } else {
-      signatureContainerHeight = _appSize.signatureBoxHeight;
-    }
-    return SizedBox(
-        height: signatureContainerHeight,
-        child: Expanded(
-          child: Align(
-            alignment: FractionalOffset.bottomCenter,
-            child: signatureText('An App by Cedric Eicher'),
-          ),
-        ));
   }
 
   Widget signatureText(String text) {

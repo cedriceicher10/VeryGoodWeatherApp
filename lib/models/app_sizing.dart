@@ -39,28 +39,6 @@ class AppSizing {
     fontSizeMedLarge = getFontSizeMedLarge();
     fontSizeLarge = getFontSizeLarge();
     fontSizeExtraLarge = getFontSizeExtraLarge();
-    signatureBoxHeight = getSignatureBoxHeight();
-    signatureBoxHeightStart = getSignatureBoxHeightStart();
-  }
-
-  // Container sizes
-  double getSignatureBoxHeight() {
-    double totalWidgetHeight = 20 +
-        (getSpacing() * 6) +
-        getTopButtonHeight() +
-        getWeatherContainerHeight() +
-        getNextDaysWeatherContainerHeight() +
-        getBottomButtonHeight();
-    if (MediaQuery.of(context).size.height > totalWidgetHeight) {
-      return (MediaQuery.of(context).size.height - totalWidgetHeight) / 2;
-    } else {
-      return MediaQuery.of(context).size.height * 0.10;
-    }
-  }
-
-  double getSignatureBoxHeightStart() {
-    double totalWidgetHeight = 20 + (getSpacing() * 2) + getTopButtonHeight();
-    return (MediaQuery.of(context).size.height) / 3;
   }
 
   double getTextFieldWidth() {
