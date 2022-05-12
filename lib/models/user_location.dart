@@ -7,7 +7,7 @@ class UserLocation {
   double userLat = 0;
   double userLon = 0;
   bool denied =
-      true; // Used for lookups to stop infinite "ask for location" loop
+      false; // Used for lookups to stop infinite "ask for location" loop
 
   Future<void> getLocation() async {
     // Adapted from: https://pub.dev/packages/location
@@ -19,6 +19,7 @@ class UserLocation {
       _serviceEnabled = await location.requestService();
       if (!_serviceEnabled) {
         Icons.assignment_return;
+        return;
       }
     }
     _permissionGranted = await location.hasPermission();

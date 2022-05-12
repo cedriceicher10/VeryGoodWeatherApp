@@ -128,7 +128,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           // Show snack bar (for refreshes)
           if (lastWeather.locationName == _text.value.text) {
             ScaffoldMessenger.of(context).showSnackBar(
-                snackBarFloating('Checked for updated weather...', true));
+                snackBarFloating('Checking for updated weather...', true));
           }
           // Geocode to get lat/lon to allow for 'nearest available' weather
           String latLonQuery;
@@ -176,10 +176,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
             String latLonQuery =
                 "${_userLocation.userLat},${_userLocation.userLon}";
             // Show snack bar (for refreshes)
-            if (lastWeather.locationName == _text.value.text) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  snackBarFloating('Checked for updated weather...', true));
-            }
+            ScaffoldMessenger.of(context).showSnackBar(
+                snackBarFloating('Checking for updated weather...', true));
             // Get weather at that lat, lon location
             context.read<WeatherCubit>().getWeather(latLonQuery, lastWeather);
           }
@@ -212,10 +210,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
             // Show snack bar (for refreshes)
             if (lastWeather.locationName == _text.value.text) {
               ScaffoldMessenger.of(context).showSnackBar(
-                  snackBarFloating('Checked for updated weather...', true));
+                  snackBarFloating('Checking for updated weather...', true));
             }
 
-            //String latLonQuery = _text.value.text; // hack, remove later
             //Geocode to get lat/lon to allow for 'nearest available' weather
             String latLonQuery;
             try {
