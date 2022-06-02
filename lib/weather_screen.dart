@@ -212,7 +212,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
               ScaffoldMessenger.of(context).showSnackBar(
                   snackBarFloating('Checking for updated weather...', true));
             }
-
             //Geocode to get lat/lon to allow for 'nearest available' weather
             String latLonQuery;
             try {
@@ -645,7 +644,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   Widget notFoundText() {
     String text =
-        'Simple Weather attempst to return the nearest weather location.\n\n The location you chose could not be found or does not have weather data at this time. \nPlease try again.\n\nTip:\nTry big cities (e.g. San Diego, CA) or even \ncoordinates with the format \n33.8121, -117.9190. \n\nAnd be sure to check your spelling!';
+        'Simple Weather attempts to return the nearest weather location.\n\n The location you chose could not be found or does not have weather data at this time. \nPlease try again.\n\nTip:\nTry big cities (e.g. San Diego, CA) or even \ncoordinates with the format \n33.8121, -117.9190. \n\nAnd be sure to check your spelling!';
     return SizedBox(
         width: _appSize.weatherContainerWidth,
         child: FormattedText(
