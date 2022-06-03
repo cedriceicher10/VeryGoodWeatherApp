@@ -27,7 +27,8 @@ class WeatherCubit extends Cubit<WeatherPackage> {
   WeatherCubit() : super(WeatherPackage.initialize());
 
   void getWeather(String location, WeatherPackage lastWeather) async {
-    getApiKey();
+    _myApiKey = await _api.readApiKey(); // TEST THE HELL OUT OF THIS
+    print(_myApiKey);
 
     String baseUrl = 'api.weatherapi.com';
     String apiMethod = '/v1/current.json';
@@ -39,6 +40,12 @@ class WeatherCubit extends Cubit<WeatherPackage> {
         await httpClient.get(locationSearchRequest);
 
     print(locationSearchResponse.statusCode);
+
+    Map<String, dynamic> locationSearchResponseJson = jsonDecode(
+      locationSearchResponse.body,
+    );
+
+    print(locationSearchResponseJson.isEmpty);
 
     // ~~~~~~~~~~~~~ OLD API: MetaWeather
     // // Determine if a city name or lat/lon coordinates
@@ -295,9 +302,5 @@ class WeatherCubit extends Cubit<WeatherPackage> {
       temps[i] = (temps[i] * (9 / 5)) + 32;
     }
     return temps;
-  }
-
-  void getApiKey() async {
-    _myApiKey = await _api.readApiKey();
   }
 }
