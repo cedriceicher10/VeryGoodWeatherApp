@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:async';
 import 'package:http/http.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:verygoodweatherapp/models/api_key.dart';
 import 'package:verygoodweatherapp/models/meta_weather.dart';
 import 'package:verygoodweatherapp/models/time.dart';
 import 'package:verygoodweatherapp/models/weather_package.dart';
@@ -14,6 +16,9 @@ WeatherPackage oldWeather = WeatherPackage.initialize();
 
 Time _time = Time();
 
+ApiKey _api = ApiKey('weatherApiKey.txt');
+String _myApiKey = '';
+
 class WeatherCubit extends Cubit<WeatherPackage> {
   final Client httpClient = Client();
   // Visually pleasing implies capital first letter, lowercase subsequent letters
@@ -22,18 +27,33 @@ class WeatherCubit extends Cubit<WeatherPackage> {
   WeatherCubit() : super(WeatherPackage.initialize());
 
   void getWeather(String location, WeatherPackage lastWeather) async {
-    // Determine if a city name or lat/lon coordinates
-    bool locationContainsNumerals = location.contains(RegExp(r'[0-9]'));
-    // Created using https://www.metaweather.com/api/
-    // Find the location and corresponding location id
-    int locId = await getLocId(location, locationContainsNumerals);
-    // Find the weather info using the location id
-    WeatherPackage newWeather = await getWeatherInfo(location, locId);
-    // Only trigger refresh if new weather is found
-    bool validateNewWeather = validate(lastWeather, newWeather);
-    if ((validateNewWeather) || (newWeather.isNotFound)) {
-      emit(newWeather);
-    }
+    getApiKey();
+
+    String baseUrl = 'api.weatherapi.com';
+    String apiMethod = '/v1/current.json';
+
+    Uri locationSearchRequest = Uri.https(baseUrl, apiMethod,
+        <String, String>{'key': _myApiKey, 'q': 'Honolulu', 'aqi': 'yes'});
+
+    Response locationSearchResponse =
+        await httpClient.get(locationSearchRequest);
+
+    print(locationSearchResponse.statusCode);
+
+    // ~~~~~~~~~~~~~ OLD API: MetaWeather
+    // // Determine if a city name or lat/lon coordinates
+    // bool locationContainsNumerals = location.contains(RegExp(r'[0-9]'));
+    // // Created using https://www.metaweather.com/api/
+    // // Find the location and corresponding location id
+    // int locId = await getLocId(location, locationContainsNumerals);
+    // // Find the weather info using the location id
+    // WeatherPackage newWeather = await getWeatherInfo(location, locId);
+    // // Only trigger refresh if new weather is found
+    // bool validateNewWeather = validate(lastWeather, newWeather);
+    // if ((validateNewWeather) || (newWeather.isNotFound)) {
+    //   emit(newWeather);
+    // }
+    // ~~~~~~~~~~~~~ OLD API: MetaWeather
   }
 
   bool validate(WeatherPackage lastWeather, WeatherPackage newWeather) {
@@ -275,5 +295,9 @@ class WeatherCubit extends Cubit<WeatherPackage> {
       temps[i] = (temps[i] * (9 / 5)) + 32;
     }
     return temps;
+  }
+
+  void getApiKey() async {
+    _myApiKey = await _api.readApiKey();
   }
 }
