@@ -3,20 +3,18 @@ import 'dart:async';
 import 'package:http/http.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:verygoodweatherapp/models/api_key.dart';
-import 'package:verygoodweatherapp/models/meta_weather.dart';
+import 'package:verygoodweatherapp/models/weather_state.dart';
 import 'package:verygoodweatherapp/models/time.dart';
 import 'package:verygoodweatherapp/models/weather_package.dart';
 
-String _baseUrlMetaWeather = 'www.metaweather.com';
-String _baseApiCallLocationSearch = '/api/location/search';
-String _apiCallLocationSearch = 'lattlong';
-String _baseApiCallLocation = '/api/location/';
-String _apiCallLocation = 'query';
-WeatherPackage oldWeather = WeatherPackage.initialize();
+String _baseUrl = 'api.weatherapi.com';
+String _apiMethod = '/v1/forecast.json';
+WeatherPackage _oldWeather = WeatherPackage.initialize();
 
 Time _time = Time();
 
-ApiKey _api = ApiKey('weatherApiKey.txt');
+ApiKey _api =
+    ApiKey('weatherApiKey.txt'); // For release: Replace with hard-coded key
 String _myApiKey = '';
 
 class WeatherCubit extends Cubit<WeatherPackage> {
@@ -27,179 +25,112 @@ class WeatherCubit extends Cubit<WeatherPackage> {
   WeatherCubit() : super(WeatherPackage.initialize());
 
   void getWeather(String location, WeatherPackage lastWeather) async {
-    _myApiKey = await _api.readApiKey(); // TEST THE HELL OUT OF THIS
-    print(_myApiKey);
+    // Poll for weather
+    WeatherPackage newWeather = await getWeatherInfo(location);
 
-    String baseUrl = 'api.weatherapi.com';
-    String apiMethod = '/v1/current.json';
-
-    Uri locationSearchRequest = Uri.https(baseUrl, apiMethod,
-        <String, String>{'key': _myApiKey, 'q': 'Honolulu', 'aqi': 'yes'});
-
-    Response locationSearchResponse =
-        await httpClient.get(locationSearchRequest);
-
-    print(locationSearchResponse.statusCode);
-
-    Map<String, dynamic> locationSearchResponseJson = jsonDecode(
-      locationSearchResponse.body,
-    );
-
-    print(locationSearchResponseJson.isEmpty);
-
-    // ~~~~~~~~~~~~~ OLD API: MetaWeather
-    // // Determine if a city name or lat/lon coordinates
-    // bool locationContainsNumerals = location.contains(RegExp(r'[0-9]'));
-    // // Created using https://www.metaweather.com/api/
-    // // Find the location and corresponding location id
-    // int locId = await getLocId(location, locationContainsNumerals);
-    // // Find the weather info using the location id
-    // WeatherPackage newWeather = await getWeatherInfo(location, locId);
-    // // Only trigger refresh if new weather is found
-    // bool validateNewWeather = validate(lastWeather, newWeather);
-    // if ((validateNewWeather) || (newWeather.isNotFound)) {
-    //   emit(newWeather);
-    // }
-    // ~~~~~~~~~~~~~ OLD API: MetaWeather
+    // Only trigger refresh if new weather is found
+    bool validateNewWeather = validate(lastWeather, newWeather);
+    if ((validateNewWeather) || (newWeather.isNotFound)) {
+      emit(newWeather);
+    }
   }
 
   bool validate(WeatherPackage lastWeather, WeatherPackage newWeather) {
     // If the temps/locations are the same, don't refresh the screen
     if ((lastWeather.currentTemp == newWeather.currentTemp) &&
-        (lastWeather.locationId == newWeather.locationId)) {
+        (lastWeather.locationName == newWeather.locationName)) {
       return false;
     }
     lastWeather = newWeather;
     return true;
   }
 
-  Future<int> getLocId(String location, bool isLatLon) async {
-    Uri locationSearchRequest;
-    //Query for a location search to MetaWeather
-    if (isLatLon) {
-      // Lat Lon
-      locationSearchRequest = Uri.https(
-          _baseUrlMetaWeather,
-          _baseApiCallLocationSearch,
-          <String, String>{_apiCallLocationSearch: location});
-    } else {
-      // City name
-      locationSearchRequest = Uri.https(
-          _baseUrlMetaWeather,
-          _baseApiCallLocationSearch,
-          <String, String>{_apiCallLocation: location});
-    }
-    Response locationSearchResponse =
-        await httpClient.get(locationSearchRequest);
-    // Ensure return doesn't have an error status code
-    // (typically only happens if passing an empty input)
-    if (locationSearchResponse.statusCode != 200) {
-      //throw ('Location search response code != 200');
-      return -1;
-    }
-    // Ensure return has an actual location and location id
-    List locationSearchResponseJson = jsonDecode(
-      locationSearchResponse.body,
-    ) as List;
-    if (locationSearchResponseJson.isEmpty) {
-      //throw ('Location search response code is empty');
-      return -1;
-    }
-    // Save location name (visually pleasing)
-    locationNameVisuallyPleasing =
-        locationSearchResponseJson[0][MetaWeather.locationName];
-    // Extract location id
-    return locationSearchResponseJson[0][MetaWeather.locationId];
-  }
+  Future<WeatherPackage> getWeatherInfo(String location) async {
+    _myApiKey =
+        await _api.readApiKey(); // For release: Replace with hard-coded key
 
-  Future<WeatherPackage> getWeatherInfo(String location, int locId) async {
-    // Check for bad location id
-    if (locId == -1) {
-      return sendBackBadPackage();
-    }
-    // Query for weather with a locId to MetaWeather
-    Uri weatherRequest =
-        Uri.https(_baseUrlMetaWeather, _baseApiCallLocation + '$locId');
+    // CURRENT WEATHER
+
+    // https://www.weatherapi.com/api-explorer.aspx
+    // Param q: Pass US Zipcode, UK Postcode, Canada Postalcode, IP address,
+    //          Latitude/Longitude (decimal degree) or city name
+    Uri weatherRequest = Uri.https(_baseUrl, _apiMethod, <String, String>{
+      'key': _myApiKey,
+      'q': location,
+      'days': '3', // >3 day forecast is part of a paid plan
+      'aqi': 'yes',
+      'alerts': 'no'
+    });
+
     Response weatherResponse = await httpClient.get(weatherRequest);
-    // Ensure return doesn't have an error status code
+
     if (weatherResponse.statusCode != 200) {
-      //throw ('Weather search response code != 200');
+      throw ('Location search response code != 200');
       return sendBackBadPackage();
     }
-    // Ensure return has actual weather
-    List weatherResponseJson = jsonDecode(
+
+    Map<String, dynamic> weatherResponseJson = jsonDecode(
       weatherResponse.body,
-    )[MetaWeather.allWeather] as List;
+    );
+
     if (weatherResponseJson.isEmpty) {
-      //throw ('Weather search response is empty');
+      throw ('Location search response is empty');
       return sendBackBadPackage();
     }
+
+    print(
+        weatherResponseJson['forecast']['forecastday'][0]['day']['maxtemp_c']);
+
     // Convert to WeatherPackage object
-    WeatherPackage weatherInfo =
-        weatherResponseJsonConverter(location, weatherResponseJson, locId);
-    return weatherInfo;
+    WeatherPackage emitWeather =
+        weatherResponseJsonConverter(weatherResponseJson);
+
+    // FORECAST WEATHER
+
+    return emitWeather;
   }
 
   WeatherPackage weatherResponseJsonConverter(
-      // Convert from the MetaWeather JSON package to WeatherPackage object
-      String location,
-      List weatherResponseJson,
-      int locId) {
+      Map<String, dynamic> weatherResponseJson) {
+    // Convert from the WeatherState JSON package to WeatherPackage object
     WeatherPackage weatherPackage = WeatherPackage(
-        locationName: locationNameVisuallyPleasing,
-        locationId: locId,
-        updateTime: _time.convertZuluTime(weatherResponseJson[0]['created']),
-        currentTemp: weatherResponseJson[0][MetaWeather.currentTemp], // C
-        highTemp: weatherResponseJson[0][MetaWeather.highTemp], // C
-        lowTemp: weatherResponseJson[0][MetaWeather.lowTemp], // C
+        locationName: weatherResponseJson['location']['name'],
+        updateTime: _time
+            .convertZuluTime(weatherResponseJson['current']['last_updated']),
+        currentTemp: weatherResponseJson['current']['temp_c'], // C
+        highTemp: weatherResponseJson['forecast']['forecastday'][0]['day']
+            ['maxtemp_c'], // C
+        lowTemp: weatherResponseJson['forecast']['forecastday'][0]['day']
+            ['mintemp_c'], // C
         isFahrenheit: state.isFahrenheit,
-        weatherState: weatherResponseJson[0][MetaWeather.weatherState],
-        windSpeed: weatherResponseJson[0][MetaWeather.windSpeed], // mph
-        windDirection: weatherResponseJson[0][MetaWeather.windDirection],
-        airPressure: weatherResponseJson[0][MetaWeather.airPressure], // mbar
-        humidity: weatherResponseJson[0][MetaWeather.humidity], // %
-        predictability: weatherResponseJson[0]
-            [MetaWeather.predictability], // % of agreeing weather reports
-        visibility: weatherResponseJson[0][MetaWeather.visibility],
+        weatherState: weatherResponseJson['current']['condition']['text'],
+        windSpeed: weatherResponseJson['current']['wind_mph'], // mph
+        windDirection: weatherResponseJson['current']['wind_dir'],
+        airPressure: weatherResponseJson['current']['pressure_mb'], // mbar
+        humidity: weatherResponseJson['current']['humidity'], // %
+        precipitation: weatherResponseJson['current']['precip_in'], // in
+        visibility: weatherResponseJson['current']['vis_miles'], // mi
         isStart: false,
         isNotFound: false,
         futureWeatherHis: [
-          weatherResponseJson[1][MetaWeather.highTemp],
-          weatherResponseJson[2][MetaWeather.highTemp],
-          weatherResponseJson[3][MetaWeather.highTemp],
-          weatherResponseJson[4][MetaWeather.highTemp],
-          weatherResponseJson[5][MetaWeather.highTemp]
+          weatherResponseJson['forecast']['forecastday'][1]['day']['maxtemp_c'],
+          weatherResponseJson['forecast']['forecastday'][2]['day']['maxtemp_c']
         ],
         futureWeatherLos: [
-          weatherResponseJson[1][MetaWeather.lowTemp],
-          weatherResponseJson[2][MetaWeather.lowTemp],
-          weatherResponseJson[3][MetaWeather.lowTemp],
-          weatherResponseJson[4][MetaWeather.lowTemp],
-          weatherResponseJson[5][MetaWeather.lowTemp]
+          weatherResponseJson['forecast']['forecastday'][1]['day']['mintemp_c'],
+          weatherResponseJson['forecast']['forecastday'][2]['day']['mintemp_c']
         ],
         futureWeatherStates: [
-          weatherResponseJson[1][MetaWeather.weatherState],
-          weatherResponseJson[2][MetaWeather.weatherState],
-          weatherResponseJson[3][MetaWeather.weatherState],
-          weatherResponseJson[4][MetaWeather.weatherState],
-          weatherResponseJson[5][MetaWeather.weatherState]
+          weatherResponseJson['forecast']['forecastday'][1]['day']['condition']
+              ['code'],
+          weatherResponseJson['forecast']['forecastday'][2]['day']['condition']
+              ['code']
         ]); // mi
-    if ((weatherPackage.weatherState == 'Heavy Cloud') ||
-        (weatherPackage.weatherState == 'Light Cloud')) {
-      weatherPackage.weatherState = weatherPackage.weatherState + 's';
-    }
-    for (int index = 0; index < 5; ++index) {
-      if ((weatherPackage.futureWeatherStates[index] == 'Heavy Cloud') ||
-          (weatherPackage.futureWeatherStates[index] == 'Light Cloud')) {
-        weatherPackage.futureWeatherStates[index] =
-            weatherPackage.futureWeatherStates[index] + 's';
-      }
-    }
     if (weatherPackage.isFahrenheit) {
       weatherPackage.currentTemp = celToFarDouble(weatherPackage.currentTemp);
       weatherPackage.highTemp = celToFarDouble(weatherPackage.highTemp);
       weatherPackage.lowTemp = celToFarDouble(weatherPackage.lowTemp);
-      for (int index = 0; index < 5; ++index) {
+      for (int index = 0; index < 2; ++index) {
         weatherPackage.futureWeatherHis[index] =
             celToFarDouble(weatherPackage.futureWeatherHis[index]);
         weatherPackage.futureWeatherLos[index] =
@@ -215,7 +146,6 @@ class WeatherCubit extends Cubit<WeatherPackage> {
     if (state.isFahrenheit) {
       emit(WeatherPackage(
           locationName: state.locationName,
-          locationId: state.locationId,
           updateTime: state.updateTime,
           currentTemp: farToCelDouble(state.currentTemp),
           highTemp: farToCelDouble(state.highTemp),
@@ -226,7 +156,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
           windDirection: state.windDirection,
           airPressure: state.airPressure,
           humidity: state.humidity,
-          predictability: state.predictability,
+          precipitation: state.precipitation,
           visibility: state.visibility,
           isStart: state.isStart,
           isNotFound: state.isNotFound,
@@ -237,7 +167,6 @@ class WeatherCubit extends Cubit<WeatherPackage> {
       // C to F
       emit(WeatherPackage(
           locationName: state.locationName,
-          locationId: state.locationId,
           updateTime: state.updateTime,
           currentTemp: celToFarDouble(state.currentTemp),
           highTemp: celToFarDouble(state.highTemp),
@@ -248,7 +177,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
           windDirection: state.windDirection,
           airPressure: state.airPressure,
           humidity: state.humidity,
-          predictability: state.predictability,
+          precipitation: state.precipitation,
           visibility: state.visibility,
           isStart: state.isStart,
           isNotFound: state.isNotFound,
@@ -262,7 +191,6 @@ class WeatherCubit extends Cubit<WeatherPackage> {
     // Bad package is for when location/weather isn't found
     return WeatherPackage(
         locationName: state.locationName,
-        locationId: state.locationId,
         updateTime: state.updateTime,
         currentTemp: state.currentTemp,
         highTemp: state.highTemp,
@@ -273,7 +201,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
         windDirection: state.windDirection,
         airPressure: state.airPressure,
         humidity: state.humidity,
-        predictability: state.predictability,
+        precipitation: state.precipitation,
         visibility: state.visibility,
         isStart: false,
         isNotFound: true,
@@ -304,3 +232,62 @@ class WeatherCubit extends Cubit<WeatherPackage> {
     return temps;
   }
 }
+
+
+// CODE GRAVEYARD 
+
+    // ~~~~~~~~~~~~~ OLD API: WeatherState
+    // // Determine if a city name or lat/lon coordinates
+    // bool locationContainsNumerals = location.contains(RegExp(r'[0-9]'));
+    // // Created using https://www.WeatherState.com/api/
+    // // Find the location and corresponding location id
+    // int locId = await getLocId(location, locationContainsNumerals);
+    // // Find the weather info using the location id
+    // WeatherPackage newWeather = await getWeatherInfo(location, locId);
+    // // Only trigger refresh if new weather is found
+    // bool validateNewWeather = validate(lastWeather, newWeather);
+    // if ((validateNewWeather) || (newWeather.isNotFound)) {
+    //   emit(newWeather);
+    // }
+    // ~~~~~~~~~~~~~ OLD API: WeatherState
+
+
+
+  // Future<int> getLocId(String location, bool isLatLon) async {
+  //   Uri locationSearchRequest;
+  //   //Query for a location search to WeatherState
+  //   if (isLatLon) {
+  //     // Lat Lon
+  //     locationSearchRequest = Uri.https(
+  //         _baseUrlWeatherState,
+  //         _baseApiCallLocationSearch,
+  //         <String, String>{_apiCallLocationSearch: location});
+  //   } else {
+  //     // City name
+  //     locationSearchRequest = Uri.https(
+  //         _baseUrlWeatherState,
+  //         _baseApiCallLocationSearch,
+  //         <String, String>{_apiCallLocation: location});
+  //   }
+  //   Response locationSearchResponse =
+  //       await httpClient.get(locationSearchRequest);
+  //   // Ensure return doesn't have an error status code
+  //   // (typically only happens if passing an empty input)
+  //   if (locationSearchResponse.statusCode != 200) {
+  //     //throw ('Location search response code != 200');
+  //     return -1;
+  //   }
+  //   // Ensure return has an actual location and location id
+  //   List locationSearchResponseJson = jsonDecode(
+  //     locationSearchResponse.body,
+  //   ) as List;
+  //   if (locationSearchResponseJson.isEmpty) {
+  //     //throw ('Location search response code is empty');
+  //     return -1;
+  //   }
+  //   // Save location name (visually pleasing)
+  //   locationNameVisuallyPleasing =
+  //       locationSearchResponseJson[0][WeatherState.locationName];
+  //   // Extract location id
+  //   return locationSearchResponseJson[0][WeatherState.locationId];
+  // }

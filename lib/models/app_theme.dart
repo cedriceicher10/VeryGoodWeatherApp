@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:weather_icons/weather_icons.dart';
-import 'package:verygoodweatherapp/models/meta_weather.dart';
+import 'package:verygoodweatherapp/models/weather_state.dart';
 import 'package:verygoodweatherapp/utils/styles.dart';
 
 // For testing
@@ -37,70 +37,70 @@ class AppTheme {
       weatherState = testWeatherState;
     }
     switch (weatherState) {
-      case MetaWeather.snow:
+      case WeatherState.snow:
         {
           colorFadeTop = Colors.white;
           colorFadeBottom = Colors.grey;
           textColor = Colors.black;
         }
         break;
-      case MetaWeather.sleet:
+      case WeatherState.sleet:
         {
           colorFadeTop = Colors.black;
           colorFadeBottom = Colors.white;
           textColor = Colors.white;
         }
         break;
-      case MetaWeather.hail:
+      case WeatherState.hail:
         {
           colorFadeTop = Colors.black;
           colorFadeBottom = Colors.lightBlue;
           textColor = Colors.white;
         }
         break;
-      case MetaWeather.thunder:
+      case WeatherState.thunder:
         {
           colorFadeTop = Colors.black;
           colorFadeBottom = Colors.grey;
           textColor = Colors.white;
         }
         break;
-      case MetaWeather.heavyRain:
+      case WeatherState.heavyRain:
         {
           colorFadeTop = Colors.blue;
           colorFadeBottom = Colors.blueGrey;
           textColor = Colors.black;
         }
         break;
-      case MetaWeather.lightRain:
+      case WeatherState.lightRain:
         {
           colorFadeTop = Colors.blue;
           colorFadeBottom = Colors.grey;
           textColor = Colors.black;
         }
         break;
-      case MetaWeather.showers:
+      case WeatherState.showers:
         {
           colorFadeTop = Colors.blueGrey;
           colorFadeBottom = Colors.lightBlue;
           textColor = Colors.black;
         }
         break;
-      case MetaWeather.heavyClouds:
+      case WeatherState.heavyClouds:
         {
           colorFadeTop = const Color(darkGrey);
           colorFadeBottom = Colors.white;
           textColor = Colors.black;
         }
         break;
-      case MetaWeather.lightClouds:
+      case WeatherState.lightClouds:
         {
           colorFadeTop = Colors.grey;
           colorFadeBottom = Colors.yellow;
           textColor = Colors.black;
         }
         break;
-      case MetaWeather.clear:
+      case WeatherState.clear:
         {
           colorFadeTop = Colors.yellow;
           colorFadeBottom = Colors.blue;
@@ -143,7 +143,7 @@ class AppTheme {
       size: iconSize,
     );
     switch (weatherState) {
-      case MetaWeather.snow:
+      case WeatherState.snow:
         {
           weatherStateIcon = Icon(
             WeatherIcons.snow,
@@ -152,7 +152,7 @@ class AppTheme {
           );
         }
         break;
-      case MetaWeather.sleet:
+      case WeatherState.sleet:
         {
           weatherStateIcon = Icon(
             WeatherIcons.sleet,
@@ -161,7 +161,7 @@ class AppTheme {
           );
         }
         break;
-      case MetaWeather.hail:
+      case WeatherState.hail:
         {
           weatherStateIcon = Icon(
             WeatherIcons.hail,
@@ -170,7 +170,7 @@ class AppTheme {
           );
         }
         break;
-      case MetaWeather.thunder:
+      case WeatherState.thunder:
         {
           weatherStateIcon = Icon(
             WeatherIcons.thunderstorm,
@@ -179,7 +179,7 @@ class AppTheme {
           );
         }
         break;
-      case MetaWeather.heavyRain:
+      case WeatherState.heavyRain:
         {
           weatherStateIcon = Icon(
             WeatherIcons.rain,
@@ -188,7 +188,7 @@ class AppTheme {
           );
         }
         break;
-      case MetaWeather.lightRain:
+      case WeatherState.lightRain:
         {
           weatherStateIcon = Icon(
             WeatherIcons.raindrops,
@@ -198,7 +198,7 @@ class AppTheme {
         }
         break;
       // Showers
-      case MetaWeather.showers:
+      case WeatherState.showers:
         {
           weatherStateIcon = Icon(
             WeatherIcons.showers,
@@ -207,7 +207,7 @@ class AppTheme {
           );
         }
         break;
-      case MetaWeather.heavyClouds:
+      case WeatherState.heavyClouds:
         {
           weatherStateIcon = Icon(
             WeatherIcons.cloudy,
@@ -216,7 +216,7 @@ class AppTheme {
           );
         }
         break;
-      case MetaWeather.lightClouds:
+      case WeatherState.lightClouds:
         {
           weatherStateIcon = Icon(
             WeatherIcons.cloud,
@@ -225,7 +225,7 @@ class AppTheme {
           );
         }
         break;
-      case MetaWeather.clear:
+      case WeatherState.clear:
         {
           weatherStateIcon = Icon(
             WeatherIcons.day_sunny,
@@ -247,7 +247,7 @@ class AppTheme {
       size: iconSize,
     );
     switch (mode) {
-      case MetaWeather.windSpeed:
+      case 'windSpeed':
         {
           metricIcon = Icon(
             WeatherIcons.direction_up_right,
@@ -256,7 +256,7 @@ class AppTheme {
           );
         }
         break;
-      case MetaWeather.windDirection:
+      case 'windDirection':
         {
           metricIcon = Icon(
             WeatherIcons.wind_deg_225,
@@ -265,7 +265,7 @@ class AppTheme {
           );
         }
         break;
-      case MetaWeather.airPressure:
+      case 'airPressure':
         {
           metricIcon = Icon(
             WeatherIcons.barometer,
@@ -274,7 +274,7 @@ class AppTheme {
           );
         }
         break;
-      case MetaWeather.humidity:
+      case 'humidity':
         {
           metricIcon = Icon(
             WeatherIcons.humidity,
@@ -283,7 +283,7 @@ class AppTheme {
           );
         }
         break;
-      case MetaWeather.visibility:
+      case 'visibility':
         {
           metricIcon = Icon(
             Icons.visibility,
@@ -292,7 +292,7 @@ class AppTheme {
           );
         }
         break;
-      case MetaWeather.predictability:
+      case 'predictability':
         {
           metricIcon = Icon(
             Icons.query_stats,

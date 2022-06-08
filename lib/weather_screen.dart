@@ -8,7 +8,7 @@ import 'package:verygoodweatherapp/models/weather_package.dart';
 import 'package:verygoodweatherapp/weather_cubit.dart';
 import 'package:verygoodweatherapp/models/app_sizing.dart';
 import 'package:verygoodweatherapp/models/app_theme.dart';
-import 'package:verygoodweatherapp/models/meta_weather.dart';
+import 'package:verygoodweatherapp/models/weather_state.dart';
 import 'package:verygoodweatherapp/models/time.dart';
 import 'package:verygoodweatherapp/models/user_location.dart';
 import 'package:verygoodweatherapp/utils/formatted_text.dart';
@@ -30,7 +30,6 @@ class WeatherScreen extends StatefulWidget {
 class _WeatherScreenState extends State<WeatherScreen> {
   final TextEditingController _text = TextEditingController();
   final UserLocation _userLocation = UserLocation();
-  int _locId = -1;
 
   @override
   Widget build(BuildContext context) {
@@ -150,8 +149,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
       },
       style: TextStyle(color: _theme.textColor),
       decoration: InputDecoration(
-        hintText: 'Type any big city name or coordinates',
-        hintStyle: TextStyle(color: _theme.textColor),
+        hintText: 'City name, coordinates, or postal code (US/UK/CAN)',
+        hintStyle: TextStyle(
+            color: _theme.textColor, fontSize: _appSize.fontSizeSmaller),
         enabledBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: _theme.textColor),
         ),
@@ -272,7 +272,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
   }
 
   Widget weatherDisplay(WeatherPackage weather) {
-    _locId = weather.locationId;
     return Scrollbar(
         showTrackOnHover: true,
         child: SingleChildScrollView(
@@ -293,16 +292,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                weatherMetricText('Windspeed: ',
+                    '${weather.windSpeed.toStringAsFixed(0)} mph', 'windSpeed'),
                 weatherMetricText(
-                    'Windspeed: ',
-                    '${weather.windSpeed.toStringAsFixed(0)} mph',
-                    MetaWeather.windSpeed),
-                weatherMetricText('Wind Direction:', weather.windDirection,
-                    MetaWeather.windDirection),
+                    'Wind Direction:', weather.windDirection, 'windDirection'),
                 weatherMetricText(
                     'Air Pressure:',
                     '${weather.airPressure.toStringAsFixed(0)} mbar',
-                    MetaWeather.airPressure)
+                    'airPressure')
               ],
             ),
             SizedBox(width: _appSize.spacing * 2),
@@ -311,28 +308,28 @@ class _WeatherScreenState extends State<WeatherScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 weatherMetricText(
-                    'Humidity:', '${weather.humidity}%', MetaWeather.humidity),
+                    'Humidity:', '${weather.humidity}%', 'humidity'),
                 weatherMetricText(
                     'Visibility:',
                     '${weather.visibility.toStringAsFixed(0)} mi',
-                    MetaWeather.visibility),
-                weatherMetricText('Accuracy:', '${weather.predictability}%',
-                    MetaWeather.predictability)
+                    'visibility'),
+                weatherMetricText(
+                    'Precip:', '${weather.precipitation} in', 'predictability')
               ],
             ),
           ]),
           SizedBox(height: _appSize.spacing),
-          Container(
-              height: _appSize.nextDaysWeatherContainerHeight,
-              decoration: const BoxDecoration(
-                border: Border(
-                  top: BorderSide(width: 0.5, color: Colors.black),
-                  bottom: BorderSide(width: 0.5, color: Colors.black),
-                ),
-              ),
-              child: futureWeatherList(weather)),
+          // Container(
+          //     height: _appSize.nextDaysWeatherContainerHeight,
+          //     decoration: const BoxDecoration(
+          //       border: Border(
+          //         top: BorderSide(width: 0.5, color: Colors.black),
+          //         bottom: BorderSide(width: 0.5, color: Colors.black),
+          //       ),
+          //     ),
+          //     child: futureWeatherList(weather)),
           SizedBox(height: _appSize.spacing),
-          metaWeatherConsiderationText('View this weather on MetaWeather.com')
+          apiConsiderationText('Courtesy of Weather API')
         ])));
   }
 
@@ -357,8 +354,10 @@ class _WeatherScreenState extends State<WeatherScreen> {
         '°  |  ' +
         weather.futureWeatherLos[index].toStringAsFixed(0) +
         '°';
+    // Icon weatherIcon = _theme.getWeatherStateIcon(
+    //     weather.futureWeatherStates[index], WEATHER_DISPLAY.futureTemp);
     Icon weatherIcon = _theme.getWeatherStateIcon(
-        weather.futureWeatherStates[index], WEATHER_DISPLAY.futureTemp);
+        'this_is_an_int_now', WEATHER_DISPLAY.futureTemp);
     return SizedBox(
         width: _appSize.weatherContainerWidth / 4,
         child: Column(
@@ -606,7 +605,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         weight: FontWeight.bold);
   }
 
-  Widget metaWeatherConsiderationText(String text) {
+  Widget apiConsiderationText(String text) {
     return RichText(
       text: TextSpan(
           style: TextStyle(
@@ -617,8 +616,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           text: text,
           recognizer: TapGestureRecognizer()
             ..onTap = () async {
-              int locId = getLocationId();
-              var url = 'http://www.metaweather.com/$locId';
+              var url = 'http://www.weatherapi.com';
               if (!await launch(url)) throw 'Could not launch $url';
             }),
     );
@@ -654,12 +652,5 @@ class _WeatherScreenState extends State<WeatherScreen> {
             font: fontIBMPlexSans,
             weight: FontWeight.bold,
             align: TextAlign.center));
-  }
-
-  // ===========================================================================
-  // FUNCTIONS
-  // ===========================================================================
-  int getLocationId() {
-    return _locId;
   }
 }
