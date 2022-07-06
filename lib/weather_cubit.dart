@@ -9,18 +9,13 @@ import 'package:verygoodweatherapp/models/weather_package.dart';
 
 String _baseUrl = 'api.weatherapi.com';
 String _apiMethod = '/v1/forecast.json';
-WeatherPackage _oldWeather = WeatherPackage.initialize();
-
 Time _time = Time();
-
 ApiKey _api =
     ApiKey('weatherApiKey.txt'); // For release: Replace with hard-coded key
 String _myApiKey = '';
 
 class WeatherCubit extends Cubit<WeatherPackage> {
   final Client httpClient = Client();
-  // Visually pleasing implies capital first letter, lowercase subsequent letters
-  String locationNameVisuallyPleasing = '';
 
   WeatherCubit() : super(WeatherPackage.initialize());
 
@@ -104,6 +99,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
             ['mintemp_c'], // C
         isFahrenheit: state.isFahrenheit,
         weatherState: weatherResponseJson['current']['condition']['text'],
+        weatherIcon: weatherResponseJson['current']['condition']['icon'],
         windSpeed: weatherResponseJson['current']['wind_mph'], // mph
         windDirection: weatherResponseJson['current']['wind_dir'],
         airPressure: weatherResponseJson['current']['pressure_mb'], // mbar
@@ -120,11 +116,17 @@ class WeatherCubit extends Cubit<WeatherPackage> {
           weatherResponseJson['forecast']['forecastday'][1]['day']['mintemp_c'],
           weatherResponseJson['forecast']['forecastday'][2]['day']['mintemp_c']
         ],
-        futureWeatherStates: [
+        futureWeatherStateText: [
           weatherResponseJson['forecast']['forecastday'][1]['day']['condition']
-              ['code'],
+              ['text'],
           weatherResponseJson['forecast']['forecastday'][2]['day']['condition']
-              ['code']
+              ['text']
+        ],
+        futureWeatherStateIcon: [
+          weatherResponseJson['forecast']['forecastday'][1]['day']['condition']
+              ['icon'],
+          weatherResponseJson['forecast']['forecastday'][2]['day']['condition']
+              ['icon']
         ]); // mi
     if (weatherPackage.isFahrenheit) {
       weatherPackage.currentTemp = celToFarDouble(weatherPackage.currentTemp);
@@ -152,6 +154,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
           lowTemp: farToCelDouble(state.lowTemp),
           isFahrenheit: false,
           weatherState: state.weatherState,
+          weatherIcon: state.weatherIcon,
           windSpeed: state.windSpeed,
           windDirection: state.windDirection,
           airPressure: state.airPressure,
@@ -162,7 +165,8 @@ class WeatherCubit extends Cubit<WeatherPackage> {
           isNotFound: state.isNotFound,
           futureWeatherHis: farToCelList(state.futureWeatherHis),
           futureWeatherLos: farToCelList(state.futureWeatherLos),
-          futureWeatherStates: state.futureWeatherStates));
+          futureWeatherStateText: state.futureWeatherStateText,
+          futureWeatherStateIcon: state.futureWeatherStateIcon));
     } else {
       // C to F
       emit(WeatherPackage(
@@ -173,6 +177,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
           lowTemp: celToFarDouble(state.lowTemp),
           isFahrenheit: true,
           weatherState: state.weatherState,
+          weatherIcon: state.weatherIcon,
           windSpeed: state.windSpeed,
           windDirection: state.windDirection,
           airPressure: state.airPressure,
@@ -183,7 +188,8 @@ class WeatherCubit extends Cubit<WeatherPackage> {
           isNotFound: state.isNotFound,
           futureWeatherHis: celToFarList(state.futureWeatherHis),
           futureWeatherLos: celToFarList(state.futureWeatherLos),
-          futureWeatherStates: state.futureWeatherStates));
+          futureWeatherStateText: state.futureWeatherStateText,
+          futureWeatherStateIcon: state.futureWeatherStateIcon));
     }
   }
 
@@ -197,6 +203,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
         lowTemp: state.lowTemp,
         isFahrenheit: state.isFahrenheit,
         weatherState: state.weatherState,
+        weatherIcon: state.weatherIcon,
         windSpeed: state.windSpeed,
         windDirection: state.windDirection,
         airPressure: state.airPressure,
@@ -207,7 +214,8 @@ class WeatherCubit extends Cubit<WeatherPackage> {
         isNotFound: true,
         futureWeatherHis: state.futureWeatherHis,
         futureWeatherLos: state.futureWeatherLos,
-        futureWeatherStates: state.futureWeatherStates);
+        futureWeatherStateText: state.futureWeatherStateText,
+        futureWeatherStateIcon: state.futureWeatherStateIcon);
   }
 
   double farToCelDouble(double temp) {

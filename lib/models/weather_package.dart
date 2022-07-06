@@ -8,6 +8,7 @@ class WeatherPackage {
   double lowTemp;
   bool isFahrenheit;
   String weatherState;
+  String weatherIcon;
   double windSpeed;
   String windDirection;
   double airPressure;
@@ -18,7 +19,8 @@ class WeatherPackage {
   bool isNotFound;
   List<double> futureWeatherHis;
   List<double> futureWeatherLos;
-  List<int> futureWeatherStates;
+  List<String> futureWeatherStateText;
+  List<String> futureWeatherStateIcon;
 
   WeatherPackage(
       {required this.locationName,
@@ -28,6 +30,7 @@ class WeatherPackage {
       required this.lowTemp,
       required this.isFahrenheit,
       required this.weatherState,
+      required this.weatherIcon,
       required this.windSpeed,
       required this.windDirection,
       required this.airPressure,
@@ -38,7 +41,8 @@ class WeatherPackage {
       required this.isNotFound,
       required this.futureWeatherHis,
       required this.futureWeatherLos,
-      required this.futureWeatherStates});
+      required this.futureWeatherStateText,
+      required this.futureWeatherStateIcon});
 
   // Initialize is intended for use in WeatherCubit on initalization
   WeatherPackage.initialize()
@@ -49,6 +53,7 @@ class WeatherPackage {
         lowTemp = -1,
         isFahrenheit = true,
         weatherState = '',
+        weatherIcon = '',
         windSpeed = -1,
         windDirection = '',
         airPressure = -1,
@@ -59,10 +64,6 @@ class WeatherPackage {
         isNotFound = false,
         futureWeatherHis = List<double>.filled(2, 0),
         futureWeatherLos = List<double>.filled(2, 0),
-        futureWeatherStates = List<int>.filled(2, 0);
-
-  // Output for comparison or debugging
-  String toOutputString(WeatherPackage weatherPackage) {
-    return '${weatherPackage.locationName}, ${weatherPackage.updateTime}, ${weatherPackage.currentTemp}, ${weatherPackage.highTemp}, ${weatherPackage.lowTemp}, ${weatherPackage.isFahrenheit}, ${weatherPackage.weatherState}, ${weatherPackage.windSpeed}, ${weatherPackage.windDirection}, ${weatherPackage.airPressure}, ${weatherPackage.humidity}, ${weatherPackage.visibility}, ${weatherPackage.precipitation}, ${weatherPackage.isStart}, ${weatherPackage.isNotFound}';
-  }
+        futureWeatherStateText = List<String>.filled(2, ''),
+        futureWeatherStateIcon = List<String>.filled(2, '');
 }

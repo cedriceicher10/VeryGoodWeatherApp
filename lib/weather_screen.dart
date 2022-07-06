@@ -273,64 +273,58 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   Widget weatherDisplay(WeatherPackage weather) {
     return Scrollbar(
-        showTrackOnHover: true,
         child: SingleChildScrollView(
             child: Column(children: [
-          weatherTitle(weather.locationName),
-          updateTimeText('Weather last updated at ${weather.updateTime}'),
-          SizedBox(height: _appSize.spacing),
-          currentTempText(weather.currentTemp.toStringAsFixed(0),
-              weather.isFahrenheit, weather.weatherState),
-          SizedBox(height: _appSize.spacing / 2),
-          hiLoTempText(weather.highTemp.toStringAsFixed(0),
-              weather.lowTemp.toStringAsFixed(0), weather.isFahrenheit),
-          SizedBox(height: _appSize.spacing / 2),
-          weatherStateText(weather.weatherState),
-          SizedBox(height: _appSize.spacing),
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                weatherMetricText('Windspeed: ',
-                    '${weather.windSpeed.toStringAsFixed(0)} mph', 'windSpeed'),
-                weatherMetricText(
-                    'Wind Direction:', weather.windDirection, 'windDirection'),
-                weatherMetricText(
-                    'Air Pressure:',
-                    '${weather.airPressure.toStringAsFixed(0)} mbar',
-                    'airPressure')
-              ],
-            ),
-            SizedBox(width: _appSize.spacing * 2),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                weatherMetricText(
-                    'Humidity:', '${weather.humidity}%', 'humidity'),
-                weatherMetricText(
-                    'Visibility:',
-                    '${weather.visibility.toStringAsFixed(0)} mi',
-                    'visibility'),
-                weatherMetricText(
-                    'Precip:', '${weather.precipitation} in', 'predictability')
-              ],
-            ),
-          ]),
-          SizedBox(height: _appSize.spacing),
-          // Container(
-          //     height: _appSize.nextDaysWeatherContainerHeight,
-          //     decoration: const BoxDecoration(
-          //       border: Border(
-          //         top: BorderSide(width: 0.5, color: Colors.black),
-          //         bottom: BorderSide(width: 0.5, color: Colors.black),
-          //       ),
-          //     ),
-          //     child: futureWeatherList(weather)),
-          SizedBox(height: _appSize.spacing),
-          apiConsiderationText('Courtesy of Weather API')
-        ])));
+      weatherTitle(weather.locationName),
+      updateTimeText('Weather last updated at ${weather.updateTime}'),
+      SizedBox(height: _appSize.spacing),
+      currentTempText(weather.currentTemp.toStringAsFixed(0),
+          weather.isFahrenheit, weather.weatherIcon),
+      SizedBox(height: _appSize.spacing / 2),
+      hiLoTempText(weather.highTemp.toStringAsFixed(0),
+          weather.lowTemp.toStringAsFixed(0), weather.isFahrenheit),
+      SizedBox(height: _appSize.spacing / 2),
+      weatherStateText(weather.weatherState),
+      SizedBox(height: _appSize.spacing),
+      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            weatherMetricText('Windspeed: ',
+                '${weather.windSpeed.toStringAsFixed(0)} mph', 'windSpeed'),
+            weatherMetricText(
+                'Wind Direction:', weather.windDirection, 'windDirection'),
+            weatherMetricText('Air Pressure:',
+                '${weather.airPressure.toStringAsFixed(0)} mbar', 'airPressure')
+          ],
+        ),
+        SizedBox(width: _appSize.spacing * 2),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            weatherMetricText('Humidity:', '${weather.humidity}%', 'humidity'),
+            weatherMetricText('Visibility:',
+                '${weather.visibility.toStringAsFixed(0)} mi', 'visibility'),
+            weatherMetricText(
+                'Precip:', '${weather.precipitation} in', 'predictability')
+          ],
+        ),
+      ]),
+      SizedBox(height: _appSize.spacing),
+      // Container(
+      //     height: _appSize.nextDaysWeatherContainerHeight,
+      //     decoration: const BoxDecoration(
+      //       border: Border(
+      //         top: BorderSide(width: 0.5, color: Colors.black),
+      //         bottom: BorderSide(width: 0.5, color: Colors.black),
+      //       ),
+      //     ),
+      //     child: futureWeatherList(weather)),
+      SizedBox(height: _appSize.spacing),
+      apiConsiderationText('Courtesy of Weather API')
+    ])));
   }
 
   Widget futureWeatherList(WeatherPackage weather) {
@@ -540,19 +534,24 @@ class _WeatherScreenState extends State<WeatherScreen> {
         style: FontStyle.italic);
   }
 
-  Widget currentTempText(String text, bool isFahrenheit, String weatherState) {
+  Widget currentTempText(String text, bool isFahrenheit, String weatherIcon) {
     if (isFahrenheit) {
       text = text + ' °F';
     } else {
       text = text + ' °C';
     }
-    Icon weatherStateIcon =
-        _theme.getWeatherStateIcon(weatherState, WEATHER_DISPLAY.mainTemp);
+    // Old way
+    //Icon weatherStateIcon =
+    //    _theme.getWeatherStateIcon(weatherState, WEATHER_DISPLAY.mainTemp);
+
+    Image weatherIconImage = Image.network('https:' + weatherIcon,
+        fit: BoxFit.contain); // CAN'T GET IMAGE TO FILL
+
     return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          weatherStateIcon,
+          weatherIconImage,
           SizedBox(width: _appSize.spacing * 2.5),
           FormattedText(
               text: text,
@@ -612,7 +611,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
               color: _theme.textColor,
               fontFamily: fontBonaNova,
               fontSize: _appSize.fontSizeExtraSmall,
-              fontWeight: FontWeight.bold),
+              fontWeight: FontWeight.bold,
+              decoration: TextDecoration.underline),
           text: text,
           recognizer: TapGestureRecognizer()
             ..onTap = () async {
@@ -630,7 +630,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
               color: _theme.textColor,
               fontFamily: fontIBMPlexSans,
               fontSize: _appSize.fontSizeExtraSmall,
-              fontWeight: FontWeight.bold),
+              fontWeight: FontWeight.bold,
+              decoration: TextDecoration.underline),
           text: text,
           recognizer: TapGestureRecognizer()
             ..onTap = () async {

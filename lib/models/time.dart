@@ -21,8 +21,7 @@ class Time {
   // Converts the last updated zulu time of the weather to local time in h:mm AMPM format (e.g. 7:50PM)
   String convertZuluTime(String timeZulu) {
     var dateTime = DateFormat("yyyy-MM-dd HH:mm").parse(timeZulu, true);
-    var dateLocal = dateTime.toLocal();
-    String formattedDate = DateFormat('h:mma').format(dateLocal);
+    String formattedDate = DateFormat('h:mma').format(dateTime);
     return formattedDate;
   }
 
