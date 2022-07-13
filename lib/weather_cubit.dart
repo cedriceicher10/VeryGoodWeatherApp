@@ -87,8 +87,8 @@ class WeatherCubit extends Cubit<WeatherPackage> {
     // Convert from the WeatherState JSON package to WeatherPackage object
     WeatherPackage weatherPackage = WeatherPackage(
         locationName: weatherResponseJson['location']['name'],
-        updateTime: _time
-            .convertZuluTime(weatherResponseJson['current']['last_updated']),
+        updateTime: _time.convertZuluTime(
+            weatherResponseJson['current']['last_updated_epoch']),
         currentTemp: weatherResponseJson['current']['temp_c'], // C
         highTemp: weatherResponseJson['forecast']['forecastday'][0]['day']
             ['maxtemp_c'], // C

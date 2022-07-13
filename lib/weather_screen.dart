@@ -129,17 +129,19 @@ class _WeatherScreenState extends State<WeatherScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
                 snackBarFloating('Checking for updated weather...', true));
           }
-          // Geocode to get lat/lon to allow for 'nearest available' weather
-          String latLonQuery;
-          try {
-            List<Location> latLonFromAddress =
-                await locationFromAddress(_text.value.text);
-            latLonQuery = latLonFromAddress[0].latitude.toString() +
-                ', ' +
-                latLonFromAddress[0].longitude.toString();
-          } catch (exception) {
-            latLonQuery = '';
-          }
+          // REMOVED FOR NOW: WEATHER API MAY NOT NEED THIS GEO CATCH
+          // // Geocode to get lat/lon to allow for 'nearest available' weather
+          // String latLonQuery;
+          // try {
+          //   List<Location> latLonFromAddress =
+          //       await locationFromAddress(_text.value.text);
+          //   latLonQuery = latLonFromAddress[0].latitude.toString() +
+          //       ', ' +
+          //       latLonFromAddress[0].longitude.toString();
+          // } catch (exception) {
+          //   latLonQuery = '';
+          // }
+          String latLonQuery = _text.value.text;
           // Get weather for current city
           context.read<WeatherCubit>().getWeather(latLonQuery, lastWeather);
         } else {
@@ -212,17 +214,19 @@ class _WeatherScreenState extends State<WeatherScreen> {
               ScaffoldMessenger.of(context).showSnackBar(
                   snackBarFloating('Checking for updated weather...', true));
             }
-            //Geocode to get lat/lon to allow for 'nearest available' weather
-            String latLonQuery;
-            try {
-              List<Location> latLonFromAddress =
-                  await locationFromAddress(_text.value.text);
-              latLonQuery = latLonFromAddress[0].latitude.toString() +
-                  ', ' +
-                  latLonFromAddress[0].longitude.toString();
-            } catch (exception) {
-              latLonQuery = '';
-            }
+            // REMOVED FOR NOW: WEATHER API MAY NOT NEED THIS GEO CATCH
+            // // Geocode to get lat/lon to allow for 'nearest available' weather
+            // String latLonQuery;
+            // try {
+            //   List<Location> latLonFromAddress =
+            //       await locationFromAddress(_text.value.text);
+            //   latLonQuery = latLonFromAddress[0].latitude.toString() +
+            //       ', ' +
+            //       latLonFromAddress[0].longitude.toString();
+            // } catch (exception) {
+            //   latLonQuery = '';
+            // }
+            String latLonQuery = _text.value.text;
             // Get weather for the text entered
             context.read<WeatherCubit>().getWeather(latLonQuery, lastWeather);
           } else {

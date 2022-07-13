@@ -12,16 +12,18 @@ class Time {
   // Returns list of future day names, starting with 'Tomorrow'
   List<String> getFutureDays() {
     DateTime now = DateTime.now();
-    String Day = DateFormat('EEEE').format(now);
-    List<String> futureDays = _futureDayCreator(Day);
+    String day = DateFormat('EEEE').format(now);
+    List<String> futureDays = _futureDayCreator(day);
 
     return futureDays;
   }
 
   // Converts the last updated zulu time of the weather to local time in h:mm AMPM format (e.g. 7:50PM)
-  String convertZuluTime(String timeZulu) {
-    var dateTime = DateFormat("yyyy-MM-dd HH:mm").parse(timeZulu, true);
-    String formattedDate = DateFormat('h:mma').format(dateTime);
+  String convertZuluTime(int timeZulu) {
+    DateTime dateTimeGMT = DateTime.fromMillisecondsSinceEpoch(timeZulu * 1000);
+
+    //var dateTime = DateFormat("yyyy-MM-dd HH:mm").parse(timeZulu, true);
+    String formattedDate = DateFormat('h:mma').format(dateTimeGMT);
     return formattedDate;
   }
 
