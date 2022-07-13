@@ -8,7 +8,7 @@ class WeatherPackage {
   double lowTemp;
   bool isFahrenheit;
   String weatherState;
-  String weatherIcon;
+  int weatherCode;
   double windSpeed;
   String windDirection;
   double airPressure;
@@ -20,7 +20,7 @@ class WeatherPackage {
   List<double> futureWeatherHis;
   List<double> futureWeatherLos;
   List<String> futureWeatherStateText;
-  List<String> futureWeatherStateIcon;
+  List<int> futureWeatherStateCode;
 
   WeatherPackage(
       {required this.locationName,
@@ -30,7 +30,7 @@ class WeatherPackage {
       required this.lowTemp,
       required this.isFahrenheit,
       required this.weatherState,
-      required this.weatherIcon,
+      required this.weatherCode,
       required this.windSpeed,
       required this.windDirection,
       required this.airPressure,
@@ -42,7 +42,7 @@ class WeatherPackage {
       required this.futureWeatherHis,
       required this.futureWeatherLos,
       required this.futureWeatherStateText,
-      required this.futureWeatherStateIcon});
+      required this.futureWeatherStateCode});
 
   // Initialize is intended for use in WeatherCubit on initalization
   WeatherPackage.initialize()
@@ -53,7 +53,7 @@ class WeatherPackage {
         lowTemp = -1,
         isFahrenheit = true,
         weatherState = '',
-        weatherIcon = '',
+        weatherCode = -1,
         windSpeed = -1,
         windDirection = '',
         airPressure = -1,
@@ -62,8 +62,8 @@ class WeatherPackage {
         visibility = -1,
         isStart = true, // Trigger for initial screen (no city yet)
         isNotFound = false,
-        futureWeatherHis = List<double>.filled(2, 0),
-        futureWeatherLos = List<double>.filled(2, 0),
+        futureWeatherHis = List<double>.filled(2, -1),
+        futureWeatherLos = List<double>.filled(2, -1),
         futureWeatherStateText = List<String>.filled(2, ''),
-        futureWeatherStateIcon = List<String>.filled(2, '');
+        futureWeatherStateCode = List<int>.filled(2, -1);
 }

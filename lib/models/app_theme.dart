@@ -8,19 +8,19 @@ import 'package:verygoodweatherapp/utils/styles.dart';
 // Toggle index of testWeatherState
 // Hot restart each time
 bool isTest = false;
-List<String> testWeatherStateArray = [
-  'Snow',
-  'Sleet',
-  'Hail',
-  'Thunder',
-  'Heavy Rain',
-  'Light Rain',
-  'Showers',
-  'Heavy Clouds',
-  'Light Clouds',
-  'Clear'
+List<int> testWeatherStateArray = [
+  WeatherState.snow,
+  WeatherState.sleet,
+  WeatherState.hail,
+  WeatherState.thunder,
+  WeatherState.heavyRain,
+  WeatherState.lightRain,
+  WeatherState.showers,
+  WeatherState.heavyClouds,
+  WeatherState.lightClouds,
+  WeatherState.clear,
 ];
-String testWeatherState = testWeatherStateArray[0];
+int testWeatherState = testWeatherStateArray[0];
 
 enum WEATHER_DISPLAY { mainTemp, futureTemp }
 
@@ -32,11 +32,70 @@ class AppTheme {
 
   AppTheme(this.context);
 
-  BoxDecoration getBackgroundFade(String weatherState) {
-    if (isTest) {
-      weatherState = testWeatherState;
+  int apiMapperToStates(int weatherCode) {
+    // This mapper maps the codes from weather api to a shorter list of
+    // simple weather states
+
+    List<int> _snowCodes = [
+      1114,
+      1117,
+      1210,
+      1213,
+      1216,
+      1219,
+      1222,
+      1225,
+      1255
+    ];
+    List<int> _sleetCodes = [1204, 1207, 1249, 1252];
+    List<int> _hailCodes = [1237, 1261, 1264];
+    List<int> _thunderCodes = [1273, 1276, 1279, 1282];
+    List<int> _heavyRainCodes = [1171, 1186, 1189, 1192, 1195];
+    List<int> _lightRainCodes = [1150, 1168, 1183, 1198, 1240];
+    List<int> _showersCodes = [1180, 1243, 1246];
+    List<int> _heavyCloudsCodes = [1006, 1009, 1087, 1135, 1147];
+    List<int> _lightCloudsCodes = [1003, 1030, 1063, 1066, 1069, 1072];
+    List<int> _clearCodes = [1000];
+
+    if (_snowCodes.contains(weatherCode)) {
+      return WeatherState.snow;
+    } else if (_sleetCodes.contains(weatherCode)) {
+      return WeatherState.sleet;
     }
-    switch (weatherState) {
+    if (_hailCodes.contains(weatherCode)) {
+      return WeatherState.hail;
+    }
+    if (_thunderCodes.contains(weatherCode)) {
+      return WeatherState.thunder;
+    }
+    if (_heavyRainCodes.contains(weatherCode)) {
+      return WeatherState.heavyRain;
+    }
+    if (_lightRainCodes.contains(weatherCode)) {
+      return WeatherState.lightRain;
+    }
+    if (_showersCodes.contains(weatherCode)) {
+      return WeatherState.showers;
+    }
+    if (_heavyCloudsCodes.contains(weatherCode)) {
+      return WeatherState.heavyClouds;
+    }
+    if (_lightCloudsCodes.contains(weatherCode)) {
+      return WeatherState.lightClouds;
+    }
+    if (_clearCodes.contains(weatherCode)) {
+      return WeatherState.clear;
+    }
+    return 10; // Default is clear
+  }
+
+  BoxDecoration getBackgroundFade(int weatherCode) {
+    int weatherStateInt = apiMapperToStates(weatherCode);
+
+    if (isTest) {
+      weatherStateInt = testWeatherState;
+    }
+    switch (weatherStateInt) {
       case WeatherState.snow:
         {
           colorFadeTop = Colors.white;
@@ -119,10 +178,11 @@ class AppTheme {
     ));
   }
 
-  Icon getWeatherStateIcon(
-      String weatherState, WEATHER_DISPLAY weatherDisplay) {
+  Icon getWeatherStateIcon(int weatherCode, WEATHER_DISPLAY weatherDisplay) {
+    int weatherStateInt = apiMapperToStates(weatherCode);
+
     if (isTest) {
-      weatherState = testWeatherState;
+      weatherStateInt = testWeatherState;
     }
     double iconSize = 20;
     if (weatherDisplay == WEATHER_DISPLAY.mainTemp) {
@@ -142,7 +202,7 @@ class AppTheme {
       color: iconColor,
       size: iconSize,
     );
-    switch (weatherState) {
+    switch (weatherStateInt) {
       case WeatherState.snow:
         {
           weatherStateIcon = Icon(

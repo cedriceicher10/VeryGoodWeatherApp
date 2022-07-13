@@ -73,9 +73,6 @@ class WeatherCubit extends Cubit<WeatherPackage> {
       return sendBackBadPackage();
     }
 
-    print(
-        weatherResponseJson['forecast']['forecastday'][0]['day']['maxtemp_c']);
-
     // Convert to WeatherPackage object
     WeatherPackage emitWeather =
         weatherResponseJsonConverter(weatherResponseJson);
@@ -99,7 +96,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
             ['mintemp_c'], // C
         isFahrenheit: state.isFahrenheit,
         weatherState: weatherResponseJson['current']['condition']['text'],
-        weatherIcon: weatherResponseJson['current']['condition']['icon'],
+        weatherCode: weatherResponseJson['current']['condition']['code'],
         windSpeed: weatherResponseJson['current']['wind_mph'], // mph
         windDirection: weatherResponseJson['current']['wind_dir'],
         airPressure: weatherResponseJson['current']['pressure_mb'], // mbar
@@ -122,11 +119,11 @@ class WeatherCubit extends Cubit<WeatherPackage> {
           weatherResponseJson['forecast']['forecastday'][2]['day']['condition']
               ['text']
         ],
-        futureWeatherStateIcon: [
+        futureWeatherStateCode: [
           weatherResponseJson['forecast']['forecastday'][1]['day']['condition']
-              ['icon'],
+              ['code'],
           weatherResponseJson['forecast']['forecastday'][2]['day']['condition']
-              ['icon']
+              ['code']
         ]); // mi
     if (weatherPackage.isFahrenheit) {
       weatherPackage.currentTemp = celToFarDouble(weatherPackage.currentTemp);
@@ -154,7 +151,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
           lowTemp: farToCelDouble(state.lowTemp),
           isFahrenheit: false,
           weatherState: state.weatherState,
-          weatherIcon: state.weatherIcon,
+          weatherCode: state.weatherCode,
           windSpeed: state.windSpeed,
           windDirection: state.windDirection,
           airPressure: state.airPressure,
@@ -166,7 +163,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
           futureWeatherHis: farToCelList(state.futureWeatherHis),
           futureWeatherLos: farToCelList(state.futureWeatherLos),
           futureWeatherStateText: state.futureWeatherStateText,
-          futureWeatherStateIcon: state.futureWeatherStateIcon));
+          futureWeatherStateCode: state.futureWeatherStateCode));
     } else {
       // C to F
       emit(WeatherPackage(
@@ -177,7 +174,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
           lowTemp: celToFarDouble(state.lowTemp),
           isFahrenheit: true,
           weatherState: state.weatherState,
-          weatherIcon: state.weatherIcon,
+          weatherCode: state.weatherCode,
           windSpeed: state.windSpeed,
           windDirection: state.windDirection,
           airPressure: state.airPressure,
@@ -189,7 +186,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
           futureWeatherHis: celToFarList(state.futureWeatherHis),
           futureWeatherLos: celToFarList(state.futureWeatherLos),
           futureWeatherStateText: state.futureWeatherStateText,
-          futureWeatherStateIcon: state.futureWeatherStateIcon));
+          futureWeatherStateCode: state.futureWeatherStateCode));
     }
   }
 
@@ -203,7 +200,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
         lowTemp: state.lowTemp,
         isFahrenheit: state.isFahrenheit,
         weatherState: state.weatherState,
-        weatherIcon: state.weatherIcon,
+        weatherCode: state.weatherCode,
         windSpeed: state.windSpeed,
         windDirection: state.windDirection,
         airPressure: state.airPressure,
@@ -215,7 +212,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
         futureWeatherHis: state.futureWeatherHis,
         futureWeatherLos: state.futureWeatherLos,
         futureWeatherStateText: state.futureWeatherStateText,
-        futureWeatherStateIcon: state.futureWeatherStateIcon);
+        futureWeatherStateCode: state.futureWeatherStateCode);
   }
 
   double farToCelDouble(double temp) {

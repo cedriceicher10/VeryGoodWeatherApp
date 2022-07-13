@@ -59,7 +59,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
               }
               return Container(
                   padding: const EdgeInsets.only(bottom: 20),
-                  decoration: _theme.getBackgroundFade(weather.weatherState),
+                  decoration: _theme.getBackgroundFade(weather.weatherCode),
                   child: Center(
                     child: Column(children: [
                       SizedBox(height: _appSize.spacing),
@@ -279,7 +279,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
       updateTimeText('Weather last updated at ${weather.updateTime}'),
       SizedBox(height: _appSize.spacing),
       currentTempText(weather.currentTemp.toStringAsFixed(0),
-          weather.isFahrenheit, weather.weatherIcon),
+          weather.isFahrenheit, weather.weatherCode),
       SizedBox(height: _appSize.spacing / 2),
       hiLoTempText(weather.highTemp.toStringAsFixed(0),
           weather.lowTemp.toStringAsFixed(0), weather.isFahrenheit),
@@ -313,15 +313,15 @@ class _WeatherScreenState extends State<WeatherScreen> {
         ),
       ]),
       SizedBox(height: _appSize.spacing),
-      // Container(
-      //     height: _appSize.nextDaysWeatherContainerHeight,
-      //     decoration: const BoxDecoration(
-      //       border: Border(
-      //         top: BorderSide(width: 0.5, color: Colors.black),
-      //         bottom: BorderSide(width: 0.5, color: Colors.black),
-      //       ),
-      //     ),
-      //     child: futureWeatherList(weather)),
+      Container(
+          height: _appSize.nextDaysWeatherContainerHeight,
+          decoration: const BoxDecoration(
+            border: Border(
+              top: BorderSide(width: 0.5, color: Colors.black),
+              bottom: BorderSide(width: 0.5, color: Colors.black),
+            ),
+          ),
+          child: futureWeatherList(weather)),
       SizedBox(height: _appSize.spacing),
       apiConsiderationText('Courtesy of Weather API')
     ])));
@@ -334,11 +334,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
       SizedBox(width: widthSpacing),
       futureWeatherItem(weather, 1),
       SizedBox(width: widthSpacing),
-      futureWeatherItem(weather, 2),
-      SizedBox(width: widthSpacing),
-      futureWeatherItem(weather, 3),
-      SizedBox(width: widthSpacing),
-      futureWeatherItem(weather, 4),
     ]);
   }
 
@@ -348,10 +343,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
         '°  |  ' +
         weather.futureWeatherLos[index].toStringAsFixed(0) +
         '°';
-    // Icon weatherIcon = _theme.getWeatherStateIcon(
-    //     weather.futureWeatherStates[index], WEATHER_DISPLAY.futureTemp);
     Icon weatherIcon = _theme.getWeatherStateIcon(
-        'this_is_an_int_now', WEATHER_DISPLAY.futureTemp);
+        weather.futureWeatherStateCode[index], WEATHER_DISPLAY.futureTemp);
     return SizedBox(
         width: _appSize.weatherContainerWidth / 4,
         child: Column(
@@ -534,24 +527,21 @@ class _WeatherScreenState extends State<WeatherScreen> {
         style: FontStyle.italic);
   }
 
-  Widget currentTempText(String text, bool isFahrenheit, String weatherIcon) {
+  Widget currentTempText(String text, bool isFahrenheit, int weatherCode) {
     if (isFahrenheit) {
       text = text + ' °F';
     } else {
       text = text + ' °C';
     }
-    // Old way
-    //Icon weatherStateIcon =
-    //    _theme.getWeatherStateIcon(weatherState, WEATHER_DISPLAY.mainTemp);
 
-    Image weatherIconImage = Image.network('https:' + weatherIcon,
-        fit: BoxFit.contain); // CAN'T GET IMAGE TO FILL
+    Icon weatherStateIcon =
+        _theme.getWeatherStateIcon(weatherCode, WEATHER_DISPLAY.mainTemp);
 
     return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          weatherIconImage,
+          weatherStateIcon,
           SizedBox(width: _appSize.spacing * 2.5),
           FormattedText(
               text: text,
