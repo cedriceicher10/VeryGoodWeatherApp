@@ -1,4 +1,6 @@
+import 'dart:math';
 import 'package:geocoding/geocoding.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -290,6 +292,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
       SizedBox(height: _appSize.spacing / 2),
       weatherStateText(weather.weatherState),
       SizedBox(height: _appSize.spacing),
+      weatherHourlyForecast(weather),
+      SizedBox(height: _appSize.spacing),
       Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -329,6 +333,76 @@ class _WeatherScreenState extends State<WeatherScreen> {
       SizedBox(height: _appSize.spacing),
       apiConsiderationText('Courtesy of Weather API')
     ])));
+  }
+
+  Widget weatherHourlyForecast(WeatherPackage weather) {
+    return SizedBox(
+      height: 75,
+      width: _appSize.textFieldWidth,
+      //decoration: BoxDecoration(border: Border.all(color: Colors.blueAccent)),
+      child: LineChart(
+        LineChartData(
+          minX: 0,
+          maxX: 23,
+          minY: weather.hourlyTemps.reduce(min) - 5,
+          maxY: weather.hourlyTemps.reduce(max) + 5,
+          titlesData: FlTitlesData(
+            show: true,
+            rightTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 30,
+                interval: 1,
+              ),
+            ),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: 1,
+                //getTitlesWidget: leftTitleWidgets,
+                reservedSize: 42,
+              ),
+            ),
+          ),
+          borderData: FlBorderData(show: false),
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: true,
+            horizontalInterval: 15,
+            verticalInterval: 4,
+            getDrawingHorizontalLine: (value) {
+              return FlLine(
+                color: const Color(0xff37434d),
+                strokeWidth: 0.25,
+              );
+            },
+            getDrawingVerticalLine: (value) {
+              return FlLine(
+                color: const Color(0xff37434d),
+                strokeWidth: 0.25,
+              );
+            },
+          ),
+          lineBarsData: [
+            LineChartBarData(spots: spots(weather), isCurved: true)
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<FlSpot> spots(WeatherPackage weather) {
+    List<FlSpot> listSpots = [];
+    for (int index = 0; index < 24; ++index) {
+      listSpots.add(FlSpot(index.toDouble(), weather.hourlyTemps[index]));
+    }
+    return listSpots;
   }
 
   Widget futureWeatherList(WeatherPackage weather) {

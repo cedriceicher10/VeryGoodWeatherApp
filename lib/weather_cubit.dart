@@ -105,6 +105,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
         visibility: weatherResponseJson['current']['vis_miles'], // mi
         isStart: false,
         isNotFound: false,
+        hourlyTemps: hourlyTempsExtraction(weatherResponseJson),
         futureWeatherHis: [
           weatherResponseJson['forecast']['forecastday'][1]['day']['maxtemp_c'],
           weatherResponseJson['forecast']['forecastday'][2]['day']['maxtemp_c']
@@ -135,9 +136,22 @@ class WeatherCubit extends Cubit<WeatherPackage> {
         weatherPackage.futureWeatherLos[index] =
             celToFarDouble(weatherPackage.futureWeatherLos[index]);
       }
+      for (int index = 0; index < 24; ++index) {
+        weatherPackage.hourlyTemps[index] =
+            celToFarDouble(weatherPackage.hourlyTemps[index]);
+      }
       weatherPackage.isFahrenheit = true;
     }
     return weatherPackage;
+  }
+
+  List<double> hourlyTempsExtraction(Map<String, dynamic> weatherResponseJson) {
+    List<double> listHourlyTemps = [];
+    for (int index = 0; index < 24; ++index) {
+      listHourlyTemps.add(weatherResponseJson['forecast']['forecastday'][0]
+          ['hour'][index]['temp_c']);
+    }
+    return listHourlyTemps;
   }
 
   void toggleUnits() {
@@ -160,6 +174,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
           visibility: state.visibility,
           isStart: state.isStart,
           isNotFound: state.isNotFound,
+          hourlyTemps: state.hourlyTemps,
           futureWeatherHis: farToCelList(state.futureWeatherHis),
           futureWeatherLos: farToCelList(state.futureWeatherLos),
           futureWeatherStateText: state.futureWeatherStateText,
@@ -183,6 +198,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
           visibility: state.visibility,
           isStart: state.isStart,
           isNotFound: state.isNotFound,
+          hourlyTemps: state.hourlyTemps,
           futureWeatherHis: celToFarList(state.futureWeatherHis),
           futureWeatherLos: celToFarList(state.futureWeatherLos),
           futureWeatherStateText: state.futureWeatherStateText,
@@ -209,6 +225,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
         visibility: state.visibility,
         isStart: false,
         isNotFound: true,
+        hourlyTemps: state.hourlyTemps,
         futureWeatherHis: state.futureWeatherHis,
         futureWeatherLos: state.futureWeatherLos,
         futureWeatherStateText: state.futureWeatherStateText,

@@ -17,6 +17,7 @@ class WeatherPackage {
   double visibility;
   bool isStart;
   bool isNotFound;
+  List<double> hourlyTemps;
   List<double> futureWeatherHis;
   List<double> futureWeatherLos;
   List<String> futureWeatherStateText;
@@ -39,6 +40,7 @@ class WeatherPackage {
       required this.visibility,
       required this.isStart,
       required this.isNotFound,
+      required this.hourlyTemps,
       required this.futureWeatherHis,
       required this.futureWeatherLos,
       required this.futureWeatherStateText,
@@ -62,6 +64,7 @@ class WeatherPackage {
         visibility = -1,
         isStart = true, // Trigger for initial screen (no city yet)
         isNotFound = false,
+        hourlyTemps = List<double>.filled(24, -1),
         futureWeatherHis = List<double>.filled(2, -1),
         futureWeatherLos = List<double>.filled(2, -1),
         futureWeatherStateText = List<String>.filled(2, ''),
