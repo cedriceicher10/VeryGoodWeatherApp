@@ -380,7 +380,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           ),
           lineBarsData: [
             LineChartBarData(
-                spots: spots(weather),
+                spots: dataPoints(weather),
                 isCurved: true,
                 color: _theme.iconColor,
                 belowBarData: BarAreaData(
@@ -463,7 +463,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     return Text(text, style: style, textAlign: TextAlign.left);
   }
 
-  List<FlSpot> spots(WeatherPackage weather) {
+  List<FlSpot> dataPoints(WeatherPackage weather) {
     List<FlSpot> listSpots = [];
     for (int index = 0; index < 24; ++index) {
       listSpots.add(FlSpot(
@@ -474,12 +474,27 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   Widget futureWeatherList(WeatherPackage weather) {
     double widthSpacing = _appSize.spacing / 2;
-    return ListView(scrollDirection: Axis.horizontal, children: [
-      futureWeatherItem(weather, 0),
-      SizedBox(width: widthSpacing),
-      futureWeatherItem(weather, 1),
-      SizedBox(width: widthSpacing),
-    ]);
+
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          futureWeatherItem(weather, 0),
+          SizedBox(width: widthSpacing),
+          futureWeatherItem(weather, 1),
+          SizedBox(width: widthSpacing),
+        ]);
+
+    // This method is for when future cast had more days than
+    // could fit on the screen (hence horizontal scrolling). Currently
+    // Weather API only allows 3 forecast days for free (inluding the day of),
+    // so this'll be binned until that changes.
+    // return ListView(scrollDirection: Axis.horizontal, children: [
+    //   futureWeatherItem(weather, 0),
+    //   SizedBox(width: widthSpacing),
+    //   futureWeatherItem(weather, 1),
+    //   SizedBox(width: widthSpacing),
+    // ]);
   }
 
   Widget futureWeatherItem(WeatherPackage weather, int index) {
