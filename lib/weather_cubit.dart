@@ -41,11 +41,11 @@ class WeatherCubit extends Cubit<WeatherPackage> {
   }
 
   Future<WeatherPackage> getWeatherInfo(String location) async {
-    _myApiKey =
-        await _api.readApiKey(); // For release: Replace with hard-coded key
+    if (_myApiKey == '') {
+      _myApiKey = await _api.readApiKey();
+    }
 
     // CURRENT WEATHER
-
     // https://www.weatherapi.com/api-explorer.aspx
     // Param q: Pass US Zipcode, UK Postcode, Canada Postalcode, IP address,
     //          Latitude/Longitude (decimal degree) or city name
