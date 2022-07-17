@@ -291,9 +291,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
           weather.lowTemp.toStringAsFixed(0), weather.isFahrenheit),
       SizedBox(height: _appSize.spacing / 2),
       weatherStateText(weather.weatherState),
-      SizedBox(height: _appSize.spacing),
+      SizedBox(height: _appSize.spacing * 2),
       weatherHourlyForecast(weather),
-      SizedBox(height: _appSize.spacing),
       Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -342,8 +341,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
       //decoration: BoxDecoration(border: Border.all(color: Colors.blueAccent)),
       child: LineChart(
         LineChartData(
-          minX: 0,
-          maxX: 23,
+          minX: 1,
+          maxX: 24,
           minY: weather.hourlyTemps.reduce(min) - 5,
           maxY: weather.hourlyTemps.reduce(max) + 5,
           titlesData: FlTitlesData(
@@ -357,7 +356,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                reservedSize: 30,
+                getTitlesWidget: hourTitleWidgets,
                 interval: 1,
               ),
             ),
@@ -365,8 +364,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
               sideTitles: SideTitles(
                 showTitles: true,
                 interval: 1,
-                //getTitlesWidget: leftTitleWidgets,
-                reservedSize: 42,
+                getTitlesWidget: tempTitleWidgets,
+                reservedSize: 25,
               ),
             ),
           ),
@@ -374,33 +373,101 @@ class _WeatherScreenState extends State<WeatherScreen> {
           gridData: FlGridData(
             show: true,
             drawVerticalLine: true,
-            horizontalInterval: 15,
-            verticalInterval: 4,
-            getDrawingHorizontalLine: (value) {
-              return FlLine(
-                color: const Color(0xff37434d),
-                strokeWidth: 0.25,
-              );
-            },
-            getDrawingVerticalLine: (value) {
-              return FlLine(
-                color: const Color(0xff37434d),
-                strokeWidth: 0.25,
-              );
-            },
+            horizontalInterval: 1,
+            verticalInterval: 1,
+            getDrawingHorizontalLine: tempGridHorizontalLines,
+            getDrawingVerticalLine: tempGridVerticalLines,
           ),
           lineBarsData: [
-            LineChartBarData(spots: spots(weather), isCurved: true)
+            LineChartBarData(
+                spots: spots(weather),
+                isCurved: true,
+                color: _theme.iconColor,
+                belowBarData: BarAreaData(
+                    show: true, color: _theme.iconColor.withOpacity(0.3)))
           ],
         ),
       ),
     );
   }
 
+  FlLine tempGridVerticalLines(double value) {
+    FlLine verticalLine = FlLine(
+      color: const Color(0xff37434d),
+      strokeWidth: 0.25,
+    );
+    if ((value.toInt() == 1) ||
+        (value.toInt() == 4) ||
+        (value.toInt() == 7) ||
+        (value.toInt() == 10) ||
+        (value.toInt() == 13) ||
+        (value.toInt() == 16) ||
+        (value.toInt() == 19) ||
+        (value.toInt() == 22) ||
+        (value.toInt() == 24)) {
+      return verticalLine;
+    } else {
+      return FlLine(strokeWidth: 0);
+    }
+  }
+
+  FlLine tempGridHorizontalLines(double value) {
+    FlLine horizontalLine = FlLine(
+      color: const Color(0xff37434d),
+      strokeWidth: 0.25,
+    );
+    if (value.toInt() % 10 == 0) {
+      return horizontalLine;
+    } else {
+      return FlLine(strokeWidth: 0);
+    }
+  }
+
+  Widget hourTitleWidgets(double value, TitleMeta meta) {
+    const style = TextStyle(
+      fontSize: 10,
+    );
+    String text;
+    if ((value.toInt() == 1) || (value.toInt() == 24)) {
+      text = '12a';
+    } else if (value.toInt() == 4) {
+      text = '3a';
+    } else if (value.toInt() == 7) {
+      text = '6a';
+    } else if (value.toInt() == 10) {
+      text = '9a';
+    } else if (value.toInt() == 13) {
+      text = '12p';
+    } else if (value.toInt() == 16) {
+      text = '3p';
+    } else if (value.toInt() == 19) {
+      text = '6p';
+    } else if (value.toInt() == 22) {
+      text = '9p';
+    } else {
+      return Container();
+    }
+    return Text(text, style: style, textAlign: TextAlign.center);
+  }
+
+  Widget tempTitleWidgets(double value, TitleMeta meta) {
+    const style = TextStyle(
+      fontSize: 10,
+    );
+    String text;
+    if (value.toInt() % 10 == 0) {
+      text = value.toInt().toString();
+    } else {
+      return Container();
+    }
+    return Text(text, style: style, textAlign: TextAlign.left);
+  }
+
   List<FlSpot> spots(WeatherPackage weather) {
     List<FlSpot> listSpots = [];
     for (int index = 0; index < 24; ++index) {
-      listSpots.add(FlSpot(index.toDouble(), weather.hourlyTemps[index]));
+      listSpots.add(FlSpot(
+          index.toDouble() + 1, weather.hourlyTemps[index].roundToDouble()));
     }
     return listSpots;
   }
@@ -623,7 +690,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           SizedBox(width: _appSize.spacing * 2.5),
           FormattedText(
               text: text,
-              size: _appSize.fontSizeExtraLarge * 1.5,
+              size: _appSize.fontSizeExtraLarge * 1.48,
               color: _theme.textColor,
               font: fontIBMPlexSans,
               weight: FontWeight.bold)

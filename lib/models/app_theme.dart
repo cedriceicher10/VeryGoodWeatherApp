@@ -29,6 +29,7 @@ class AppTheme {
   Color colorFadeTop = Colors.blue;
   Color colorFadeBottom = Colors.white;
   Color textColor = Colors.black;
+  Color iconColor = Colors.white;
 
   AppTheme(this.context);
 
@@ -196,7 +197,7 @@ class AppTheme {
         550 * 350) {
       iconSize = iconSize * reductionFactor;
     }
-    Color iconColor = Colors.blue;
+    iconColor = Colors.blue;
     Icon weatherStateIcon = Icon(
       WeatherIcons.day_sunny,
       color: iconColor,
@@ -205,54 +206,60 @@ class AppTheme {
     switch (weatherStateInt) {
       case WeatherState.snow:
         {
+          iconColor = Colors.white;
           weatherStateIcon = Icon(
             WeatherIcons.snow,
-            color: Colors.white,
+            color: iconColor,
             size: iconSize,
           );
         }
         break;
       case WeatherState.sleet:
         {
+          iconColor = Colors.grey;
           weatherStateIcon = Icon(
             WeatherIcons.sleet,
-            color: Colors.grey,
+            color: iconColor,
             size: iconSize,
           );
         }
         break;
       case WeatherState.hail:
         {
+          iconColor = Colors.grey;
           weatherStateIcon = Icon(
             WeatherIcons.hail,
-            color: Colors.grey,
+            color: iconColor,
             size: iconSize,
           );
         }
         break;
       case WeatherState.thunder:
         {
+          iconColor = Colors.yellow;
           weatherStateIcon = Icon(
             WeatherIcons.thunderstorm,
-            color: Colors.yellow,
+            color: iconColor,
             size: iconSize,
           );
         }
         break;
       case WeatherState.heavyRain:
         {
+          iconColor = const Color(darkBlue);
           weatherStateIcon = Icon(
             WeatherIcons.rain,
-            color: const Color(darkBlue),
+            color: iconColor,
             size: iconSize,
           );
         }
         break;
       case WeatherState.lightRain:
         {
+          iconColor = const Color(darkBlue);
           weatherStateIcon = Icon(
             WeatherIcons.raindrops,
-            color: const Color(darkBlue),
+            color: iconColor,
             size: iconSize,
           );
         }
@@ -260,36 +267,40 @@ class AppTheme {
       // Showers
       case WeatherState.showers:
         {
+          iconColor = const Color(darkBlue);
           weatherStateIcon = Icon(
             WeatherIcons.showers,
-            color: const Color(darkBlue),
+            color: iconColor,
             size: iconSize,
           );
         }
         break;
       case WeatherState.heavyClouds:
         {
+          iconColor = const Color(raisinBlack);
           weatherStateIcon = Icon(
             WeatherIcons.cloudy,
-            color: const Color(raisinBlack),
+            color: iconColor,
             size: iconSize,
           );
         }
         break;
       case WeatherState.lightClouds:
         {
+          iconColor = Colors.white;
           weatherStateIcon = Icon(
             WeatherIcons.cloud,
-            color: Colors.white,
+            color: iconColor,
             size: iconSize,
           );
         }
         break;
       case WeatherState.clear:
         {
+          iconColor = Colors.yellow;
           weatherStateIcon = Icon(
             WeatherIcons.day_sunny,
-            color: Colors.yellow,
+            color: iconColor,
             size: iconSize,
           );
         }
@@ -300,7 +311,7 @@ class AppTheme {
 
   Icon getMetricIcon(String mode) {
     double iconSize = 14;
-    Color iconColor = textColor;
+    iconColor = textColor;
     Icon metricIcon = Icon(
       WeatherIcons.day_sunny,
       color: iconColor,
