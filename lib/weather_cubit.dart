@@ -60,7 +60,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
     Response weatherResponse = await httpClient.get(weatherRequest);
 
     if (weatherResponse.statusCode != 200) {
-      throw ('Location search response code != 200');
+      //throw ('Location search response code != 200');
       return sendBackBadPackage();
     }
 
@@ -69,7 +69,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
     );
 
     if (weatherResponseJson.isEmpty) {
-      throw ('Location search response is empty');
+      //throw ('Location search response is empty');
       return sendBackBadPackage();
     }
 
@@ -254,62 +254,3 @@ class WeatherCubit extends Cubit<WeatherPackage> {
     return temps;
   }
 }
-
-
-// CODE GRAVEYARD 
-
-    // ~~~~~~~~~~~~~ OLD API: WeatherState
-    // // Determine if a city name or lat/lon coordinates
-    // bool locationContainsNumerals = location.contains(RegExp(r'[0-9]'));
-    // // Created using https://www.WeatherState.com/api/
-    // // Find the location and corresponding location id
-    // int locId = await getLocId(location, locationContainsNumerals);
-    // // Find the weather info using the location id
-    // WeatherPackage newWeather = await getWeatherInfo(location, locId);
-    // // Only trigger refresh if new weather is found
-    // bool validateNewWeather = validate(lastWeather, newWeather);
-    // if ((validateNewWeather) || (newWeather.isNotFound)) {
-    //   emit(newWeather);
-    // }
-    // ~~~~~~~~~~~~~ OLD API: WeatherState
-
-
-
-  // Future<int> getLocId(String location, bool isLatLon) async {
-  //   Uri locationSearchRequest;
-  //   //Query for a location search to WeatherState
-  //   if (isLatLon) {
-  //     // Lat Lon
-  //     locationSearchRequest = Uri.https(
-  //         _baseUrlWeatherState,
-  //         _baseApiCallLocationSearch,
-  //         <String, String>{_apiCallLocationSearch: location});
-  //   } else {
-  //     // City name
-  //     locationSearchRequest = Uri.https(
-  //         _baseUrlWeatherState,
-  //         _baseApiCallLocationSearch,
-  //         <String, String>{_apiCallLocation: location});
-  //   }
-  //   Response locationSearchResponse =
-  //       await httpClient.get(locationSearchRequest);
-  //   // Ensure return doesn't have an error status code
-  //   // (typically only happens if passing an empty input)
-  //   if (locationSearchResponse.statusCode != 200) {
-  //     //throw ('Location search response code != 200');
-  //     return -1;
-  //   }
-  //   // Ensure return has an actual location and location id
-  //   List locationSearchResponseJson = jsonDecode(
-  //     locationSearchResponse.body,
-  //   ) as List;
-  //   if (locationSearchResponseJson.isEmpty) {
-  //     //throw ('Location search response code is empty');
-  //     return -1;
-  //   }
-  //   // Save location name (visually pleasing)
-  //   locationNameVisuallyPleasing =
-  //       locationSearchResponseJson[0][WeatherState.locationName];
-  //   // Extract location id
-  //   return locationSearchResponseJson[0][WeatherState.locationId];
-  // }
