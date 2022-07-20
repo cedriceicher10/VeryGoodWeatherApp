@@ -22,6 +22,8 @@ late AppSizing _appSize;
 late AppTheme _theme;
 late WeatherPackage lastWeather;
 
+double _tempRange = 20;
+
 class WeatherScreen extends StatefulWidget {
   const WeatherScreen({Key? key}) : super(key: key);
 
@@ -335,6 +337,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
   }
 
   Widget weatherHourlyForecast(WeatherPackage weather) {
+    _tempRange =
+        weather.hourlyTemps.reduce(max) - weather.hourlyTemps.reduce(min);
     return SizedBox(
       height: 75,
       width: _appSize.textFieldWidth,
@@ -343,8 +347,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
         LineChartData(
           minX: 1,
           maxX: 24,
-          minY: weather.hourlyTemps.reduce(min) - 5,
-          maxY: weather.hourlyTemps.reduce(max) + 5,
+          minY: weather.hourlyTemps.reduce(min) - 4,
+          maxY: weather.hourlyTemps.reduce(max) + 4,
           titlesData: FlTitlesData(
             show: true,
             rightTitles: AxisTitles(
@@ -455,7 +459,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
       fontSize: 10,
     );
     String text;
-    if (value.toInt() % 10 == 0) {
+    if (value.toInt() % graphRange(_tempRange) == 0) {
       text = value.toInt().toString();
     } else {
       return Container();
@@ -470,6 +474,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
           index.toDouble() + 1, weather.hourlyTemps[index].roundToDouble()));
     }
     return listSpots;
+  }
+
+  int graphRange(double tempRange) {
+    if (tempRange < 10) {
+      return 5;
+    }
+    return 10;
   }
 
   Widget futureWeatherList(WeatherPackage weather) {
