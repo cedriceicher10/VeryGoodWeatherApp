@@ -387,8 +387,31 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 spots: dataPoints(weather),
                 isCurved: true,
                 color: _theme.iconColor,
+                shadow: const Shadow(blurRadius: 8, color: Colors.black),
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(raisinBlack),
+                    _theme.iconColor,
+                    _theme.iconColor,
+                    const Color(raisinBlack),
+                  ],
+                  stops: const [0.1, 0.3, 0.9, 0.95],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
                 belowBarData: BarAreaData(
-                    show: true, color: _theme.iconColor.withOpacity(0.3)))
+                    show: true,
+                    gradient: LinearGradient(
+                        colors: [
+                          const Color(darkBlue).withOpacity(0.3),
+                          const Color(darkBlue).withOpacity(0.3),
+                          Colors.yellow.withOpacity(0.3),
+                          Colors.yellow.withOpacity(0.3),
+                          Colors.yellow.withOpacity(0.3),
+                          const Color(darkBlue).withOpacity(0.3),
+                        ],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight)))
           ],
         ),
       ),
