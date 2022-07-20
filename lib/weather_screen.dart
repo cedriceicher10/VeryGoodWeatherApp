@@ -804,7 +804,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   Widget notFoundText() {
     String text =
-        'Simple Weather attempts to return the nearest weather location.\n\n The location you chose could not be found or does not have weather data at this time. \nPlease try again.\n\nTip:\nTry big cities (e.g. San Diego, CA) or even \ncoordinates with the format \n33.8121, -117.9190. \n\nAnd be sure to check your spelling!';
+        'Simple Weather could not find weather for the entered location.\n\nTip:\nTry a city name, coordinates, postal code (US/UK/CAN), or even country/region name! \n\nAnd be sure to check your spelling!';
     return SizedBox(
         width: _appSize.weatherContainerWidth,
         child: FormattedText(
