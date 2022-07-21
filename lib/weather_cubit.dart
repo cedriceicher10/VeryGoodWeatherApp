@@ -87,6 +87,8 @@ class WeatherCubit extends Cubit<WeatherPackage> {
     // Convert from the WeatherState JSON package to WeatherPackage object
     WeatherPackage weatherPackage = WeatherPackage(
         locationName: weatherResponseJson['location']['name'],
+        regionName: weatherResponseJson['location']['region'],
+        countryName: weatherResponseJson['location']['country'],
         updateTime: _time.convertZuluTime(
             weatherResponseJson['current']['last_updated_epoch']),
         currentTemp: weatherResponseJson['current']['temp_c'], // C
@@ -159,6 +161,8 @@ class WeatherCubit extends Cubit<WeatherPackage> {
     if (state.isFahrenheit) {
       emit(WeatherPackage(
           locationName: state.locationName,
+          regionName: state.regionName,
+          countryName: state.countryName,
           updateTime: state.updateTime,
           currentTemp: farToCelDouble(state.currentTemp),
           highTemp: farToCelDouble(state.highTemp),
@@ -183,6 +187,8 @@ class WeatherCubit extends Cubit<WeatherPackage> {
       // C to F
       emit(WeatherPackage(
           locationName: state.locationName,
+          regionName: state.regionName,
+          countryName: state.countryName,
           updateTime: state.updateTime,
           currentTemp: celToFarDouble(state.currentTemp),
           highTemp: celToFarDouble(state.highTemp),
@@ -210,6 +216,8 @@ class WeatherCubit extends Cubit<WeatherPackage> {
     // Bad package is for when location/weather isn't found
     return WeatherPackage(
         locationName: state.locationName,
+        regionName: state.regionName,
+        countryName: state.countryName,
         updateTime: state.updateTime,
         currentTemp: state.currentTemp,
         highTemp: state.highTemp,

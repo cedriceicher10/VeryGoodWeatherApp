@@ -284,6 +284,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         child: SingleChildScrollView(
             child: Column(children: [
       weatherTitle(weather.locationName),
+      weatherLocationTitle(weather.regionName, weather.countryName),
       updateTimeText('Weather last updated at ${weather.updateTime}'),
       SizedBox(height: _appSize.spacing),
       currentTempText(weather.currentTemp.toStringAsFixed(0),
@@ -710,6 +711,16 @@ class _WeatherScreenState extends State<WeatherScreen> {
         color: _theme.textColor,
         font: fontIBMPlexSans,
         weight: FontWeight.bold);
+  }
+
+  Widget weatherLocationTitle(String region, String country) {
+    return FormattedText(
+        text: region + ', ' + country,
+        size: _appSize.fontSizeExtraSmall,
+        color: _theme.textColor,
+        font: fontIBMPlexSans,
+        weight: FontWeight.bold,
+        style: FontStyle.italic);
   }
 
   Widget updateTimeText(String text) {

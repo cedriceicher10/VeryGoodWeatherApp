@@ -2,6 +2,8 @@
 
 class WeatherPackage {
   String locationName;
+  String regionName;
+  String countryName;
   String updateTime;
   double currentTemp;
   double highTemp;
@@ -25,6 +27,8 @@ class WeatherPackage {
 
   WeatherPackage(
       {required this.locationName,
+      required this.regionName,
+      required this.countryName,
       required this.updateTime,
       required this.currentTemp,
       required this.highTemp,
@@ -49,6 +53,8 @@ class WeatherPackage {
   // Initialize is intended for use in WeatherCubit on initalization
   WeatherPackage.initialize()
       : locationName = '',
+        regionName = '',
+        countryName = '',
         updateTime = '',
         currentTemp = -1,
         highTemp = -1,
