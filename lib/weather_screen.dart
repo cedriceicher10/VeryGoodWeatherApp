@@ -348,8 +348,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
         LineChartData(
           minX: 1,
           maxX: 24,
-          minY: weather.hourlyTemps.reduce(min) - 4,
-          maxY: weather.hourlyTemps.reduce(max) + 4,
+          minY: weather.hourlyTemps.reduce(min) - 3,
+          maxY: weather.hourlyTemps.reduce(max) + 3,
           titlesData: FlTitlesData(
             show: true,
             rightTitles: AxisTitles(
@@ -387,16 +387,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
             LineChartBarData(
                 spots: dataPoints(weather),
                 isCurved: true,
-                color: _theme.iconColor,
                 shadow: const Shadow(blurRadius: 8, color: Colors.black),
                 gradient: LinearGradient(
-                  colors: [
-                    const Color(raisinBlack),
-                    _theme.iconColor,
-                    _theme.iconColor,
-                    const Color(raisinBlack),
-                  ],
-                  stops: const [0.1, 0.3, 0.9, 0.95],
+                  colors: dataPointColors(weather),
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
@@ -417,6 +410,42 @@ class _WeatherScreenState extends State<WeatherScreen> {
         ),
       ),
     );
+  }
+
+  List<Color> dataPointColors(WeatherPackage weather) {
+    List<Color> listColors = [];
+    double minTemp = weather.hourlyTemps.reduce(min).roundToDouble();
+    double maxTemp = weather.hourlyTemps.reduce(max).roundToDouble();
+    bool minTempMarked = false;
+    bool maxTempMarked = false;
+    double indexTemp;
+    for (int index = 0; index < 24; ++index) {
+      indexTemp = weather.hourlyTemps[index].roundToDouble();
+      if ((indexTemp == maxTemp) && (maxTempMarked == false)) {
+        listColors.add(Colors.red);
+        maxTempMarked = true;
+      } else if ((indexTemp == minTemp) && (minTempMarked == false)) {
+        listColors.add(Colors.blue);
+        minTempMarked = true;
+      } else {
+        if ((index < 6) || (index > 19)) {
+          listColors.add(const Color.fromARGB(
+              255, 49, 60, 85)); // Darkness pre sunrise / post sunset
+        } else {
+          listColors.add(const Color.fromARGB(255, 252, 239, 124)); // Daytime
+        }
+      }
+    }
+    return listColors;
+  }
+
+  List<FlSpot> dataPoints(WeatherPackage weather) {
+    List<FlSpot> listSpots = [];
+    for (int index = 0; index < 24; ++index) {
+      listSpots.add(FlSpot(
+          index.toDouble() + 1, weather.hourlyTemps[index].roundToDouble()));
+    }
+    return listSpots;
   }
 
   FlLine tempGridVerticalLines(double value) {
@@ -444,7 +473,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
       color: const Color(0xff37434d),
       strokeWidth: 0.25,
     );
-    if (value.toInt() % 10 == 0) {
+    if (value.toInt() % graphRange(_tempRange) == 0) {
       return horizontalLine;
     } else {
       return FlLine(strokeWidth: 0);
@@ -483,21 +512,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
       fontSize: 10,
     );
     String text;
-    if (value.toInt() % graphRange(_tempRange) == 0) {
+    int val = value.roundToDouble().toInt();
+    if (val % graphRange(_tempRange) == 0) {
       text = value.toInt().toString();
     } else {
       return Container();
     }
     return Text(text, style: style, textAlign: TextAlign.left);
-  }
-
-  List<FlSpot> dataPoints(WeatherPackage weather) {
-    List<FlSpot> listSpots = [];
-    for (int index = 0; index < 24; ++index) {
-      listSpots.add(FlSpot(
-          index.toDouble() + 1, weather.hourlyTemps[index].roundToDouble()));
-    }
-    return listSpots;
   }
 
   int graphRange(double tempRange) {
