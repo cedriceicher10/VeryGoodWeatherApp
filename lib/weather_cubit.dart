@@ -89,6 +89,8 @@ class WeatherCubit extends Cubit<WeatherPackage> {
         locationName: weatherResponseJson['location']['name'],
         regionName: weatherResponseJson['location']['region'],
         countryName: weatherResponseJson['location']['country'],
+        currentTime:
+            _time.scrapeTime24Hr(weatherResponseJson['location']['localtime']),
         updateTime: _time.convertZuluTime(
             weatherResponseJson['current']['last_updated_epoch']),
         currentTemp: weatherResponseJson['current']['temp_c'], // C
@@ -163,6 +165,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
           locationName: state.locationName,
           regionName: state.regionName,
           countryName: state.countryName,
+          currentTime: state.currentTime,
           updateTime: state.updateTime,
           currentTemp: farToCelDouble(state.currentTemp),
           highTemp: farToCelDouble(state.highTemp),
@@ -189,6 +192,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
           locationName: state.locationName,
           regionName: state.regionName,
           countryName: state.countryName,
+          currentTime: state.currentTime,
           updateTime: state.updateTime,
           currentTemp: celToFarDouble(state.currentTemp),
           highTemp: celToFarDouble(state.highTemp),
@@ -218,6 +222,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
         locationName: state.locationName,
         regionName: state.regionName,
         countryName: state.countryName,
+        currentTime: state.currentTime,
         updateTime: state.updateTime,
         currentTemp: state.currentTemp,
         highTemp: state.highTemp,

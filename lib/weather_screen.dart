@@ -23,6 +23,7 @@ late AppTheme _theme;
 late WeatherPackage lastWeather;
 
 double _tempRange = 20;
+double _currTimeHrs = 12;
 
 class WeatherScreen extends StatefulWidget {
   const WeatherScreen({Key? key}) : super(key: key);
@@ -340,6 +341,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
   Widget weatherHourlyForecast(WeatherPackage weather) {
     _tempRange =
         weather.hourlyTemps.reduce(max) - weather.hourlyTemps.reduce(min);
+    _currTimeHrs = _time.calculateTimeLine(weather.currentTime);
     return SizedBox(
       height: 75,
       width: _appSize.textFieldWidth,
@@ -379,7 +381,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
             show: true,
             drawVerticalLine: true,
             horizontalInterval: 1,
-            verticalInterval: 1,
+            verticalInterval: 0.1,
             getDrawingHorizontalLine: tempGridHorizontalLines,
             getDrawingVerticalLine: tempGridVerticalLines,
           ),
@@ -451,17 +453,24 @@ class _WeatherScreenState extends State<WeatherScreen> {
   FlLine tempGridVerticalLines(double value) {
     FlLine verticalLine = FlLine(
       color: const Color(0xff37434d),
-      strokeWidth: 0.25,
+      strokeWidth: 0.5,
     );
-    if ((value.toInt() == 1) ||
-        (value.toInt() == 4) ||
-        (value.toInt() == 7) ||
-        (value.toInt() == 10) ||
-        (value.toInt() == 13) ||
-        (value.toInt() == 16) ||
-        (value.toInt() == 19) ||
-        (value.toInt() == 22) ||
-        (value.toInt() == 24)) {
+    FlLine timeLine = FlLine(
+      color: const Color.fromARGB(255, 71, 105, 255),
+      strokeWidth: 3,
+    );
+    double valueRounded = double.parse(value.toStringAsFixed(1));
+    if ((_currTimeHrs + 1) == valueRounded) {
+      return timeLine;
+    } else if ((valueRounded == 1.0) ||
+        (valueRounded == 4.0) ||
+        (valueRounded == 7.0) ||
+        (valueRounded == 10.0) ||
+        (valueRounded == 13.0) ||
+        (valueRounded == 16.0) ||
+        (valueRounded == 19.0) ||
+        (valueRounded == 22.0) ||
+        (valueRounded == 24.0)) {
       return verticalLine;
     } else {
       return FlLine(strokeWidth: 0);
@@ -471,7 +480,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
   FlLine tempGridHorizontalLines(double value) {
     FlLine horizontalLine = FlLine(
       color: const Color(0xff37434d),
-      strokeWidth: 0.25,
+      strokeWidth: 0.5,
     );
     if (value.toInt() % graphRange(_tempRange) == 0) {
       return horizontalLine;

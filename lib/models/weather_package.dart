@@ -4,6 +4,7 @@ class WeatherPackage {
   String locationName;
   String regionName;
   String countryName;
+  String currentTime;
   String updateTime;
   double currentTemp;
   double highTemp;
@@ -29,6 +30,7 @@ class WeatherPackage {
       {required this.locationName,
       required this.regionName,
       required this.countryName,
+      required this.currentTime,
       required this.updateTime,
       required this.currentTemp,
       required this.highTemp,
@@ -55,6 +57,7 @@ class WeatherPackage {
       : locationName = '',
         regionName = '',
         countryName = '',
+        currentTime = '',
         updateTime = '',
         currentTemp = -1,
         highTemp = -1,

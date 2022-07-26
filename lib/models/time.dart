@@ -18,13 +18,32 @@ class Time {
     return futureDays;
   }
 
-  // Converts the last updated zulu time of the weather to local time in h:mm AMPM format (e.g. 7:50PM)
+  // Converts the zulu time of the weather to local time in h:mm AMPM format (e.g. 7:50PM)
   String convertZuluTime(int timeZulu) {
     DateTime dateTimeGMT = DateTime.fromMillisecondsSinceEpoch(timeZulu * 1000);
 
     //var dateTime = DateFormat("yyyy-MM-dd HH:mm").parse(timeZulu, true);
     String formattedDate = DateFormat('h:mma').format(dateTimeGMT);
     return formattedDate;
+  }
+
+  String scrapeTime24Hr(String localtime) {
+    String scrapedTime = localtime.substring(localtime.length - 5);
+    return scrapedTime;
+  }
+
+  double calculateTimeLine(String currTime) {
+    String hrs = currTime.substring(0, 2);
+    if (hrs.endsWith(':')) {
+      hrs = hrs.substring(0, hrs.length - 1);
+    }
+    if (hrs.startsWith(' ')) {
+      hrs = hrs.trimLeft();
+    }
+    String minsString = currTime.substring(currTime.length - 2);
+    double mins =
+        double.parse((double.parse(minsString) / 60).toStringAsFixed(1));
+    return double.parse(hrs) + mins;
   }
 
   // Generates future day names from a passed in day name
