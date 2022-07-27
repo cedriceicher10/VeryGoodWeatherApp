@@ -286,7 +286,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
             child: Column(children: [
       weatherTitle(weather.locationName),
       weatherLocationTitle(weather.regionName, weather.countryName),
-      updateTimeText('Weather last updated at ${weather.updateTime}'),
+      updateTimeText('Last updated ${weather.updateTime}'),
       SizedBox(height: _appSize.spacing),
       currentTempText(weather.currentTemp.toStringAsFixed(0),
           weather.isFahrenheit, weather.weatherCode),
@@ -345,7 +345,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
     return SizedBox(
       height: 75,
       width: _appSize.textFieldWidth,
-      //decoration: BoxDecoration(border: Border.all(color: Colors.blueAccent)),
       child: LineChart(
         LineChartData(
           minX: 1,
