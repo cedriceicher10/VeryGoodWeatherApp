@@ -40,6 +40,10 @@ class _WeatherScreenState extends State<WeatherScreen> {
   Widget build(BuildContext context) {
     _appSize = AppSizing(context);
     _theme = AppTheme(context);
+    // Prominent disclosure on location usage
+    Future.delayed(Duration.zero, () {
+      return showLocationDisclosureAlert();
+    });
     // The GestureDetector allows taps by the user to dismiss the keyboard
     return GestureDetector(
         onTap: () {
@@ -83,6 +87,42 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     ]),
                   ));
             })));
+  }
+
+  dynamic showLocationDisclosureAlert() {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return locationDisclosureAlert();
+      },
+    );
+  }
+
+  AlertDialog locationDisclosureAlert() {
+    return AlertDialog(
+      title: Text("Location Disclosure"),
+      content: Text(
+          "Simple Weather collects location data to deliver weather information in your area. This feature may be in use when the app is in the background."),
+      actions: <Widget>[
+        // usually buttons at the bottom of the dialog
+        TextButton(
+          child: Text("Dismiss Forever (I do not want to give my location)"),
+          onPressed: () {
+            // // Close the dialog
+            Navigator.of(context).pop();
+            // prefs.setBool(keyIsFirstLoaded, false);
+          },
+        ),
+        TextButton(
+          child: Text("Acknowledge (permission will always be asked)"),
+          onPressed: () {
+            // // Close the dialog
+            Navigator.of(context).pop();
+            // prefs.setBool(keyIsFirstLoaded, false);
+          },
+        )
+      ],
+    );
   }
 
   Widget bottomDisplayContainer(WeatherPackage weather) {
