@@ -110,8 +110,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
   getUserWeatherOnStart() async {
     // Get location
     await _userLocation.getLocation();
-    if (!_userLocation.denied) {
+    if (_userLocation.permitted) {
       String latLonQuery = "${_userLocation.userLat},${_userLocation.userLon}";
+      // Show snack bar
+      ScaffoldMessenger.of(context)
+          .showSnackBar(snackBarFloating('Finding your location...', 1));
       // Get weather at that lat, lon location
       context.read<WeatherCubit>().getWeather(latLonQuery, lastWeather);
     }
@@ -132,7 +135,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           // Show snack bar (for refreshes)
           if (lastWeather.locationName == _text.value.text) {
             ScaffoldMessenger.of(context).showSnackBar(
-                snackBarFloating('Checking for updated weather...', true));
+                snackBarFloating('Checking for updated weather...', 2));
           }
           // REMOVED FOR NOW: WEATHER API MAY NOT NEED THIS GEO CATCH
           // // Geocode to get lat/lon to allow for 'nearest available' weather
@@ -150,8 +153,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
           // Get weather for current city
           context.read<WeatherCubit>().getWeather(latLonQuery, lastWeather);
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-              snackBarFloating('The search bar is empty!', false));
+          ScaffoldMessenger.of(context)
+              .showSnackBar(snackBarFloating('The search bar is empty!', 3));
         }
       },
       style: TextStyle(color: _theme.textColor),
@@ -179,12 +182,12 @@ class _WeatherScreenState extends State<WeatherScreen> {
           }
           // Get location
           await _userLocation.getLocation();
-          if (!_userLocation.denied) {
+          if (_userLocation.permitted) {
             String latLonQuery =
                 "${_userLocation.userLat},${_userLocation.userLon}";
-            // Show snack bar (for refreshes)
-            ScaffoldMessenger.of(context).showSnackBar(
-                snackBarFloating('Checking for updated weather...', true));
+            // Show snack bar
+            ScaffoldMessenger.of(context)
+                .showSnackBar(snackBarFloating('Finding your location...', 1));
             // Get weather at that lat, lon location
             context.read<WeatherCubit>().getWeather(latLonQuery, lastWeather);
           }
@@ -217,7 +220,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
             // Show snack bar (for refreshes)
             if (lastWeather.locationName == _text.value.text) {
               ScaffoldMessenger.of(context).showSnackBar(
-                  snackBarFloating('Checking for updated weather...', true));
+                  snackBarFloating('Checking for updated weather...', 2));
             }
             // REMOVED FOR NOW: WEATHER API MAY NOT NEED THIS GEO CATCH
             // // Geocode to get lat/lon to allow for 'nearest available' weather
@@ -235,8 +238,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
             // Get weather for the text entered
             context.read<WeatherCubit>().getWeather(latLonQuery, lastWeather);
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-                snackBarFloating('The search bar is empty!', false));
+            ScaffoldMessenger.of(context)
+                .showSnackBar(snackBarFloating('The search bar is empty!', 3));
           }
         },
         style: ElevatedButton.styleFrom(
@@ -629,7 +632,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           }
           // Show snack bar (for refreshes)
           ScaffoldMessenger.of(context).showSnackBar(
-              snackBarFloating('Checked for updated weather...', true));
+              snackBarFloating('Checked for updated weather...', 2));
           // Get weather for current city
           context
               .read<WeatherCubit>()
@@ -667,11 +670,30 @@ class _WeatherScreenState extends State<WeatherScreen> {
     }
   }
 
-  SnackBar snackBarFloating(String text, bool isRefresh) {
-    Color? snackBarColor = Colors.yellow[700]!.withOpacity(0.95);
-    if (!isRefresh) {
-      snackBarColor = Colors.red[500]!.withOpacity(0.9);
+  SnackBar snackBarFloating(String text, int mode) {
+    // Modes
+    // 1: Location
+    // 2: Refresh
+    // 3: Warning
+    Color? snackBarColor = Colors.grey.withOpacity(0.75);
+    switch (mode) {
+      case 1:
+        {
+          snackBarColor = Colors.blue.withOpacity(0.8);
+        }
+        break;
+      case 2:
+        {
+          snackBarColor = Colors.yellow[700]!.withOpacity(0.95);
+        }
+        break;
+      case 3:
+        {
+          snackBarColor = Colors.red[500]!.withOpacity(0.9);
+        }
+        break;
     }
+
     return SnackBar(
       content: snackBarText(text),
       backgroundColor: snackBarColor,

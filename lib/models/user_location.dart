@@ -6,10 +6,11 @@ Location location = Location();
 class UserLocation {
   double userLat = 0;
   double userLon = 0;
-  bool denied =
+  bool permitted =
       false; // Used for lookups to stop infinite "ask for location" loop
 
   Future<void> getLocation() async {
+    permitted = false;
     // Adapted from: https://pub.dev/packages/location
     bool _serviceEnabled;
     PermissionStatus _permissionGranted;
@@ -23,17 +24,19 @@ class UserLocation {
       }
     }
     _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
+    if (_permissionGranted == PermissionStatus.granted) {
+      permitted = true;
+    } else {
       _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-        denied = true;
-        return;
-      } else {
-        denied = false;
+      if (_permissionGranted == PermissionStatus.granted) {
+        permitted = true;
       }
     }
-    _locationData = await location.getLocation();
-    userLat = _locationData.latitude!;
-    userLon = _locationData.longitude!;
+    if (permitted) {
+      _locationData = await location.getLocation();
+      userLat = _locationData.latitude!;
+      userLon = _locationData.longitude!;
+    }
+    return;
   }
 }
