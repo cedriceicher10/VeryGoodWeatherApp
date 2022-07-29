@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:geocoding/geocoding.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/gestures.dart';
@@ -24,6 +25,7 @@ late WeatherPackage lastWeather;
 
 double _tempRange = 20;
 double _currTimeHrs = 12;
+bool _isFirstBuild = true;
 
 class WeatherScreen extends StatefulWidget {
   const WeatherScreen({Key? key}) : super(key: key);
@@ -42,7 +44,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     _theme = AppTheme(context);
     // Prominent disclosure on location usage
     Future.delayed(Duration.zero, () {
-      return showLocationDisclosureAlert();
+      return showLocationDisclosureDetermination(context);
     });
     // The GestureDetector allows taps by the user to dismiss the keyboard
     return GestureDetector(
@@ -62,9 +64,10 @@ class _WeatherScreenState extends State<WeatherScreen> {
             body: BlocBuilder<WeatherCubit, WeatherPackage>(
                 builder: (context, weather) {
               lastWeather = weather;
-              if (weather.isStart) {
+              if ((weather.isStart) && (_isFirstBuild)) {
                 // User location on start
                 getUserWeatherOnStart();
+                _isFirstBuild = false;
               }
               return Container(
                   padding: const EdgeInsets.only(bottom: 20),
@@ -80,7 +83,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           children: [
                             myLocationButton(),
                             SizedBox(width: _appSize.spacing),
-                            searchButton()
+                            searchButton(),
                           ]),
                       SizedBox(height: _appSize.spacing),
                       bottomDisplayContainer(weather),
@@ -89,36 +92,56 @@ class _WeatherScreenState extends State<WeatherScreen> {
             })));
   }
 
-  dynamic showLocationDisclosureAlert() {
+  showLocationDisclosureDetermination(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool? showLocationDisclosure = prefs.getBool('showLocationDisclosure');
+    if ((showLocationDisclosure == null) || (showLocationDisclosure == true)) {
+      showLocationDisclosureAlert(prefs);
+      prefs.setBool('showLocationDisclosure', false);
+    }
+  }
+
+  dynamic showLocationDisclosureAlert(SharedPreferences prefs) {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
-        return locationDisclosureAlert();
+        return locationDisclosureAlert(prefs);
       },
     );
   }
 
-  AlertDialog locationDisclosureAlert() {
+  AlertDialog locationDisclosureAlert(SharedPreferences prefs) {
     return AlertDialog(
-      title: Text("Location Disclosure"),
-      content: Text(
-          "Simple Weather collects location data to deliver weather information in your area. This feature may be in use when the app is in the background."),
+      title: const Text(
+        "Location Disclosure",
+        style: TextStyle(
+            color: Colors.transparent,
+            fontWeight: FontWeight.bold,
+            shadows: [Shadow(offset: Offset(0, -3), color: Colors.black)],
+            decoration: TextDecoration.underline,
+            decorationColor: Colors.black,
+            decorationThickness: 1),
+      ),
+      content: const Text(
+          "Simple Weather collects location data to deliver weather information in your area. This feature may be in use when the app is in the background. \n\nSimple Weather will ALWAYS ask your permission before turning on your location services."),
       actions: <Widget>[
-        // usually buttons at the bottom of the dialog
         TextButton(
-          child: Text("Dismiss Forever (I do not want to give my location)"),
+          child: const Text("Dismiss Forever (No location services)"),
+          style: TextButton.styleFrom(primary: Colors.red),
           onPressed: () {
-            // // Close the dialog
             Navigator.of(context).pop();
-            // prefs.setBool(keyIsFirstLoaded, false);
+            prefs.setBool('noLocationForever', true);
           },
         ),
         TextButton(
-          child: Text("Acknowledge (permission will always be asked)"),
+          child: const Text("Acknowledge",
+              style: TextStyle(fontWeight: FontWeight.bold)),
+          style: TextButton.styleFrom(
+              primary: Colors.white,
+              backgroundColor: const Color.fromARGB(255, 18, 148, 23)),
           onPressed: () {
-            // // Close the dialog
             Navigator.of(context).pop();
-            // prefs.setBool(keyIsFirstLoaded, false);
+            prefs.setBool('noLocationForever', false);
           },
         )
       ],
@@ -127,7 +150,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   Widget bottomDisplayContainer(WeatherPackage weather) {
     if (weather.isStart) {
-      return signatureText('An App by Cedric Eicher');
+      return Column(children: [
+        signatureText('An App by Cedric Eicher'),
+        SizedBox(height: _appSize.spacing),
+        locationDisclosureButton()
+      ]);
     }
     return // Fade upon reloads to alert user something is happening
         Expanded(
@@ -139,7 +166,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
       SizedBox(height: _appSize.spacing),
       toggleAndRefreshButtons(weather),
       SizedBox(height: _appSize.spacing),
-      signatureText('An App by Cedric Eicher')
+      signatureText('An App by Cedric Eicher'),
+      SizedBox(height: _appSize.spacing),
+      locationDisclosureButton(),
     ])));
   }
 
@@ -148,15 +177,25 @@ class _WeatherScreenState extends State<WeatherScreen> {
   // ===========================================================================
 
   getUserWeatherOnStart() async {
-    // Get location
-    await _userLocation.getLocation();
-    if (_userLocation.permitted) {
-      String latLonQuery = "${_userLocation.userLat},${_userLocation.userLon}";
-      // Show snack bar
-      ScaffoldMessenger.of(context)
-          .showSnackBar(snackBarFloating('Finding your location...', 1));
-      // Get weather at that lat, lon location
-      context.read<WeatherCubit>().getWeather(latLonQuery, lastWeather);
+    // First time start or choosing no location forever will inhbit this automatic location on start
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool? showLocationDisclosure = prefs.getBool('showLocationDisclosure');
+    bool? noLocationForever = prefs.getBool('noLocationForever');
+
+    if (((noLocationForever == null) || (noLocationForever == false)) &&
+        ((showLocationDisclosure == null) ||
+            (showLocationDisclosure == false))) {
+      // Get location
+      await _userLocation.getLocation();
+      if (_userLocation.permitted) {
+        String latLonQuery =
+            "${_userLocation.userLat},${_userLocation.userLon}";
+        // Show snack bar
+        ScaffoldMessenger.of(context)
+            .showSnackBar(snackBarFloating('Finding your location...', 1));
+        // Get weather at that lat, lon location
+        context.read<WeatherCubit>().getWeather(latLonQuery, lastWeather);
+      }
     }
   }
 
@@ -220,16 +259,25 @@ class _WeatherScreenState extends State<WeatherScreen> {
           if (!currentFocus.hasPrimaryFocus) {
             currentFocus.unfocus();
           }
-          // Get location
-          await _userLocation.getLocation();
-          if (_userLocation.permitted) {
-            String latLonQuery =
-                "${_userLocation.userLat},${_userLocation.userLon}";
-            // Show snack bar
-            ScaffoldMessenger.of(context)
-                .showSnackBar(snackBarFloating('Finding your location...', 1));
-            // Get weather at that lat, lon location
-            context.read<WeatherCubit>().getWeather(latLonQuery, lastWeather);
+
+          // Only get location if user hasn't chosen no location forever from location disclosure
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          bool? noLocationForever = prefs.getBool('noLocationForever');
+
+          if ((noLocationForever == null) || (noLocationForever == false)) {
+            // Get location
+            await _userLocation.getLocation();
+            if (_userLocation.permitted) {
+              String latLonQuery =
+                  "${_userLocation.userLat},${_userLocation.userLon}";
+              // Show snack bar
+              ScaffoldMessenger.of(context).showSnackBar(
+                  snackBarFloating('Finding your location...', 1));
+              // Get weather at that lat, lon location
+              context.read<WeatherCubit>().getWeather(latLonQuery, lastWeather);
+            }
+          } else {
+            showLocationDisclosureAlert(prefs);
           }
         },
         style: ElevatedButton.styleFrom(
@@ -318,7 +366,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
       return Container(
           width: _appSize.weatherContainerWidth,
           //height: _appSize.weatherContainerHeight, // Doesn't need to be restricted
-          padding: EdgeInsets.all(_appSize.spacing),
+          //padding: EdgeInsets.all(_appSize.spacing), // Turn this back on if edge limits start becoming a problem...
           child: weatherDisplay(weather));
     }
   }
@@ -695,21 +743,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
         ]));
   }
 
-  Widget scrollForMoreIcon(WeatherPackage weather) {
-    if (weather.isStart) {
-      // Empty container before city has been chosen
-      return Container();
-    } else {
-      double iconSize = 20;
-      Color iconColor = _theme.textColor;
-      return Icon(
-        Icons.arrow_drop_down,
-        color: iconColor,
-        size: iconSize,
-      );
-    }
-  }
-
   SnackBar snackBarFloating(String text, int mode) {
     // Modes
     // 1: Location
@@ -925,6 +958,39 @@ class _WeatherScreenState extends State<WeatherScreen> {
               if (!await launch(url)) throw 'Could not launch $url';
             }),
     );
+  }
+
+  Widget locationDisclosureButton() {
+    return SizedBox(
+        height: 30,
+        width: 125,
+        child: DecoratedBox(
+            decoration: const BoxDecoration(
+                color: Color.fromARGB(255, 0, 97, 177),
+                borderRadius: BorderRadius.all(Radius.circular(50))),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Icon(Icons.location_on, size: 12, color: Colors.yellow),
+                  TextButton(
+                      style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                      child: locationDisclosureText('Location Disclosure'),
+                      onPressed: () async {
+                        SharedPreferences prefs =
+                            await SharedPreferences.getInstance();
+                        showLocationDisclosureAlert(prefs);
+                      })
+                ])));
+  }
+
+  Widget locationDisclosureText(String text) {
+    return FormattedText(
+        text: text,
+        size: _appSize.fontSizeExtraSmall * 0.8,
+        color: Colors.white,
+        font: fontIBMPlexSans,
+        weight: FontWeight.bold);
   }
 
   Widget notFoundText() {
