@@ -95,9 +95,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
   showLocationDisclosureDetermination(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool? showLocationDisclosure = prefs.getBool('showLocationDisclosure');
+    //prefs.setBool('showLocationDisclosure', true); // To simulate first-install, first-open
     if ((showLocationDisclosure == null) || (showLocationDisclosure == true)) {
       showLocationDisclosureAlert(prefs);
-      prefs.setBool('showLocationDisclosure', false);
     }
   }
 
@@ -131,6 +131,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           onPressed: () {
             Navigator.of(context).pop();
             prefs.setBool('noLocationForever', true);
+            prefs.setBool('showLocationDisclosure', false);
           },
         ),
         TextButton(
@@ -142,6 +143,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           onPressed: () {
             Navigator.of(context).pop();
             prefs.setBool('noLocationForever', false);
+            prefs.setBool('showLocationDisclosure', false);
           },
         )
       ],
