@@ -123,7 +123,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
             decorationThickness: 1),
       ),
       content: const Text(
-          "Simple Weather collects location data to deliver weather information in your area. This feature may be in use when the app is in the background. \n\nSimple Weather will ALWAYS ask your permission before turning on your location services."),
+          "Simple Weather may use your location data to deliver weather information in your area. This feature will only be used with your permission and when the app is in use. \n\nSimple Weather will ALWAYS ask your permission before turning on your location services."),
       actions: <Widget>[
         TextButton(
           child: const Text("Dismiss Forever (No location services)"),
@@ -184,9 +184,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
     bool? showLocationDisclosure = prefs.getBool('showLocationDisclosure');
     bool? noLocationForever = prefs.getBool('noLocationForever');
 
-    if (((noLocationForever == null) || (noLocationForever == false)) &&
-        ((showLocationDisclosure == null) ||
-            (showLocationDisclosure == false))) {
+    // Issues here: if both are NULL, then the if statement is TRUE
+    // Only check for weather on start if:
+    // - noLocationForever is false
+    // - showLocationDisclosure is false
+
+    if ((!((noLocationForever == null) && (showLocationDisclosure == null))) ||
+        ((noLocationForever == false) && (showLocationDisclosure == false))) {
       // Get location
       await _userLocation.getLocation();
       if (_userLocation.permitted) {
