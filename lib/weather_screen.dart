@@ -12,6 +12,7 @@ import 'package:verygoodweatherapp/weather_cubit.dart';
 import 'package:verygoodweatherapp/models/app_sizing.dart';
 import 'package:verygoodweatherapp/models/app_theme.dart';
 import 'package:verygoodweatherapp/models/weather_state.dart';
+import 'package:verygoodweatherapp/models/exception_services.dart';
 import 'package:verygoodweatherapp/models/time.dart';
 import 'package:verygoodweatherapp/models/user_location.dart';
 import 'package:verygoodweatherapp/utils/formatted_text.dart';
@@ -37,6 +38,7 @@ class WeatherScreen extends StatefulWidget {
 class _WeatherScreenState extends State<WeatherScreen> {
   final TextEditingController _text = TextEditingController();
   final UserLocation _userLocation = UserLocation();
+  final ExceptionServices _exception = ExceptionServices();
 
   @override
   Widget build(BuildContext context) {
@@ -223,7 +225,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 snackBarFloating('Checking for updated weather...', 2));
           }
           // REMOVED FOR NOW: WEATHER API MAY NOT NEED THIS GEO CATCH
-          // // Geocode to get lat/lon to allow for 'nearest available' weather
+          // Geocode to get lat/lon to allow for 'nearest available' weather
           // String latLonQuery;
           // try {
           //   List<Location> latLonFromAddress =
@@ -366,6 +368,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
       return Container();
     } else if (weather.isNotFound) {
       // Error message after not finding search location or weather
+      _exception.popUp(context,
+          'Weather query: Weather could not be retrieved. Please try being more specific or at another time.');
       return notFoundText();
     } else {
       // Weather found succesfully

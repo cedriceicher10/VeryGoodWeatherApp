@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:http/http.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:verygoodweatherapp/models/api_key.dart';
-import 'package:verygoodweatherapp/models/weather_state.dart';
 import 'package:verygoodweatherapp/models/time.dart';
 import 'package:verygoodweatherapp/models/weather_package.dart';
+import 'package:verygoodweatherapp/models/exception_services.dart';
 
 String _baseUrl = 'api.weatherapi.com';
 String _apiMethod = '/v1/forecast.json';
