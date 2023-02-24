@@ -134,6 +134,7 @@ class WeatherCubit extends Cubit<WeatherPackage> {
       weatherPackage.currentTemp = celToFarDouble(weatherPackage.currentTemp);
       weatherPackage.highTemp = celToFarDouble(weatherPackage.highTemp);
       weatherPackage.lowTemp = celToFarDouble(weatherPackage.lowTemp);
+      weatherPackage.airPressure = mbarToPsi(weatherPackage.airPressure);
       for (int index = 0; index < 2; ++index) {
         weatherPackage.futureWeatherHis[index] =
             celToFarDouble(weatherPackage.futureWeatherHis[index]);
@@ -173,12 +174,12 @@ class WeatherCubit extends Cubit<WeatherPackage> {
           isFahrenheit: false,
           weatherState: state.weatherState,
           weatherCode: state.weatherCode,
-          windSpeed: state.windSpeed,
+          windSpeed: mphToKph(state.windSpeed),
           windDirection: state.windDirection,
-          airPressure: state.airPressure,
+          airPressure: psiToMbar(state.airPressure),
           humidity: state.humidity,
-          precipitation: state.precipitation,
-          visibility: state.visibility,
+          precipitation: inToMm(state.precipitation),
+          visibility: miToKm(state.visibility),
           isStart: state.isStart,
           isNotFound: state.isNotFound,
           hourlyTemps: farToCelList(state.hourlyTemps),
@@ -200,12 +201,12 @@ class WeatherCubit extends Cubit<WeatherPackage> {
           isFahrenheit: true,
           weatherState: state.weatherState,
           weatherCode: state.weatherCode,
-          windSpeed: state.windSpeed,
+          windSpeed: kphToMph(state.windSpeed),
           windDirection: state.windDirection,
-          airPressure: state.airPressure,
+          airPressure: mbarToPsi(state.airPressure),
           humidity: state.humidity,
-          precipitation: state.precipitation,
-          visibility: state.visibility,
+          precipitation: mmToIn(state.precipitation),
+          visibility: kmToMi(state.visibility),
           isStart: state.isStart,
           isNotFound: state.isNotFound,
           hourlyTemps: celToFarList(state.hourlyTemps),
@@ -265,5 +266,37 @@ class WeatherCubit extends Cubit<WeatherPackage> {
       temps[i] = (temps[i] * (9 / 5)) + 32;
     }
     return temps;
+  }
+
+  double mphToKph(double mph) {
+    return mph * 1.60934;
+  }
+
+  double kphToMph(double kph) {
+    return kph / 1.60934;
+  }
+
+  double mbarToPsi(double mbar) {
+    return mbar / 68.948;
+  }
+
+  double psiToMbar(double psi) {
+    return psi * 68.948;
+  }
+
+  double miToKm(double mi) {
+    return mi * 1.60934;
+  }
+
+  double kmToMi(double km) {
+    return km / 1.60934;
+  }
+
+  double inToMm(double inches) {
+    return inches * 25.4;
+  }
+
+  double mmToIn(double mm) {
+    return mm / 25.4;
   }
 }

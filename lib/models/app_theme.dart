@@ -31,6 +31,12 @@ class AppTheme {
   Color textColor = Colors.black;
   Color iconColor = Colors.white;
 
+  double _screenWidth = 0;
+  double _screenHeight = 0;
+  double iconSizeMain = 0;
+  double iconSizeNextDay = 0;
+  double iconMetricSize = 0;
+
   AppTheme(this.context);
 
   int apiMapperToStates(int weatherCode) {
@@ -180,6 +186,7 @@ class AppTheme {
   }
 
   Icon getWeatherStateIcon(int weatherCode, WEATHER_DISPLAY weatherDisplay) {
+    generateLayout();
     int weatherStateInt = apiMapperToStates(weatherCode);
 
     if (isTest) {
@@ -187,15 +194,9 @@ class AppTheme {
     }
     double iconSize = 20;
     if (weatherDisplay == WEATHER_DISPLAY.mainTemp) {
-      iconSize = 65;
+      iconSize = iconSizeMain;
     } else {
-      iconSize = 35;
-    }
-    double reductionFactor = 0.65;
-    if ((MediaQuery.of(context).size.width *
-            MediaQuery.of(context).size.height) <
-        550 * 350) {
-      iconSize = iconSize * reductionFactor;
+      iconSize = iconSizeNextDay;
     }
     iconColor = Colors.blue;
     Icon weatherStateIcon = Icon(
@@ -310,7 +311,8 @@ class AppTheme {
   }
 
   Icon getMetricIcon(String mode) {
-    double iconSize = 14;
+    generateLayout();
+    double iconSize = iconMetricSize;
     iconColor = textColor;
     Icon metricIcon = Icon(
       WeatherIcons.day_sunny,
@@ -374,5 +376,15 @@ class AppTheme {
         break;
     }
     return metricIcon;
+  }
+
+  void generateLayout() {
+    _screenWidth = MediaQuery.of(context).size.width; // 523
+    _screenHeight = MediaQuery.of(context).size.height; // 1057
+
+    // Icons
+    iconSizeMain = (75 / 1057) * _screenHeight;
+    iconSizeNextDay = (55 / 1057) * _screenHeight;
+    iconMetricSize = (20 / 1057) * _screenHeight;
   }
 }
