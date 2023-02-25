@@ -67,8 +67,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
   double iconTextSpacing = 0;
   double locationDisclosureHeight = 0;
   double locationDisclosureWidth = 0;
-  double _smallButtonCornerRadius = 0;
-  double _locationDisclosureCornerRadius = 0;
+  double smallButtonCornerRadius = 0;
+  double locationDisclosureCornerRadius = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -186,7 +186,15 @@ class _WeatherScreenState extends State<WeatherScreen> {
       return Column(children: [
         signatureText('An App by Cedric Eicher'),
         SizedBox(height: spacing),
-        locationDisclosureButton()
+        //locationDisclosureButton()
+        Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              locationDisclosureButton(),
+              SizedBox(width: spacing),
+              buyMeACoffee(context),
+            ]),
       ]);
     }
     return // Fade upon reloads to alert user something is happening
@@ -201,7 +209,15 @@ class _WeatherScreenState extends State<WeatherScreen> {
       SizedBox(height: spacing),
       signatureText('An App by Cedric Eicher'),
       SizedBox(height: spacing),
-      locationDisclosureButton(),
+      Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            locationDisclosureButton(),
+            SizedBox(width: spacing),
+            buyMeACoffee(context),
+          ]),
+      //locationDisclosureButton(),
     ])));
   }
 
@@ -273,11 +289,10 @@ class _WeatherScreenState extends State<WeatherScreen> {
               .showSnackBar(snackBarFloating('The search bar is empty!', 3));
         }
       },
-      style: TextStyle(color: _theme.textColor),
+      style: TextStyle(color: _theme.textColor, fontSize: fontSizeSmall),
       decoration: InputDecoration(
-        hintText: 'City name, coordinates, or postal code (US/UK/CAN)',
-        hintStyle:
-            TextStyle(color: _theme.textColor, fontSize: fontSizeSmaller),
+        hintText: 'City name, postal code (US/UK/CAN), etc.',
+        hintStyle: TextStyle(color: _theme.textColor, fontSize: fontSizeSmall),
         enabledBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: _theme.textColor),
         ),
@@ -321,7 +336,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
             primary: Colors.black,
             fixedSize: Size(topButtonWidth, topButtonHeight),
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(_smallButtonCornerRadius))),
+                borderRadius: BorderRadius.circular(smallButtonCornerRadius))),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           Icon(
             Icons.my_location_sharp,
@@ -373,7 +388,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
             primary: Colors.black,
             fixedSize: Size(topButtonWidth, topButtonHeight),
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(_smallButtonCornerRadius))),
+                borderRadius: BorderRadius.circular(smallButtonCornerRadius))),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           Icon(
             Icons.search,
@@ -470,7 +485,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 'visibility'),
             weatherMetricText(
                 'Precip:',
-                '${weather.precipitation} $precipitationUnits',
+                '${weather.precipitation.toStringAsFixed(1)} $precipitationUnits',
                 'predictability')
           ],
         ),
@@ -758,7 +773,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
             primary: Colors.black,
             fixedSize: Size(bottomButtonWidth, bottomButtonHeight),
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(_smallButtonCornerRadius))),
+                borderRadius: BorderRadius.circular(smallButtonCornerRadius))),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           Icon(
             Icons.switch_right_sharp,
@@ -792,7 +807,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
             primary: Colors.black,
             fixedSize: Size(bottomButtonWidth, bottomButtonHeight),
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(_smallButtonCornerRadius))),
+                borderRadius: BorderRadius.circular(smallButtonCornerRadius))),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           Icon(
             Icons.refresh_sharp,
@@ -970,7 +985,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
   Widget weatherScreenTitle(String text) {
     return FormattedText(
         text: text,
-        size: fontSizeMedium,
+        size: fontSizeMedLarge - 4,
         color: Colors.white,
         font: fontBonaNova,
         weight: FontWeight.bold);
@@ -1039,7 +1054,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
             decoration: BoxDecoration(
                 color: Color.fromARGB(255, 0, 97, 177),
                 borderRadius: BorderRadius.all(
-                    Radius.circular(_locationDisclosureCornerRadius))),
+                    Radius.circular(locationDisclosureCornerRadius))),
             child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -1064,6 +1079,27 @@ class _WeatherScreenState extends State<WeatherScreen> {
         color: Colors.white,
         font: fontIBMPlexSans,
         weight: FontWeight.bold);
+  }
+
+  Widget buyMeACoffee(BuildContext context) {
+    return SizedBox(
+        height: locationDisclosureHeight,
+        width: locationDisclosureWidth,
+        child: ClipRRect(
+            borderRadius: BorderRadius.circular(locationDisclosureCornerRadius),
+            child: InkWell(
+                onTap: () async {
+                  var url = "https://www.buymeacoffee.com/cedriceicher";
+                  if (!await launch(url)) {
+                    _exception.popUp(
+                        context, 'Launch URL: Could not launch $url');
+                    throw 'Could not launch $url';
+                  }
+                },
+                child: const Image(
+                    fit: BoxFit.fitWidth,
+                    image: AssetImage(
+                        'assets/images/buy_me_a_coffee_button.png')))));
   }
 
   Widget notFoundText() {
@@ -1117,7 +1153,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     locationDisclosureIconSize = (20 / 523) * _screenWidth;
 
     // Style
-    _smallButtonCornerRadius = (5 / 523) * _screenWidth;
-    _locationDisclosureCornerRadius = (50 / 523) * _screenWidth;
+    smallButtonCornerRadius = (5 / 523) * _screenWidth;
+    locationDisclosureCornerRadius = (50 / 523) * _screenWidth;
   }
 }
