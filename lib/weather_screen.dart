@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:open_store/open_store.dart';
 import 'package:verygoodweatherapp/utils/styles.dart';
 import 'package:verygoodweatherapp/models/weather_package.dart';
 import 'package:verygoodweatherapp/weather_cubit.dart';
@@ -26,6 +27,7 @@ late WeatherPackage lastWeather;
 double _tempRange = 20;
 double _currTimeHrs = 12;
 bool _isFirstBuild = true;
+bool _alreadyShownOnce = false;
 
 class WeatherScreen extends StatefulWidget {
   const WeatherScreen({Key? key}) : super(key: key);
@@ -69,6 +71,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
   double locationDisclosureWidth = 0;
   double smallButtonCornerRadius = 0;
   double locationDisclosureCornerRadius = 0;
+  double underLocationAlertsButtonHeight = 0;
+  double locationAlertsPictureWidth = 0;
+  double locationAlertsButtonHeight = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -129,6 +134,17 @@ class _WeatherScreenState extends State<WeatherScreen> {
     //prefs.setBool('showLocationDisclosure', true); // To simulate first-install, first-open
     if ((showLocationDisclosure == null) || (showLocationDisclosure == true)) {
       showLocationDisclosureAlert(prefs);
+    } else {
+      // This shows a notification for the Location Alerts app
+      // Only show if the disclosure wasn't shown (so this'll likely be on the second open of the app)
+      bool? showLocationAlertsPopUp = prefs.getBool('showLocationAlertsPopUp');
+      if ((showLocationAlertsPopUp == null) ||
+          (showLocationAlertsPopUp == true)) {
+        if (!_alreadyShownOnce) {
+          showLocationAlertsPopUpLauncher(prefs);
+          _alreadyShownOnce = true;
+        }
+      }
     }
   }
 
@@ -175,6 +191,81 @@ class _WeatherScreenState extends State<WeatherScreen> {
             Navigator.of(context).pop();
             prefs.setBool('noLocationForever', false);
             prefs.setBool('showLocationDisclosure', false);
+          },
+        )
+      ],
+    );
+  }
+
+  dynamic showLocationAlertsPopUpLauncher(SharedPreferences prefs) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return showLocationAlertsPopUp(prefs);
+      },
+    );
+  }
+
+  AlertDialog showLocationAlertsPopUp(SharedPreferences prefs) {
+    return AlertDialog(
+      title: const Text(
+        "From the developer: New App!",
+        style: TextStyle(
+            color: Colors.transparent,
+            fontWeight: FontWeight.bold,
+            shadows: [Shadow(offset: Offset(0, -3), color: Colors.black)],
+            decoration: TextDecoration.underline,
+            decorationColor: Colors.black,
+            decorationThickness: 1),
+      ),
+      content: const Text(
+          "Hello user!\n\nThis is a friendly notification that I (Cedric Eicher, the developer of this app), have released a new app in the Google Play store called Location Alerts!\n\nIt is an alert app that sends you notification alerts based on Location instead of Time. For example, you can get an alert to \"Buy more limes\" next time you're at the grocery store!\n\nIf interested, please consider checking it out!"),
+      actions: <Widget>[
+        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Container(
+              height: locationAlertsButtonHeight,
+              child: ElevatedButton(
+                  child: Row(children: [
+                    ClipRRect(
+                        borderRadius: BorderRadius.circular(0),
+                        child: Image(
+                            width: locationAlertsPictureWidth,
+                            image: const AssetImage(
+                                'assets/images/location_alerts_app_icon.png'))),
+                    const SizedBox(width: 15),
+                    const Text("Location Alerts in the Google Play Store")
+                  ]),
+                  style: TextButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: const Color(0xFF1B1464)),
+                  onPressed: () {
+                    // String url =
+                    //     'https://play.google.com/store/apps/details?id=com.ceventures.app.locationalerts.cedric.eicher';
+                    // launch(url);
+                    OpenStore.instance.open(
+                        androidAppBundleId:
+                            'com.ceventures.app.locationalerts.cedric.eicher' // Android app bundle package name
+                        );
+                  })),
+        ]),
+        SizedBox(height: underLocationAlertsButtonHeight),
+        TextButton(
+          child: const Text("No thanks (dismiss this forever)"),
+          style: TextButton.styleFrom(primary: Colors.red),
+          onPressed: () {
+            Navigator.of(context).pop();
+            prefs.setBool('showLocationAlertsPopUp', false);
+          },
+        ),
+        TextButton(
+          child: const Text("Remind me next time!",
+              style: TextStyle(fontWeight: FontWeight.bold)),
+          style: TextButton.styleFrom(
+              primary: Colors.white,
+              backgroundColor: Color.fromARGB(255, 0, 97, 177)),
+          onPressed: () {
+            Navigator.of(context).pop();
+            prefs.setBool('showLocationAlertsPopUp', true);
           },
         )
       ],
@@ -1126,6 +1217,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
     weatherContainerHeight = (500 / 1057) * _screenHeight;
     nextDaysWeatherContainerHeight = (150 / 1057) * _screenHeight;
     locationDisclosureHeight = (30 / 1057) * _screenHeight;
+    underLocationAlertsButtonHeight = (20 / 1057) * _screenHeight;
+    locationAlertsButtonHeight = (50 / 1057) * _screenHeight;
 
     // Width
     textFieldWidth = (425 / 523) * _screenWidth;
@@ -1134,6 +1227,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     weatherContainerWidth = (425 / 523) * _screenWidth;
     iconTextSpacing = (10 / 523) * _screenWidth;
     locationDisclosureWidth = (165 / 523) * _screenWidth;
+    locationAlertsPictureWidth = (40 / 523) * _screenWidth;
     spacing = 10;
 
     // Font size
