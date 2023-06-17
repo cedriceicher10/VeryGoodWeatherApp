@@ -232,8 +232,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
                             width: locationAlertsPictureWidth,
                             image: const AssetImage(
                                 'assets/images/location_alerts_app_icon.png'))),
-                    const SizedBox(width: 15),
-                    const Text("Location Alerts in the Google Play Store")
+                    const SizedBox(width: 10),
+                    const Text("Location Alerts\n in Google Play"),
+                    const SizedBox(width: 10),
+                    const Icon(
+                      Icons.arrow_outward_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                   ]),
                   style: TextButton.styleFrom(
                       foregroundColor: Colors.white,
